@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Users, Wine, Sparkles } from "lucide-react";
+import Reviews from "@/components/Reviews";
 
 export default function Home() {
   return (
@@ -135,6 +136,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Reviews Section */}
+      <Reviews />
 
       {/* Location Preview */}
       <section className="section-spacing cream-bg">

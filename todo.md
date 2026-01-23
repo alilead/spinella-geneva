@@ -36,4 +36,12 @@
 - [x] Test newsletter signup
 - [x] Test responsive design on mobile
 - [x] Test email notifications
-- [ ] Create final checkpoint
+- [x] Create final checkpoint
+
+## New Requirements from Client Feedback
+
+- [x] Fix gallery image paths (images not displaying) - Images are loading correctly
+- [x] Add TripAdvisor reviews section with customer feedback
+- [x] Add social media icons (Instagram, Facebook, TripAdvisor) to footer
+- [x] Ensure all content matches current website text
+- [x] Create zip file with all restaurant photos for client

@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Star } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -80,6 +80,15 @@ export default function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook size={20} />
+              </a>
+              <a
+                href="https://www.tripadvisor.com/Restaurant_Review-g188057-d18930037-Reviews-Spinella_Restaurant_Bar-Geneva.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full gold-bg flex items-center justify-center text-black hover:bg-[oklch(0.52_0.15_85)] transition-colors"
+                aria-label="TripAdvisor"
+              >
+                <Star size={20} fill="currentColor" />
               </a>
             </div>
           </div>

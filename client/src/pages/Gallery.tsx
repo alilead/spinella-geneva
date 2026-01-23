@@ -40,13 +40,18 @@ export default function Gallery() {
             {images.map((image, idx) => (
               <div
                 key={idx}
-                className="group relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer"
+                className="group relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer bg-gray-100"
                 onClick={() => setSelectedImage(image.src)}
               >
                 <img
                   src={image.src}
                   alt={image.alt}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${image.src}`);
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                   <span className="text-white text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
