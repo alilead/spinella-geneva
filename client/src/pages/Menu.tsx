@@ -1,0 +1,220 @@
+export default function Menu() {
+  const menuSections = [
+    {
+      title: "Antipasti",
+      description: "Starters and Homemade Delicacies",
+      items: [
+        {
+          name: "Involtini di Bresaola della Valtellina IGP",
+          description: "Bresaola rolls with Parmigiano mousse and Sicilian pistachios",
+          price: "32 CHF",
+        },
+        {
+          name: "Burrata Pugliese",
+          description: "Fresh burrata with cherry tomatoes, basil, and extra virgin olive oil",
+          price: "28 CHF",
+        },
+        {
+          name: "Carpaccio di Manzo",
+          description: "Beef carpaccio with arugula, Parmigiano shavings, and truffle oil",
+          price: "30 CHF",
+        },
+        {
+          name: "Tagliere Siciliano",
+          description: "Selection of Sicilian cured meats and cheeses",
+          price: "35 CHF",
+        },
+      ],
+    },
+    {
+      title: "Primi Piatti",
+      description: "Pasta & Risotto",
+      items: [
+        {
+          name: "Risotto alla Milanese",
+          description: "Italian saffron risotto with Parmigiano cheese",
+          price: "32 CHF",
+        },
+        {
+          name: "Pasta alla Norma",
+          description: "Traditional Sicilian pasta with eggplant, tomato, and ricotta salata",
+          price: "28 CHF",
+        },
+        {
+          name: "Spaghetti alle Vongole",
+          description: "Spaghetti with fresh clams, white wine, garlic, and parsley",
+          price: "34 CHF",
+        },
+        {
+          name: "Tagliatelle al Tartufo",
+          description: "Fresh tagliatelle with black truffle and cream",
+          price: "38 CHF",
+        },
+      ],
+    },
+    {
+      title: "Secondi Piatti",
+      description: "Main Courses",
+      items: [
+        {
+          name: "Ossobuco alla Milanese",
+          description: "Braised veal shank with saffron risotto",
+          price: "45 CHF",
+        },
+        {
+          name: "Branzino al Forno",
+          description: "Oven-baked sea bass with herbs and lemon",
+          price: "42 CHF",
+        },
+        {
+          name: "Tagliata di Manzo",
+          description: "Sliced beef tenderloin with arugula and Parmigiano",
+          price: "48 CHF",
+        },
+        {
+          name: "Pollo alla Siciliana",
+          description: "Sicilian-style chicken with olives, capers, and tomatoes",
+          price: "36 CHF",
+        },
+      ],
+    },
+    {
+      title: "Dolci",
+      description: "Homemade Desserts",
+      items: [
+        {
+          name: "Tiramisù Classico",
+          description: "Traditional Italian coffee-flavored dessert",
+          price: "14 CHF",
+        },
+        {
+          name: "Cannoli Siciliani",
+          description: "Sicilian pastry filled with sweet ricotta and pistachios",
+          price: "12 CHF",
+        },
+        {
+          name: "Panna Cotta",
+          description: "Vanilla panna cotta with berry coulis",
+          price: "12 CHF",
+        },
+        {
+          name: "Cassata Siciliana",
+          description: "Traditional Sicilian cake with ricotta and candied fruits",
+          price: "14 CHF",
+        },
+      ],
+    },
+  ];
+
+  const drinks = [
+    {
+      title: "Cocktails",
+      items: [
+        { name: "Negroni", price: "18 CHF" },
+        { name: "Aperol Spritz", price: "16 CHF" },
+        { name: "Mojito", price: "17 CHF" },
+        { name: "Signature Spinella", price: "20 CHF" },
+      ],
+    },
+    {
+      title: "Wines",
+      items: [
+        { name: "Prosecco DOC (glass)", price: "12 CHF" },
+        { name: "Chianti Classico (glass)", price: "14 CHF" },
+        { name: "Pinot Grigio (glass)", price: "13 CHF" },
+        { name: "House Wine Selection", price: "Ask server" },
+      ],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen pt-20">
+      {/* Hero Section */}
+      <section className="relative h-96 flex items-center justify-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url(/interior_dining_area.jpg)" }}
+        >
+          <div className="hero-overlay absolute inset-0"></div>
+        </div>
+        
+        <div className="relative z-10 container text-center text-white">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">Our Menu</h1>
+          <div className="gold-divider"></div>
+          <p className="text-xl">Authentic Italian Cuisine from Sicily</p>
+        </div>
+      </section>
+
+      {/* Menu Content */}
+      <section className="section-spacing cream-bg">
+        <div className="container max-w-6xl">
+          <div className="space-y-16">
+            {menuSections.map((section, idx) => (
+              <div key={idx}>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold mb-2">{section.title}</h2>
+                  <p className="text-lg gold-text font-medium">{section.description}</p>
+                  <div className="gold-divider"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {section.items.map((item, itemIdx) => (
+                    <div
+                      key={itemIdx}
+                      className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold flex-1">{item.name}</h3>
+                        <span className="text-xl font-bold gold-text ml-4">{item.price}</span>
+                      </div>
+                      <p className="text-gray-600">{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Drinks Section */}
+      <section className="section-spacing dark-bg text-white">
+        <div className="container max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Drinks & Cocktails</h2>
+            <div className="gold-divider"></div>
+            <p className="text-lg">Handcrafted Cocktails & Curated Wine Selection</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {drinks.map((category, idx) => (
+              <div key={idx}>
+                <h3 className="text-3xl font-bold mb-6 gold-text">{category.title}</h3>
+                <div className="space-y-4">
+                  {category.items.map((item, itemIdx) => (
+                    <div
+                      key={itemIdx}
+                      className="flex justify-between items-center pb-3 border-b border-gray-700"
+                    >
+                      <span className="text-lg">{item.name}</span>
+                      <span className="text-lg font-semibold gold-text">{item.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-lg mb-2">
+              <span className="gold-text font-semibold">Note:</span> Menu items and prices are subject to change based on seasonal availability.
+            </p>
+            <p className="text-sm text-gray-400">
+              Please inform our staff of any dietary restrictions or allergies.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

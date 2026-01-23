@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, bookings, newsletterSubscribers, InsertBooking } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,56 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Booking queries
+export async function createBooking(booking: Omit<InsertBooking, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(bookings).values(booking);
+  return result;
+}
+
+export async function getAllBookings() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(bookings).orderBy(bookings.createdAt);
+}
+
+export async function getBookingsByDate(date: string) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(bookings).where(eq(bookings.date, date));
+}
+
+// Newsletter queries
+export async function subscribeNewsletter(email: string) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.insert(newsletterSubscribers).values({ email });
+    return { success: true };
+  } catch (error) {
+    // Handle duplicate email
+    return { success: false, error: "Email already subscribed" };
+  }
+}
+
+export async function getAllNewsletterSubscribers() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(newsletterSubscribers).orderBy(newsletterSubscribers.subscribedAt);
+}
