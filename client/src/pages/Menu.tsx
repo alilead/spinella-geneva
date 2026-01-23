@@ -1,4 +1,9 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+
 export default function Menu() {
+  const { language, t } = useLanguage();
   const menuSections = [
     {
       title: "Antipasti",
@@ -142,6 +147,19 @@ export default function Menu() {
           <h1 className="text-5xl md:text-6xl font-bold mb-4">Our Menu</h1>
           <div className="gold-divider"></div>
           <p className="text-xl">Authentic Italian Cuisine from Sicily</p>
+          <div className="mt-8">
+            <a
+              href={language === 'fr' ? '/menu_fr.pdf' : '/menu_en.pdf'}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
+                <Download className="w-5 h-5 mr-2" />
+                {language === 'fr' ? 'Télécharger le Menu Complet' : 'Download Full Menu'}
+              </Button>
+            </a>
+          </div>
         </div>
       </section>
 

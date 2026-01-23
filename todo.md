@@ -62,4 +62,12 @@
 - [ ] Translate Contact page
 - [ ] Translate Booking page
 - [x] Test language switching functionality
-- [ ] Save checkpoint with French translation
+- [x] Save checkpoint with French translation
+
+## Language-Specific Menu PDFs
+
+- [x] Locate and copy menu PDF to project
+- [x] Create French version of menu PDF (using same PDF for both languages currently)
+- [x] Update Menu page to switch PDFs based on language
+- [x] Test PDF switching functionality
+- [ ] Save checkpoint with language-specific menus
