@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Users, Wine, Sparkles } from "lucide-react";
 import Reviews from "@/components/Reviews";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -19,25 +22,24 @@ export default function Home() {
         <div className="relative z-10 container text-center text-white">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              Welcome to <span className="gold-text">Spinella</span>
+              {t("home.welcome")} <span className="gold-text">Spinella</span>
             </h1>
             <div className="gold-divider"></div>
             <p className="text-xl md:text-2xl mb-8 font-light">
-              A Sicilian Story of Love, Passion & Authentic Italian Cuisine
+              {t("home.subtitle")}
             </p>
             <p className="text-lg mb-12 max-w-2xl mx-auto">
-              Three brothers bringing the soul of Sicily to Geneva. Experience traditional Italian dishes,
-              handcrafted cocktails, and warm hospitality in a casual-chic setting.
+              {t("home.description")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/booking">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
-                  Book Your Table
+                  {t("home.bookYourTable")}
                 </Button>
               </Link>
               <Link href="/menu">
                 <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-white hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold text-lg px-8">
-                  View Menu
+                  {t("home.viewMenu")}
                 </Button>
               </Link>
             </div>
@@ -49,7 +51,7 @@ export default function Home() {
       <section className="section-spacing cream-bg">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Experience Spinella</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("home.experienceTitle")}</h2>
             <div className="gold-divider"></div>
           </div>
 
@@ -59,9 +61,9 @@ export default function Home() {
                 <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Easy Booking</h3>
+                <h3 className="text-xl font-bold mb-3">{t("home.easyBooking")}</h3>
                 <p className="text-gray-600">
-                  Reserve your table online in seconds. Choose your date, time, and party size with instant confirmation.
+                  {t("home.easyBookingDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -71,9 +73,9 @@ export default function Home() {
                 <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
                   <Wine className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Authentic Cuisine</h3>
+                <h3 className="text-xl font-bold mb-3">{t("home.authenticCuisine")}</h3>
                 <p className="text-gray-600">
-                  Traditional Sicilian recipes prepared with fresh, high-quality ingredients and passion.
+                  {t("home.authenticCuisineDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -83,9 +85,9 @@ export default function Home() {
                 <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cocktail Bar</h3>
+                <h3 className="text-xl font-bold mb-3">{t("home.cocktailBar")}</h3>
                 <p className="text-gray-600">
-                  Handcrafted cocktails, curated wine selection, and craft beers in a vibrant atmosphere.
+                  {t("home.cocktailBarDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -95,9 +97,9 @@ export default function Home() {
                 <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-black" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Private Events</h3>
+                <h3 className="text-xl font-bold mb-3">{t("home.privateEvents")}</h3>
                 <p className="text-gray-600">
-                  Host your special occasions with us. Perfect for birthdays, business dinners, and celebrations.
+                  {t("home.privateEventsDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -110,19 +112,17 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">The Three Brothers</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("home.threeBrothersTitle")}</h2>
               <div className="gold-divider mx-0"></div>
               <p className="text-lg mb-6 leading-relaxed">
-                Spinella is a story of love and adventure. Three brothers from Sicily united by one passion:
-                to transmit the soul of their homeland to the heart of Geneva.
+                {t("home.threeBrothersDesc1")}
               </p>
               <p className="text-lg mb-8 leading-relaxed">
-                In a casual-chic setting, just steps from Cornavin station and Lake Geneva, traditional
-                Italian cuisine meets trendy cocktails in a perfect blend of taste and style.
+                {t("home.threeBrothersDesc2")}
               </p>
               <Link href="/about">
                 <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-white hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
-                  Our Story
+                  {t("home.ourStory")}
                 </Button>
               </Link>
             </div>
@@ -152,19 +152,17 @@ export default function Home() {
               />
             </div>
             <div className="order-1 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Visit Us in Geneva</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("home.visitTitle")}</h2>
               <div className="gold-divider mx-0"></div>
               <p className="text-lg mb-6 leading-relaxed">
-                Located in the vibrant Charmilles neighborhood, Spinella is easily accessible from
-                Cornavin central station, Geneva city center, and the beautiful lakefront.
+                {t("home.visitDesc1")}
               </p>
               <p className="text-lg mb-8 leading-relaxed">
-                Whether you're looking for a romantic dinner, business lunch, or evening cocktails
-                with friends, we welcome you with authentic Sicilian hospitality.
+                {t("home.visitDesc2")}
               </p>
               <Link href="/contact">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
-                  Get Directions
+                  {t("home.getDirections")}
                 </Button>
               </Link>
             </div>

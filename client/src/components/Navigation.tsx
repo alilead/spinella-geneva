@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
+  const { language, setLanguage, t } = useLanguage();
 
   const navItems = [
-    { href: "/", label: "Home" },
-    { href: "/menu", label: "Menu" },
-    { href: "/gallery", label: "Gallery" },
-    { href: "/events", label: "Events" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
+    { href: "/", label: t("nav.home") },
+    { href: "/menu", label: t("nav.menu") },
+    { href: "/gallery", label: t("nav.gallery") },
+    { href: "/events", label: t("nav.events") },
+    { href: "/about", label: t("nav.about") },
+    { href: "/contact", label: t("nav.contact") },
   ];
 
   const isActive = (href: string) => {
@@ -47,9 +49,17 @@ export default function Navigation() {
                 </span>
               </Link>
             ))}
+            <button
+              onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+              className="flex items-center gap-1.5 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
+              aria-label="Switch language"
+            >
+              <Languages size={18} />
+              <span className="font-semibold">{language.toUpperCase()}</span>
+            </button>
             <Link href="/booking">
               <Button className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
-                Book a Table
+                {t("nav.bookTable")}
               </Button>
             </Link>
           </div>
@@ -82,12 +92,20 @@ export default function Navigation() {
                   </span>
                 </Link>
               ))}
+              <button
+                onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+                className="flex items-center gap-2 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
+                aria-label="Switch language"
+              >
+                <Languages size={18} />
+                <span className="font-semibold">{language === "en" ? "Français" : "English"}</span>
+              </button>
               <Link href="/booking">
                 <Button
                   className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold w-full"
                   onClick={() => setIsOpen(false)}
                 >
-                  Book a Table
+                  {t("nav.bookTable")}
                 </Button>
               </Link>
             </div>

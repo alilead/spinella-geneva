@@ -1,6 +1,9 @@
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
+  
   return (
     <footer className="dark-bg text-white">
       <div className="container section-spacing">
@@ -32,35 +35,35 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-6 flex items-center">
               <Clock className="w-5 h-5 gold-text mr-2" />
-              Opening Hours
+              {t("footer.openingHours")}
             </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Monday - Wednesday:</span>
+                <span>{t("contact.monWed")}:</span>
                 <span className="gold-text">10am-3pm, 5pm-12am</span>
               </div>
               <div className="flex justify-between">
-                <span>Thursday - Friday:</span>
+                <span>{t("contact.thuFri")}:</span>
                 <span className="gold-text">10am-3pm, 5pm-2am</span>
               </div>
               <div className="flex justify-between">
-                <span>Saturday:</span>
+                <span>{t("contact.saturday")}:</span>
                 <span className="gold-text">5pm-2am</span>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-700">
-                <p className="font-semibold gold-text">Kitchen Hours:</p>
-                <p className="mt-1">Mon-Wed: 12pm-2pm, 6:30pm-10pm</p>
-                <p>Thu-Fri: 12pm-2pm, 6:30pm-10:30pm</p>
-                <p>Sat: 6:30pm-10:30pm</p>
+                <p className="font-semibold gold-text">{t("contact.kitchenHours")}:</p>
+                <p className="mt-1">{t("contact.monWedKitchen")}</p>
+                <p>{t("contact.thuFriKitchen")}</p>
+                <p>{t("contact.satKitchen")}</p>
               </div>
             </div>
           </div>
 
           {/* Social & Newsletter */}
           <div>
-            <h3 className="text-xl font-bold mb-6">Stay Connected</h3>
+            <h3 className="text-xl font-bold mb-6">{t("footer.stayConnected")}</h3>
             <p className="text-sm mb-4">
-              Follow us for exclusive offers, events, and special dishes!
+              {t("footer.followUs")}
             </p>
             <div className="flex space-x-4 mb-6">
               <a
@@ -95,7 +98,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Spinella Restaurant & Bar. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Spinella Restaurant & Bar. {t("footer.allRightsReserved")}.</p>
         </div>
       </div>
     </footer>

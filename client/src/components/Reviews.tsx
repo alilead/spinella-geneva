@@ -1,28 +1,31 @@
 import { Star, Quote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Reviews() {
+  const { t } = useLanguage();
+  
   const reviews = [
     {
-      text: "The atmosphere is warm, stylish, and full of genuine charm — you instantly feel welcomed like an old friend. The food was exceptional from start to finish.",
+      text: t("reviews.review1"),
       author: "Sarah M.",
       rating: 5,
       source: "TripAdvisor"
     },
     {
-      text: "I wish I could give more than just 5 stars! The staff are absolutely incredible. The three brothers create such a welcoming atmosphere that makes you feel at home.",
+      text: t("reviews.review2"),
       author: "Michael R.",
       rating: 5,
       source: "TripAdvisor"
     },
     {
-      text: "Amazing Italian restaurant in Geneva! The food quality is outstanding and the service is impeccable. Highly recommend for anyone looking for authentic Sicilian cuisine.",
+      text: t("reviews.review3"),
       author: "Emma L.",
       rating: 5,
       source: "TripAdvisor"
     },
     {
-      text: "Spinella is a top-notch restaurant offering an exceptional dining experience. The establishment boasts great food and outstanding service in a beautiful setting.",
+      text: t("reviews.review4"),
       author: "David K.",
       rating: 5,
       source: "TripAdvisor"
@@ -33,18 +36,18 @@ export default function Reviews() {
     <section className="section-spacing cream-bg">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">What Our Guests Say</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("home.reviewsTitle")}</h2>
           <div className="gold-divider"></div>
           <div className="flex items-center justify-center gap-2 mt-6">
-            <span className="text-xl font-semibold">Rated #1 in Geneva</span>
+            <span className="text-xl font-semibold">{t("home.ratedNumber1")}</span>
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-5 h-5 gold-text" fill="currentColor" />
               ))}
             </div>
-            <span className="text-gray-600">on TripAdvisor</span>
+            <span className="text-gray-600">{t("home.onTripAdvisor")}</span>
           </div>
-          <p className="text-lg text-gray-600 mt-2">Based on 2,242+ reviews</p>
+          <p className="text-lg text-gray-600 mt-2">{t("home.basedOnReviews")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -81,7 +84,7 @@ export default function Reviews() {
             className="inline-flex items-center gap-2 gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold px-6 py-3 rounded-md transition-colors"
           >
             <Star size={20} fill="currentColor" />
-            Read More Reviews on TripAdvisor
+            {t("home.readMoreReviews")}
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,6 +31,7 @@ const bookingSchema = z.object({
 type BookingForm = z.infer<typeof bookingSchema>;
 
 export default function Booking() {
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const {

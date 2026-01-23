@@ -45,3 +45,21 @@
 - [x] Add social media icons (Instagram, Facebook, TripAdvisor) to footer
 - [x] Ensure all content matches current website text
 - [x] Create zip file with all restaurant photos for client
+
+## French Translation Feature
+
+- [x] Create translation context and hook
+- [x] Create English and French translation files
+- [x] Add language switcher icon to navigation
+- [x] Translate Navigation component
+- [x] Translate Footer component
+- [x] Translate Home page
+- [x] Translate Reviews component
+- [ ] Translate Menu page
+- [ ] Translate Gallery page
+- [ ] Translate About page
+- [ ] Translate Events page
+- [ ] Translate Contact page
+- [ ] Translate Booking page
+- [x] Test language switching functionality
+- [ ] Save checkpoint with French translation
