@@ -9,9 +9,9 @@ export default function Home() {
   const { t } = useLanguage();
   
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20 md:pt-20">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
+      <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 relative h-96 lg:h-full">
               <img
-                src="/exterior_night_new.jpg"
+                src="/spinella_exterior.jpg"
                 alt="Spinella exterior"
                 className="w-full h-full object-cover rounded-lg shadow-2xl"
               />
