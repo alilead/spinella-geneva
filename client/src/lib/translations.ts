@@ -272,7 +272,8 @@ export const translations = {
       terrace: "Terrasse",
       bar: "Bar",
       food: "Cuisine",
-      brothers: "Les Frères"
+      brothers: "Les Frères",
+      chef: "Le Chef"
     },
     about: {
       title: "Notre Histoire",

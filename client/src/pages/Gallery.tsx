@@ -24,13 +24,11 @@ export default function Gallery() {
     { src: "/interior_8.jpg", alt: "Interior", categoryKey: "gallery.interior" },
     { src: "/interior_10.jpg", alt: "Interior", categoryKey: "gallery.interior" },
     { src: "/interior_11.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    // Exterior / atmosphere
+    // Exterior
     { src: "/spinella_exterior.jpg", alt: "Spinella exterior", categoryKey: "gallery.exterior" },
-    { src: "/a_maybe.jpg", alt: "Atmosphere", categoryKey: "gallery.exterior" },
     { src: "/exterior_night_new.jpg", alt: "Exterior at night", categoryKey: "gallery.exterior" },
-    { src: "/exterior_entrance.jpg", alt: "Entrance", categoryKey: "gallery.exterior" },
-    { src: "/outdoor_terrace_garden.jpg", alt: "Terrace", categoryKey: "gallery.terrace" },
-    { src: "/aquarium_bar.jpg", alt: "Bar", categoryKey: "gallery.bar" },
+    // Chef / team
+    { src: "/a_maybe.jpg", alt: "Chef with desserts", categoryKey: "gallery.chef" },
     // Food — new Spinella photos
     { src: "/food_1.jpg", alt: "Dish", categoryKey: "gallery.food" },
     { src: "/food_2.jpg", alt: "Dish", categoryKey: "gallery.food" },
@@ -42,7 +40,6 @@ export default function Gallery() {
     { src: "/food_9.jpg", alt: "Food presentation", categoryKey: "gallery.food" },
     { src: "/food_10.jpg", alt: "Dish", categoryKey: "gallery.food" },
     { src: "/food_11.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_platter.jpg", alt: "Food platter", categoryKey: "gallery.food" },
   ];
 
   return (

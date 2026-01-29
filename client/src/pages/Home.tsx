@@ -14,7 +14,7 @@ export default function Home() {
       <section className="relative h-screen flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/interior_ambiance.jpg)" }}
+          style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>

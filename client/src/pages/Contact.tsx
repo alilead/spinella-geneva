@@ -13,7 +13,7 @@ export default function Contact() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/exterior_entrance.jpg)" }}
+          style={{ backgroundImage: "url(/spinella_exterior.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>

@@ -149,7 +149,7 @@ export default function About() {
             </div>
             <div className="relative h-96 lg:h-full">
               <img
-                src="/interior_ambiance.jpg"
+                src="/interior_main.jpg"
                 alt="Spinella interior ambiance"
                 className="w-full h-full object-cover rounded-lg shadow-2xl"
               />
