@@ -77,18 +77,17 @@ export default function Booking() {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center cream-bg">
         <div className="container max-w-2xl text-center">
-          <div className="bg-white p-12 rounded-lg shadow-xl">
+          <div className="bg-card p-12 rounded-lg shadow-xl text-card-foreground">
             <div className="w-20 h-20 gold-bg rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-black" />
             </div>
-            <h1 className="text-4xl font-bold mb-4">Booking Confirmed!</h1>
+            <h1 className="text-4xl font-bold mb-4">{t("booking.bookingConfirmed")}</h1>
             <div className="gold-divider"></div>
             <p className="text-lg mb-6">
-              Thank you for your reservation request. We've sent a confirmation email to your address.
-              Our team will review your booking and confirm within 10-20 minutes.
+              {t("booking.bookingConfirmedDesc")}
             </p>
-            <p className="text-gray-600 mb-8">
-              If you have any questions, please contact us at{" "}
+            <p className="text-muted-foreground mb-8">
+              {t("booking.questionsContact")}{" "}
               <a href="tel:+41225034186" className="gold-text font-semibold hover:underline">
                 +41 22 503 41 86
               </a>
@@ -97,7 +96,7 @@ export default function Booking() {
               onClick={() => setIsSubmitted(false)}
               className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold"
             >
-              Make Another Booking
+              {t("booking.makeAnotherBooking")}
             </Button>
           </div>
         </div>
@@ -116,28 +115,28 @@ export default function Booking() {
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-white">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Book a Table</h1>
+        <div className="relative z-10 container text-center text-foreground">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("booking.title")}</h1>
           <div className="gold-divider"></div>
-          <p className="text-xl">Reserve Your Authentic Italian Experience</p>
+          <p className="text-xl">{t("booking.subtitle")}</p>
         </div>
       </section>
 
       {/* Booking Form */}
       <section className="section-spacing cream-bg">
         <div className="container max-w-3xl">
-          <div className="bg-white p-8 md:p-12 rounded-lg shadow-xl">
+          <div className="bg-card p-8 md:p-12 rounded-lg shadow-xl text-card-foreground">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold mb-4">Your Information</h2>
+                <h2 className="text-2xl font-bold mb-4">{t("booking.yourInformation")}</h2>
                 
                 <div>
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="name">{t("booking.name")} *</Label>
                   <Input
                     id="name"
                     {...register("name")}
-                    placeholder="John Doe"
+                    placeholder={t("booking.name")}
                     className="mt-1"
                   />
                   {errors.name && (
@@ -146,12 +145,12 @@ export default function Booking() {
                 </div>
 
                 <div>
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="email">{t("booking.email")} *</Label>
                   <Input
                     id="email"
                     type="email"
                     {...register("email")}
-                    placeholder="john@example.com"
+                    placeholder={t("booking.email")}
                     className="mt-1"
                   />
                   {errors.email && (
@@ -160,12 +159,12 @@ export default function Booking() {
                 </div>
 
                 <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">{t("booking.phone")} *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     {...register("phone")}
-                    placeholder="+41 22 123 45 67"
+                    placeholder={t("booking.phone")}
                     className="mt-1"
                   />
                   {errors.phone && (
@@ -178,13 +177,13 @@ export default function Booking() {
 
               {/* Reservation Details */}
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold mb-4">Reservation Details</h2>
+                <h2 className="text-2xl font-bold mb-4">{t("booking.reservationDetails")}</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="date" className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Date *
+                      {t("booking.date")} *
                     </Label>
                     <Input
                       id="date"
@@ -201,11 +200,11 @@ export default function Booking() {
                   <div>
                     <Label htmlFor="time" className="flex items-center">
                       <Clock className="w-4 h-4 mr-2" />
-                      Time *
+                      {t("booking.time")} *
                     </Label>
                     <Select onValueChange={(value) => setValue("time", value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select time" />
+                        <SelectValue placeholder={t("booking.selectTime")} />
                       </SelectTrigger>
                       <SelectContent>
                         {timeSlots.map((time) => (
@@ -223,19 +222,19 @@ export default function Booking() {
                   <div>
                     <Label htmlFor="partySize" className="flex items-center">
                       <Users className="w-4 h-4 mr-2" />
-                      Guests *
+                      {t("booking.guests")} *
                     </Label>
                     <Select onValueChange={(value) => setValue("partySize", value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select guests" />
+                        <SelectValue placeholder={t("booking.selectGuests")} />
                       </SelectTrigger>
                       <SelectContent>
                         {partySizes.map((size) => (
                           <SelectItem key={size} value={size}>
-                            {size} {parseInt(size) === 1 ? "guest" : "guests"}
+                            {size} {parseInt(size) === 1 ? t("booking.guest") : t("booking.guestsPlural")}
                           </SelectItem>
                         ))}
-                        <SelectItem value="10+">10+ guests</SelectItem>
+                        <SelectItem value="10+">10+ {t("booking.guestsPlural")}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.partySize && (
@@ -245,11 +244,11 @@ export default function Booking() {
                 </div>
 
                 <div>
-                  <Label htmlFor="specialRequests">Special Requests (Optional)</Label>
+                  <Label htmlFor="specialRequests">{t("booking.specialRequests")}</Label>
                   <Textarea
                     id="specialRequests"
                     {...register("specialRequests")}
-                    placeholder="Dietary restrictions, allergies, special occasions, etc."
+                    placeholder={t("booking.specialRequestsPlaceholder")}
                     className="mt-1"
                     rows={4}
                   />
@@ -263,13 +262,12 @@ export default function Booking() {
                   className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg"
                   disabled={createBooking.isPending}
                 >
-                  {createBooking.isPending ? "Submitting..." : "Confirm Booking"}
+                  {createBooking.isPending ? t("booking.submitting") : t("booking.submit")}
                 </Button>
               </div>
 
-              <p className="text-sm text-gray-600 text-center">
-                By submitting this form, you agree to receive a confirmation email. 
-                We'll review your request and confirm within 10-20 minutes.
+              <p className="text-sm text-muted-foreground text-center">
+                {t("booking.formAgreement")}
               </p>
             </form>
           </div>

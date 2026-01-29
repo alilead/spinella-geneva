@@ -6,30 +6,10 @@ export default function Reviews() {
   const { t } = useLanguage();
   
   const reviews = [
-    {
-      text: t("reviews.review1"),
-      author: "Sarah M.",
-      rating: 5,
-      source: "TripAdvisor"
-    },
-    {
-      text: t("reviews.review2"),
-      author: "Michael R.",
-      rating: 5,
-      source: "TripAdvisor"
-    },
-    {
-      text: t("reviews.review3"),
-      author: "Emma L.",
-      rating: 5,
-      source: "TripAdvisor"
-    },
-    {
-      text: t("reviews.review4"),
-      author: "David K.",
-      rating: 5,
-      source: "TripAdvisor"
-    }
+    { text: t("reviews.review1"), author: t("reviews.author1"), rating: 5, source: "TripAdvisor" },
+    { text: t("reviews.review2"), author: t("reviews.author2"), rating: 5, source: "TripAdvisor" },
+    { text: t("reviews.review3"), author: t("reviews.author3"), rating: 5, source: "TripAdvisor" },
+    { text: t("reviews.review4"), author: t("reviews.author4"), rating: 5, source: "TripAdvisor" }
   ];
 
   return (
@@ -38,16 +18,17 @@ export default function Reviews() {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("home.reviewsTitle")}</h2>
           <div className="gold-divider"></div>
-          <div className="flex items-center justify-center gap-2 mt-6">
+          <p className="text-lg text-muted-foreground mb-6">{t("home.reviewsSubtitle")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
             <span className="text-xl font-semibold">{t("home.ratedNumber1")}</span>
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-5 h-5 gold-text" fill="currentColor" />
               ))}
             </div>
-            <span className="text-gray-600">{t("home.onTripAdvisor")}</span>
+            <span className="text-muted-foreground">{t("home.onTripAdvisor")}</span>
           </div>
-          <p className="text-lg text-gray-600 mt-2">{t("home.basedOnReviews")}</p>
+          <p className="text-lg text-muted-foreground mt-2">{t("home.basedOnReviews")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -62,12 +43,12 @@ export default function Reviews() {
                         <Star key={i} className="w-4 h-4 gold-text" fill="currentColor" />
                       ))}
                     </div>
-                    <p className="text-gray-700 italic mb-4 leading-relaxed">
+                    <p className="text-foreground italic mb-4 leading-relaxed">
                       "{review.text}"
                     </p>
                     <div className="flex items-center justify-between">
-                      <p className="font-semibold text-gray-900">— {review.author}</p>
-                      <p className="text-sm text-gray-500">{review.source}</p>
+                      <p className="font-semibold text-foreground">— {review.author}</p>
+                      <p className="text-sm text-muted-foreground">{review.source}</p>
                     </div>
                   </div>
                 </div>

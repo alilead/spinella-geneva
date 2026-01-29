@@ -1,6 +1,9 @@
 import { Heart, Users, Award } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function About() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
@@ -12,10 +15,10 @@ export default function About() {
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-white">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Our Story</h1>
+        <div className="relative z-10 container text-center text-foreground">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("about.title")}</h1>
           <div className="gold-divider"></div>
-          <p className="text-xl">From Sicily with Love</p>
+          <p className="text-xl">{t("about.subtitle")}</p>
         </div>
       </section>
 
@@ -23,41 +26,73 @@ export default function About() {
       <section className="section-spacing cream-bg">
         <div className="container max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">The Three Brothers</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("home.threeBrothersTitle")}</h2>
             <div className="gold-divider"></div>
           </div>
 
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none text-foreground">
             <p className="text-lg leading-relaxed mb-6">
-              Spinella is more than just a restaurant—it's a story of love, adventure, and family. 
-              Three brothers from the heart of Sicily embarked on a journey to share their passion 
-              for authentic Italian cuisine with the world. United by their heritage and driven by 
-              their love for food, they created Spinella as a tribute to their homeland.
+              {t("about.story1")}
             </p>
 
             <p className="text-lg leading-relaxed mb-6">
-              Growing up in Sicily, the brothers learned the art of Italian cooking from their 
-              grandmother, who taught them that food is not just sustenance—it's a way to bring 
-              people together, to celebrate life, and to create lasting memories. Every recipe at 
-              Spinella carries the essence of those cherished family moments.
+              {t("about.story2")}
             </p>
 
-            <p className="text-lg leading-relaxed mb-8">
-              In Geneva, just steps from Cornavin central station and the beautiful lakefront, 
-              they've created a casual-chic space where traditional Sicilian cuisine meets modern 
-              sophistication. Here, the warmth of Italian hospitality blends seamlessly with 
-              contemporary style, offering guests an authentic taste of Sicily in the heart of 
-              Switzerland.
+            <p className="text-lg leading-relaxed mb-6">
+              {t("about.story3")}
+            </p>
+
+            <p className="text-xl font-semibold gold-text text-center">
+              {t("about.storyOpening")}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="section-spacing dark-bg text-white">
+      {/* Philosophy & Brothers */}
+      <section className="section-spacing bg-background text-foreground">
+        <div className="container max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("about.ourMission")}</h2>
+            <div className="gold-divider"></div>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mt-6">
+              {t("about.missionDesc")}
+            </p>
+          </div>
+
+          <h3 className="text-2xl md:text-3xl font-bold text-center mb-12 gold-text">
+            {t("home.meetBrothers")}
+          </h3>
+
+          <div className="space-y-16">
+            <div>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.salvatore")} — {t("about.salvatoreTitle")}</h3>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {t("about.salvatoreDesc")}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.marco")} — {t("about.marcoTitle")}</h3>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {t("about.marcoDesc")}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.gabriele")} — {t("about.gabrieleTitle")}</h3>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {t("about.gabrieleDesc")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Three Pillars */}
+      <section className="section-spacing cream-bg">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Our Values</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("about.ourValues")}</h2>
             <div className="gold-divider"></div>
           </div>
 
@@ -66,10 +101,9 @@ export default function About() {
               <div className="w-20 h-20 gold-bg rounded-full flex items-center justify-center mx-auto mb-6">
                 <Heart className="w-10 h-10 text-black" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 gold-text">Passion</h3>
-              <p className="text-lg">
-                Every dish is prepared with love and dedication, honoring the traditions passed 
-                down through generations of Sicilian cooking.
+              <h3 className="text-2xl font-bold mb-4 gold-text">{t("about.passion")}</h3>
+              <p className="text-lg text-muted-foreground">
+                {t("about.passionDesc")}
               </p>
             </div>
 
@@ -77,10 +111,9 @@ export default function About() {
               <div className="w-20 h-20 gold-bg rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="w-10 h-10 text-black" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 gold-text">Family</h3>
-              <p className="text-lg">
-                We treat every guest as part of our extended family, creating a warm and welcoming 
-                atmosphere where everyone feels at home.
+              <h3 className="text-2xl font-bold mb-4 gold-text">{t("about.respect")}</h3>
+              <p className="text-lg text-muted-foreground">
+                {t("about.respectDesc")}
               </p>
             </div>
 
@@ -88,10 +121,9 @@ export default function About() {
               <div className="w-20 h-20 gold-bg rounded-full flex items-center justify-center mx-auto mb-6">
                 <Award className="w-10 h-10 text-black" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 gold-text">Quality</h3>
-              <p className="text-lg">
-                We source only the finest ingredients, from imported Italian products to fresh 
-                local produce, ensuring excellence in every bite.
+              <h3 className="text-2xl font-bold mb-4 gold-text">{t("about.authenticity")}</h3>
+              <p className="text-lg text-muted-foreground">
+                {t("about.authenticityDesc")}
               </p>
             </div>
           </div>
@@ -103,23 +135,16 @@ export default function About() {
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">The Spinella Experience</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("about.experienceTitle")}</h2>
               <div className="gold-divider mx-0"></div>
               <p className="text-lg mb-6 leading-relaxed">
-                At Spinella, we believe that dining is about more than just food—it's about creating 
-                an experience that engages all the senses. From the moment you step through our doors, 
-                you're transported to a world where authentic Italian flavors meet contemporary elegance.
+                {t("about.experienceDesc1")}
               </p>
               <p className="text-lg mb-6 leading-relaxed">
-                Our menu features traditional Sicilian dishes alongside modern Italian classics, 
-                complemented by handcrafted cocktails and a carefully curated wine selection. Whether 
-                you're joining us for a romantic dinner, business lunch, or evening aperitivo with 
-                friends, we promise an unforgettable culinary journey.
+                {t("about.experienceDesc2")}
               </p>
               <p className="text-lg leading-relaxed">
-                The atmosphere is vibrant yet intimate, where you can feel the energy of the Isle of 
-                the Sun and listen to its pulsating rhythm. This is the ideal recipe to savor emotions 
-                and moments of happiness—the Spinella way.
+                {t("about.experienceDesc3")}
               </p>
             </div>
             <div className="relative h-96 lg:h-full">

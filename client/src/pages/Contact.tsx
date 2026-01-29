@@ -1,7 +1,12 @@
 import { MapPin, Phone, Mail, Clock, Bus, Car } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 export default function Contact() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
@@ -13,10 +18,10 @@ export default function Contact() {
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-white">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Contact Us</h1>
+        <div className="relative z-10 container text-center text-foreground">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("contact.title")}</h1>
           <div className="gold-divider"></div>
-          <p className="text-xl">We're Here to Welcome You</p>
+          <p className="text-xl">{t("contact.subtitle")}</p>
         </div>
       </section>
 
@@ -26,8 +31,10 @@ export default function Contact() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Details */}
             <div>
-              <h2 className="text-4xl font-bold mb-8">Get in Touch</h2>
-              
+              <h2 className="text-4xl font-bold mb-4">{t("contact.getInTouch")}</h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                {t("contact.getInTouchWelcome")}
+              </p>
               <div className="space-y-6">
                 <Card className="border-none shadow-md">
                   <CardContent className="pt-6">
@@ -36,8 +43,8 @@ export default function Contact() {
                         <MapPin className="w-6 h-6 text-black" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold mb-2">Address</h3>
-                        <p className="text-gray-600">
+                        <h3 className="text-xl font-bold mb-2">{t("contact.address")}</h3>
+                        <p className="text-muted-foreground">
                           Rue Liotard 4<br />
                           1202 Geneva<br />
                           Switzerland
@@ -54,8 +61,8 @@ export default function Contact() {
                         <Phone className="w-6 h-6 text-black" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold mb-2">Phone</h3>
-                        <a href="tel:+41225034186" className="text-lg text-gray-600 hover:text-[oklch(0.62_0.15_85)] transition-colors">
+                        <h3 className="text-xl font-bold mb-2">{t("contact.phone")}</h3>
+                        <a href="tel:+41225034186" className="text-lg text-muted-foreground hover:text-[oklch(0.62_0.15_85)] transition-colors">
                           +41 22 503 41 86
                         </a>
                       </div>
@@ -70,8 +77,8 @@ export default function Contact() {
                         <Mail className="w-6 h-6 text-black" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold mb-2">Email</h3>
-                        <a href="mailto:info@spinella.ch" className="text-lg text-gray-600 hover:text-[oklch(0.62_0.15_85)] transition-colors">
+                        <h3 className="text-xl font-bold mb-2">{t("contact.email")}</h3>
+                        <a href="mailto:info@spinella.ch" className="text-lg text-muted-foreground hover:text-[oklch(0.62_0.15_85)] transition-colors">
                           info@spinella.ch
                         </a>
                       </div>
@@ -86,15 +93,15 @@ export default function Contact() {
                         <Clock className="w-6 h-6 text-black" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold mb-2">Opening Hours</h3>
-                        <div className="text-gray-600 space-y-1">
-                          <p><strong>Mon-Wed:</strong> 10am-3pm, 5pm-12am</p>
-                          <p><strong>Thu-Fri:</strong> 10am-3pm, 5pm-2am</p>
-                          <p><strong>Saturday:</strong> 5pm-2am</p>
-                          <p className="mt-3 text-sm"><strong>Kitchen Hours:</strong></p>
-                          <p className="text-sm">Mon-Wed: 12pm-2pm, 6:30pm-10pm</p>
-                          <p className="text-sm">Thu-Fri: 12pm-2pm, 6:30pm-10:30pm</p>
-                          <p className="text-sm">Sat: 6:30pm-10:30pm</p>
+                        <h3 className="text-xl font-bold mb-2">{t("contact.hours")}</h3>
+                        <div className="text-muted-foreground space-y-1">
+                          <p><strong>{t("contact.monWed")}:</strong> 10am-3pm, 5pm-12am</p>
+                          <p><strong>{t("contact.thuFri")}:</strong> 10am-3pm, 5pm-2am</p>
+                          <p><strong>{t("contact.saturday")}:</strong> 5pm-2am</p>
+                          <p className="mt-3 text-sm"><strong>{t("contact.kitchenHours")}:</strong></p>
+                          <p className="text-sm">{t("contact.monWedKitchen")}</p>
+                          <p className="text-sm">{t("contact.thuFriKitchen")}</p>
+                          <p className="text-sm">{t("contact.satKitchen")}</p>
                         </div>
                       </div>
                     </div>
@@ -105,7 +112,7 @@ export default function Contact() {
 
             {/* Map */}
             <div>
-              <h2 className="text-4xl font-bold mb-8">Find Us</h2>
+              <h2 className="text-4xl font-bold mb-8">{t("contact.findUs")}</h2>
               <div className="aspect-square w-full rounded-lg overflow-hidden shadow-lg mb-6">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2760.0847891234567!2d6.1389!3d46.2109!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c653c05c19e47%3A0x7e9b1e8e8e8e8e8e!2sRue%20Liotard%204%2C%201202%20Gen%C3%A8ve%2C%20Switzerland!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus"
@@ -127,8 +134,8 @@ export default function Contact() {
                         <Bus className="w-5 h-5 text-black" />
                       </div>
                       <div>
-                        <h3 className="font-bold mb-2">Public Transport</h3>
-                        <p className="text-sm text-gray-600">
+                        <h3 className="font-bold mb-2">{t("contact.publicTransport")}</h3>
+                        <p className="text-sm text-muted-foreground">
                           <strong>Bus Stop: Prairie</strong> - Lines 9, 19, 10, 6, NC<br />
                           <strong>Bus Stop: Poterie</strong> - Lines 3, 14, 18, A2, NA, NE<br />
                           <strong>Bus Stop: Musée Voltaire</strong> - Lines 9, A1, A6
@@ -145,8 +152,8 @@ export default function Contact() {
                         <Car className="w-5 h-5 text-black" />
                       </div>
                       <div>
-                        <h3 className="font-bold mb-2">Parking</h3>
-                        <p className="text-sm text-gray-600">
+                        <h3 className="font-bold mb-2">{t("contact.parking")}</h3>
+                        <p className="text-sm text-muted-foreground">
                           École des Ingénieurs parking available nearby<br />
                           Street parking also available
                         </p>
@@ -161,18 +168,18 @@ export default function Contact() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-spacing dark-bg text-white">
+      <section className="section-spacing bg-background text-foreground">
         <div className="container text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Visit?</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("contact.readyToVisit")}</h2>
           <div className="gold-divider"></div>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Book your table now and experience authentic Italian cuisine in the heart of Geneva.
+            {t("contact.readyToVisitDesc")}
           </p>
-          <a href="/booking">
-            <button className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8 py-3 rounded-md transition-colors">
-              Book a Table
-            </button>
-          </a>
+          <Link href="/booking">
+            <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
+              {t("nav.bookTable")}
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

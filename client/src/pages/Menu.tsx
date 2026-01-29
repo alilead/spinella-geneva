@@ -143,10 +143,10 @@ export default function Menu() {
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-white">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Our Menu</h1>
+        <div className="relative z-10 container text-center text-foreground">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("menu.title")}</h1>
           <div className="gold-divider"></div>
-          <p className="text-xl">Authentic Italian Cuisine from Sicily</p>
+          <p className="text-xl">{t("menu.subtitle")}</p>
           <div className="mt-8">
             <a
               href={language === 'fr' ? '/menu_fr.pdf' : '/menu_en.pdf'}
@@ -156,7 +156,7 @@ export default function Menu() {
             >
               <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
                 <Download className="w-5 h-5 mr-2" />
-                {language === 'fr' ? 'Télécharger le Menu Complet' : 'Download Full Menu'}
+                {t("menu.downloadMenu")}
               </Button>
             </a>
           </div>
@@ -166,6 +166,11 @@ export default function Menu() {
       {/* Menu Content */}
       <section className="section-spacing cream-bg">
         <div className="container max-w-6xl">
+          <div className="max-w-3xl mx-auto mb-16 text-center">
+            <p className="text-lg leading-relaxed text-muted-foreground">
+              {t("menu.introStory")}
+            </p>
+          </div>
           <div className="space-y-16">
             {menuSections.map((section, idx) => (
               <div key={idx}>
@@ -179,13 +184,13 @@ export default function Menu() {
                   {section.items.map((item, itemIdx) => (
                     <div
                       key={itemIdx}
-                      className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      className="bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-card-foreground"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <h3 className="text-xl font-bold flex-1">{item.name}</h3>
                         <span className="text-xl font-bold gold-text ml-4">{item.price}</span>
                       </div>
-                      <p className="text-gray-600">{item.description}</p>
+                      <p className="text-muted-foreground">{item.description}</p>
                     </div>
                   ))}
                 </div>
@@ -196,12 +201,12 @@ export default function Menu() {
       </section>
 
       {/* Drinks Section */}
-      <section className="section-spacing dark-bg text-white">
+      <section className="section-spacing bg-background text-foreground">
         <div className="container max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Drinks & Cocktails</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("menu.drinks")}</h2>
             <div className="gold-divider"></div>
-            <p className="text-lg">Handcrafted Cocktails & Curated Wine Selection</p>
+            <p className="text-lg">{t("menu.drinks")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -212,7 +217,7 @@ export default function Menu() {
                   {category.items.map((item, itemIdx) => (
                     <div
                       key={itemIdx}
-                      className="flex justify-between items-center pb-3 border-b border-gray-700"
+                      className="flex justify-between items-center pb-3 border-b border-gray-200"
                     >
                       <span className="text-lg">{item.name}</span>
                       <span className="text-lg font-semibold gold-text">{item.price}</span>
@@ -227,7 +232,7 @@ export default function Menu() {
             <p className="text-lg mb-2">
               <span className="gold-text font-semibold">Note:</span> Menu items and prices are subject to change based on seasonal availability.
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Please inform our staff of any dietary restrictions or allergies.
             </p>
           </div>

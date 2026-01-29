@@ -24,7 +24,7 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 dark-bg text-white shadow-lg">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background text-foreground shadow-lg">
       <div className="container">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -42,7 +42,7 @@ export default function Navigation() {
                   className={`text-sm font-medium transition-colors cursor-pointer ${
                     isActive(item.href)
                       ? "gold-text"
-                      : "text-white hover:text-[oklch(0.62_0.15_85)]"
+                      : "text-foreground hover:text-[oklch(0.62_0.15_85)]"
                   }`}
                 >
                   {item.label}
@@ -66,7 +66,7 @@ export default function Navigation() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white"
+            className="md:hidden text-foreground"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
@@ -84,7 +84,7 @@ export default function Navigation() {
                     className={`block text-sm font-medium transition-colors cursor-pointer ${
                       isActive(item.href)
                         ? "gold-text"
-                        : "text-white hover:text-[oklch(0.62_0.15_85)]"
+                        : "text-foreground hover:text-[oklch(0.62_0.15_85)]"
                     }`}
                     onClick={() => setIsOpen(false)}
                   >

@@ -19,31 +19,51 @@ export default function Home() {
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-white">
+        <div className="relative z-10 container text-center text-foreground">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
               {t("home.welcome")} <span className="gold-text">Spinella</span>
             </h1>
+            <p className="text-lg md:text-xl mb-4 font-light max-w-2xl mx-auto">
+              {t("home.heroParagraph1")}
+            </p>
+            <p className="text-base md:text-lg mb-4 font-light max-w-2xl mx-auto">
+              {t("home.heroParagraph2")}
+            </p>
+            <p className="text-xl md:text-2xl gold-text font-medium mb-8">
+              {t("home.welcomeHome")}
+            </p>
             <div className="gold-divider"></div>
-            <p className="text-xl md:text-2xl mb-8 font-light">
-              {t("home.subtitle")}
-            </p>
-            <p className="text-lg mb-12 max-w-2xl mx-auto">
-              {t("home.description")}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Link href="/booking">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
                   {t("home.bookYourTable")}
                 </Button>
               </Link>
               <Link href="/menu">
-                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-white hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold text-lg px-8">
+                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold text-lg px-8">
                   {t("home.viewMenu")}
+                </Button>
+              </Link>
+              <Link href="/about">
+                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold text-lg px-8">
+                  {t("home.meetBrothers")}
                 </Button>
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Philosophy */}
+      <section className="py-12 md:py-16 bg-background text-foreground">
+        <div className="container max-w-3xl text-center">
+          <p className="text-2xl md:text-3xl font-serif gold-text mb-4 italic">
+            « {t("home.philosophyQuote")} »
+          </p>
+          <p className="text-base md:text-lg text-muted-foreground">
+            {t("home.philosophySubline")}
+          </p>
         </div>
       </section>
 
@@ -62,7 +82,7 @@ export default function Home() {
                   <Calendar className="w-8 h-8 text-black" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{t("home.easyBooking")}</h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("home.easyBookingDesc")}
                 </p>
               </CardContent>
@@ -74,7 +94,7 @@ export default function Home() {
                   <Wine className="w-8 h-8 text-black" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{t("home.authenticCuisine")}</h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("home.authenticCuisineDesc")}
                 </p>
               </CardContent>
@@ -86,7 +106,7 @@ export default function Home() {
                   <Sparkles className="w-8 h-8 text-black" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{t("home.cocktailBar")}</h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("home.cocktailBarDesc")}
                 </p>
               </CardContent>
@@ -98,7 +118,7 @@ export default function Home() {
                   <Users className="w-8 h-8 text-black" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{t("home.privateEvents")}</h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("home.privateEventsDesc")}
                 </p>
               </CardContent>
@@ -108,7 +128,7 @@ export default function Home() {
       </section>
 
       {/* About Preview Section */}
-      <section className="section-spacing dark-bg text-white">
+      <section className="section-spacing bg-background text-foreground">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -121,8 +141,13 @@ export default function Home() {
                 {t("home.threeBrothersDesc2")}
               </p>
               <Link href="/about">
-                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-white hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
+                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
                   {t("home.ourStory")}
+                </Button>
+              </Link>
+              <Link href="/booking">
+                <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
+                  {t("home.bookYourTable")}
                 </Button>
               </Link>
             </div>
@@ -146,7 +171,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 relative h-96 lg:h-full">
               <img
-                src="/exterior_facade.jpg"
+                src="/exterior_night_new.jpg"
                 alt="Spinella exterior"
                 className="w-full h-full object-cover rounded-lg shadow-2xl"
               />

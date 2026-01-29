@@ -5,7 +5,7 @@ export default function Footer() {
   const { t } = useLanguage();
   
   return (
-    <footer className="dark-bg text-white">
+    <footer className="bg-background text-foreground">
       <div className="container section-spacing">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Contact Info */}
@@ -50,7 +50,7 @@ export default function Footer() {
                 <span>{t("contact.saturday")}:</span>
                 <span className="gold-text">5pm-2am</span>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-700">
+              <div className="mt-4 pt-4 border-t border-border">
                 <p className="font-semibold gold-text">{t("contact.kitchenHours")}:</p>
                 <p className="mt-1">{t("contact.monWedKitchen")}</p>
                 <p>{t("contact.thuFriKitchen")}</p>
@@ -97,7 +97,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-12 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Spinella Restaurant & Bar. {t("footer.allRightsReserved")}.</p>
         </div>
       </div>
