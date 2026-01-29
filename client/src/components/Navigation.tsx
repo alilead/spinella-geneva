@@ -50,12 +50,12 @@ export default function Navigation() {
               </Link>
             ))}
             <button
-              onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+              onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : "en")}
               className="flex items-center gap-1.5 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
               aria-label="Switch language"
             >
               <Languages size={18} />
-              <span className="font-semibold">{language.toUpperCase()}</span>
+              <span className="font-semibold">{language === "en" ? "EN" : language === "fr" ? "FR" : "IT"}</span>
             </button>
             <Link href="/booking">
               <Button className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
@@ -93,12 +93,12 @@ export default function Navigation() {
                 </Link>
               ))}
               <button
-                onClick={() => setLanguage(language === "en" ? "fr" : "en")}
+                onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : "en")}
                 className="flex items-center gap-2 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
                 aria-label="Switch language"
               >
                 <Languages size={18} />
-                <span className="font-semibold">{language === "en" ? "Français" : "English"}</span>
+                <span className="font-semibold">{language === "en" ? "FR" : language === "fr" ? "IT" : "EN"}</span>
               </button>
               <Link href="/booking">
                 <Button
