@@ -10,7 +10,7 @@ export default function About() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/food_platter.jpg)" }}
+          style={{ backgroundImage: "url(/food_1.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>
@@ -150,7 +150,7 @@ export default function About() {
             <div className="relative h-96 lg:h-full">
               <img
                 src="/interior_ambiance.jpg"
-                alt="Spinella interior"
+                alt="Spinella interior ambiance"
                 className="w-full h-full object-cover rounded-lg shadow-2xl"
               />
             </div>

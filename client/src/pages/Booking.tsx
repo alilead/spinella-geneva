@@ -110,7 +110,7 @@ export default function Booking() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/outdoor_terrace_garden.jpg)" }}
+          style={{ backgroundImage: "url(/spinella_exterior.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>

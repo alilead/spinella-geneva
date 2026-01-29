@@ -66,7 +66,8 @@ export const translations = {
       exterior: "Exterior",
       terrace: "Terrace",
       bar: "Bar",
-      food: "Food"
+      food: "Food",
+      brothers: "The Brothers"
     },
     about: {
       title: "Our Story",
@@ -270,7 +271,8 @@ export const translations = {
       exterior: "Extérieur",
       terrace: "Terrasse",
       bar: "Bar",
-      food: "Cuisine"
+      food: "Cuisine",
+      brothers: "Les Frères"
     },
     about: {
       title: "Notre Histoire",

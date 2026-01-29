@@ -153,8 +153,8 @@ export default function Home() {
             </div>
             <div className="relative h-96 lg:h-full">
               <img
-                src="/food_platter.jpg"
-                alt="The Spinella brothers"
+                src="/interior_brothers.jpg"
+                alt="The three Spinella brothers"
                 className="w-full h-full object-cover rounded-lg shadow-2xl"
               />
             </div>

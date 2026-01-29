@@ -138,7 +138,7 @@ export default function Menu() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/interior_dining_area.jpg)" }}
+          style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>

@@ -9,13 +9,40 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const images = [
-    { src: "/interior_ambiance.jpg", alt: "Interior ambiance with elegant lighting", categoryKey: "gallery.interior" },
-    { src: "/interior_dining_area.jpg", alt: "Dining area with chandeliers", categoryKey: "gallery.interior" },
-    { src: "/exterior_entrance.jpg", alt: "Restaurant entrance at night", categoryKey: "gallery.exterior" },
-    { src: "/exterior_night.jpg", alt: "Evening exterior view", categoryKey: "gallery.exterior" },
-    { src: "/outdoor_terrace_garden.jpg", alt: "Outdoor terrace with garden seating", categoryKey: "gallery.terrace" },
-    { src: "/aquarium_bar.jpg", alt: "Bar area with aquarium feature", categoryKey: "gallery.bar" },
-    { src: "/food_platter.jpg", alt: "Food presentation", categoryKey: "gallery.food" },
+    // Interior — new Spinella photos
+    { src: "/spinella_interior.jpg", alt: "Spinella interior", categoryKey: "gallery.interior" },
+    { src: "/interior_main.jpg", alt: "Interior view", categoryKey: "gallery.interior" },
+    { src: "/interior_brothers.jpg", alt: "The three brothers", categoryKey: "gallery.brothers" },
+    { src: "/interior_1.jpg", alt: "Interior ambiance", categoryKey: "gallery.interior" },
+    { src: "/interior_4.jpg", alt: "Dining space", categoryKey: "gallery.interior" },
+    { src: "/interior_5.jpg", alt: "Restaurant interior", categoryKey: "gallery.interior" },
+    { src: "/interior_6.jpg", alt: "Interior detail", categoryKey: "gallery.interior" },
+    { src: "/interior_7.jpg", alt: "Ambiance", categoryKey: "gallery.interior" },
+    { src: "/interior_9.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    { src: "/interior_2.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    { src: "/interior_3.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    { src: "/interior_8.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    { src: "/interior_10.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    { src: "/interior_11.jpg", alt: "Interior", categoryKey: "gallery.interior" },
+    // Exterior / atmosphere
+    { src: "/spinella_exterior.jpg", alt: "Spinella exterior", categoryKey: "gallery.exterior" },
+    { src: "/a_maybe.jpg", alt: "Atmosphere", categoryKey: "gallery.exterior" },
+    { src: "/exterior_night_new.jpg", alt: "Exterior at night", categoryKey: "gallery.exterior" },
+    { src: "/exterior_entrance.jpg", alt: "Entrance", categoryKey: "gallery.exterior" },
+    { src: "/outdoor_terrace_garden.jpg", alt: "Terrace", categoryKey: "gallery.terrace" },
+    { src: "/aquarium_bar.jpg", alt: "Bar", categoryKey: "gallery.bar" },
+    // Food — new Spinella photos
+    { src: "/food_1.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_2.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_3.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_5.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_6.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_7.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_8.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_9.jpg", alt: "Food presentation", categoryKey: "gallery.food" },
+    { src: "/food_10.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_11.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/food_platter.jpg", alt: "Food platter", categoryKey: "gallery.food" },
   ];
 
   return (
@@ -24,12 +51,12 @@ export default function Gallery() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/exterior_night.jpg)" }}
+          style={{ backgroundImage: "url(/spinella_exterior.jpg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>
         
-        <div className="relative z-10 container text-center text-black">
+        <div className="relative z-10 container text-center text-foreground">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("gallery.title")}</h1>
           <div className="gold-divider"></div>
           <p className="text-xl">{t("gallery.subtitle")}</p>
