@@ -80,13 +80,8 @@ export default function Gallery() {
                     e.currentTarget.style.opacity = '1';
                   }}
                   onError={(e) => {
-                    console.error(`Failed to load image: ${image.src}`);
-                    const target = e.currentTarget;
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.style.backgroundColor = '#f3f4f6';
-                      parent.innerHTML = `<div class="flex items-center justify-center h-full text-muted-foreground">${t(image.categoryKey)}</div>`;
-                    }
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) parent.style.display = "none";
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">

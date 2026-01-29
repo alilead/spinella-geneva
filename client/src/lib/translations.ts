@@ -9,7 +9,7 @@ export const translations = {
       events: "Events",
       about: "About",
       contact: "Contact",
-      bookTable: "Join the Spinella Family"
+      bookTable: "Book a table with us"
     },
     home: {
       welcome: "Welcome to",
@@ -20,7 +20,7 @@ export const translations = {
       description: "Three brothers bringing the soul of Sicily to Geneva. Experience traditional Italian dishes, handcrafted cocktails, and warm hospitality in a casual-chic setting.",
       philosophyQuote: "Sharing a meal is creating a bond.",
       philosophySubline: "At Spinella, dining transcends mere consumption. It's about creating emotional connections, celebrating life and culture, and making every guest feel like family.",
-      bookYourTable: "Join the Spinella Family",
+      bookYourTable: "Book a table with us",
       viewMenu: "Experience Sicily in Geneva",
       meetBrothers: "Meet the Brothers",
       experienceTitle: "Experience Spinella",
@@ -214,7 +214,7 @@ export const translations = {
       events: "Événements",
       about: "À Propos",
       contact: "Contact",
-      bookTable: "Rejoindre la famille Spinella"
+      bookTable: "Réserver une table"
     },
     home: {
       welcome: "Bienvenue chez",
@@ -225,7 +225,7 @@ export const translations = {
       description: "Trois frères apportant l'âme de la Sicile à Genève. Découvrez des plats italiens traditionnels, des cocktails artisanaux et une hospitalité chaleureuse dans un cadre casual-chic.",
       philosophyQuote: "Partager un repas, c'est créer du lien.",
       philosophySubline: "Chez Spinella, dîner transcende la simple consommation. Il s'agit de créer des liens émotionnels, de célébrer la vie et la culture, et de faire en sorte que chaque client se sente comme en famille.",
-      bookYourTable: "Rejoindre la famille Spinella",
+      bookYourTable: "Réserver une table",
       viewMenu: "Découvrir la Sicile à Genève",
       meetBrothers: "Rencontrer les frères",
       experienceTitle: "Découvrez Spinella",
