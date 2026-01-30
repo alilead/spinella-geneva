@@ -1,4 +1,13 @@
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Star } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
+
+/** TripAdvisor logo (owl) – inline SVG for footer link */
+function TripAdvisorIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.976 5.976 0 0 0 4.075 1.6 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353zM12 6.255c1.531 0 3.063.303 4.504.91a7.273 7.273 0 0 1 3.104 2.587 7.272 7.272 0 0 1-3.104 2.586 10.02 10.02 0 0 1-4.504.91 10.02 10.02 0 0 1-4.504-.91 7.272 7.272 0 0 1-3.104-2.586 7.272 7.272 0 0 1 3.104-2.587A10.02 10.02 0 0 1 12 6.255z" />
+    </svg>
+  );
+}
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
@@ -91,7 +100,7 @@ export default function Footer() {
                 className="w-10 h-10 rounded-full gold-bg flex items-center justify-center text-black hover:bg-[oklch(0.52_0.15_85)] transition-colors"
                 aria-label="TripAdvisor"
               >
-                <Star size={20} fill="currentColor" />
+                <TripAdvisorIcon size={20} />
               </a>
             </div>
           </div>

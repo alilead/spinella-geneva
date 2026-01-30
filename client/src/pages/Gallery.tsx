@@ -8,6 +8,10 @@ export default function Gallery() {
   const { t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Gallery image array — comment out any of these 3 to remove from gallery:
+  // 1) Image with Christmas tinsel
+  // 2) Image of the woman in the pink jumper
+  // 3) Bar image with two men (one obscured)
   const images = [
     // Interior — new Spinella photos
     { src: "/spinella_interior.jpg", alt: "Spinella interior", categoryKey: "gallery.interior" },
@@ -76,7 +80,6 @@ export default function Gallery() {
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 relative z-0"
                   loading="lazy"
                   onLoad={(e) => {
-                    // Ensure image is visible when loaded
                     e.currentTarget.style.opacity = '1';
                   }}
                   onError={(e) => {
@@ -84,11 +87,6 @@ export default function Gallery() {
                     if (parent) parent.style.display = "none";
                   }}
                 />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                  <span className="text-white text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg">
-                    {t(image.categoryKey)}
-                  </span>
-                </div>
               </div>
             ))}
           </div>
