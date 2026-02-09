@@ -12,6 +12,9 @@ interface BookingEmailData {
   specialRequests?: string | null;
 }
 
+const FROM_EMAIL = 'Spinella Geneva <reservations@spinella-geneva.ch>';
+const BCC_EMAIL = 'info@spinella.ch';
+
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Email] Resend API key not configured');
@@ -20,8 +23,9 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
 
   try {
     const { error } = await resend.emails.send({
-      from: 'Spinella Geneva <reservations@spinella-geneva.ch>',
+      from: FROM_EMAIL,
       to: [data.email],
+      bcc: [BCC_EMAIL],
       subject: `Booking Confirmation - ${data.name}`,
       html: generateBookingEmailHTML(data),
     });
@@ -34,6 +38,49 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
     return true;
   } catch (error) {
     console.error('[Email] Error sending email:', error);
+    return false;
+  }
+}
+
+/** Sends a copy of the booking to the restaurant (us) via Resend. */
+export async function sendBookingNotificationToRestaurant(data: BookingEmailData): Promise<boolean> {
+  const to = process.env.RESTAURANT_EMAIL?.trim();
+  if (!to) {
+    console.warn('[Email] RESTAURANT_EMAIL not set; skipping restaurant notification');
+    return false;
+  }
+  if (!process.env.RESEND_API_KEY) {
+    return false;
+  }
+
+  try {
+    const displayDate = formatDisplayDate(data.date);
+    const html = `
+      <p><strong>New reservation request</strong></p>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Phone:</strong> ${data.phone}</li>
+        <li><strong>Date:</strong> ${displayDate}</li>
+        <li><strong>Time:</strong> ${data.time}</li>
+        <li><strong>Guests:</strong> ${data.partySize}</li>
+        ${data.specialRequests ? `<li><strong>Special requests:</strong> ${data.specialRequests}</li>` : ''}
+      </ul>
+    `;
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      bcc: [BCC_EMAIL],
+      subject: `[Spinella] New booking: ${data.name} – ${data.date} ${data.time}`,
+      html,
+    });
+    if (error) {
+      console.error('[Email] Failed to send restaurant notification:', error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('[Email] Error sending restaurant notification:', error);
     return false;
   }
 }
