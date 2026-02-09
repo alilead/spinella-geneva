@@ -6,10 +6,14 @@
  * When the backend is deployed, this can be replaced by a tRPC query
  * that fetches blocked slots from the server.
  */
+// 14 February evening blocked: 17:30–22:30 (Valentine's private event / reserved)
+const feb14EveningSlots = [
+  "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30",
+];
+
 export const blockedSlots: { date: string; time: string }[] = [
-  // Example: block New Year's Eve dinner 20:00 and 20:30
-  // { date: "2026-12-31", time: "20:00" },
-  // { date: "2026-12-31", time: "20:30" },
+  ...feb14EveningSlots.map((time) => ({ date: "2026-02-14", time })),
+  ...feb14EveningSlots.map((time) => ({ date: "2027-02-14", time })),
 ];
 
 /**

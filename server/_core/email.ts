@@ -38,108 +38,157 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   }
 }
 
+function formatDisplayDate(isoDate: string): string {
+  const d = new Date(isoDate + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 function generateBookingEmailHTML(data: BookingEmailData): string {
+  const displayDate = formatDisplayDate(data.date);
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation - Spinella Geneva</title>
+  <title>Reservation Request — Spinella Geneva</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Georgia', serif; background-color: #FFF8E7;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin:0; padding:0; background-color:#0c0c0c; font-family: Georgia, 'Times New Roman', serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#0c0c0c;">
     <tr>
-      <td align="center" style="padding: 40px 0;">
-        <table role="presentation" style="width: 600px; border-collapse: collapse; background-color: #FFFFFF; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header with Gold Border -->
+      <td align="center" style="padding: 48px 24px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background-color:#111111; border: 1px solid #2a2520;">
+          <!-- Top gold rule -->
           <tr>
-            <td style="padding: 0;">
-              <div style="background: linear-gradient(135deg, #000000 0%, #1A1A1A 100%); padding: 40px 30px; text-align: center; border-top: 4px solid #D4AF37;">
-                <h1 style="margin: 0; color: #D4AF37; font-size: 36px; font-weight: bold; letter-spacing: 2px;">SPINELLA</h1>
-                <p style="margin: 10px 0 0 0; color: #F4E4C1; font-size: 14px; letter-spacing: 1px;">GENEVA</p>
-              </div>
+            <td style="height: 3px; background: linear-gradient(90deg, transparent, #c9a227 20%, #e8d48b 50%, #c9a227 80%, transparent);"></td>
+          </tr>
+          <!-- Header -->
+          <tr>
+            <td style="padding: 48px 40px 32px; text-align: center;">
+              <p style="margin:0 0 8px 0; font-size: 11px; letter-spacing: 4px; color: #8a7a5c; text-transform: uppercase;">Restaurant & Bar</p>
+              <h1 style="margin:0; font-size: 42px; font-weight: 700; letter-spacing: 6px; color: #d4af37;">SPINELLA</h1>
+              <p style="margin: 8px 0 0 0; font-size: 13px; letter-spacing: 3px; color: #b8a574;">GENEVA</p>
+              <table role="presentation" width="120" cellspacing="0" cellpadding="0" border="0" align="center" style="margin-top: 24px;">
+                <tr><td style="height: 1px; background: linear-gradient(90deg, transparent, #c9a227, transparent);"></td></tr>
+              </table>
             </td>
           </tr>
-          
-          <!-- Main Content -->
+          <!-- Greeting -->
           <tr>
-            <td style="padding: 40px 30px;">
-              <h2 style="margin: 0 0 20px 0; color: #000000; font-size: 28px; font-weight: bold;">Booking Confirmation</h2>
-              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                Dear ${data.name},
-              </p>
-              <p style="margin: 0 0 30px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                Thank you for choosing Spinella! We're delighted to confirm your reservation. Our team will review your booking and send final confirmation within 10-20 minutes.
-              </p>
-              
-              <!-- Booking Details Box -->
-              <div style="background-color: #FFF8E7; border-left: 4px solid #D4AF37; padding: 25px; margin: 30px 0;">
-                <h3 style="margin: 0 0 20px 0; color: #D4AF37; font-size: 20px; font-weight: bold;">Your Reservation Details</h3>
-                <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                  <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold;">Date:</td>
-                    <td style="padding: 8px 0; color: #000000; font-size: 14px; text-align: right;">${data.date}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold;">Time:</td>
-                    <td style="padding: 8px 0; color: #000000; font-size: 14px; text-align: right;">${data.time}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold;">Party Size:</td>
-                    <td style="padding: 8px 0; color: #000000; font-size: 14px; text-align: right;">${data.partySize} ${data.partySize === 1 ? 'guest' : 'guests'}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: bold;">Phone:</td>
-                    <td style="padding: 8px 0; color: #000000; font-size: 14px; text-align: right;">${data.phone}</td>
-                  </tr>
-                  ${data.specialRequests ? `
-                  <tr>
-                    <td colspan="2" style="padding: 15px 0 0 0;">
-                      <p style="margin: 0; color: #666666; font-size: 14px; font-weight: bold;">Special Requests:</p>
-                      <p style="margin: 5px 0 0 0; color: #000000; font-size: 14px;">${data.specialRequests}</p>
-                    </td>
-                  </tr>
-                  ` : ''}
-                </table>
-              </div>
-              
-              <p style="margin: 30px 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                We look forward to welcoming you to our family. If you need to modify or cancel your reservation, please contact us at least 24 hours in advance.
-              </p>
-              
-              <!-- Contact Info -->
-              <div style="background-color: #F9F9F9; padding: 20px; margin: 30px 0; border-radius: 8px;">
-                <p style="margin: 0 0 10px 0; color: #000000; font-size: 14px;"><strong>📍 Address:</strong> Rue Liotard 4, 1202 Geneva</p>
-                <p style="margin: 0 0 10px 0; color: #000000; font-size: 14px;"><strong>📞 Phone:</strong> +41 22 734 58 98</p>
-                <p style="margin: 0; color: #000000; font-size: 14px;"><strong>✉️ Email:</strong> info@spinella-geneva.ch</p>
-              </div>
-              
-              <p style="margin: 30px 0 0 0; color: #D4AF37; font-size: 18px; font-style: italic; text-align: center;">
-                "Partager un repas, c'est créer du lien."
-              </p>
-              <p style="margin: 5px 0 0 0; color: #666666; font-size: 14px; text-align: center;">
-                Sharing a meal is creating a bond.
+            <td style="padding: 0 40px 24px;">
+              <p style="margin:0; font-size: 18px; line-height: 1.7; color: #e8e4dc;">Dear ${data.name},</p>
+              <p style="margin: 20px 0 0 0; font-size: 16px; line-height: 1.7; color: #c4bfb5;">
+                Thank you for your reservation request. We have received it and our team will confirm your table within <strong style="color: #d4af37;">10–20 minutes</strong> by email.
               </p>
             </td>
           </tr>
-          
+          <!-- Reservation details card -->
+          <tr>
+            <td style="padding: 0 40px 32px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(180deg, #1a1814 0%, #151310 100%); border: 1px solid #2a2520;">
+                <tr>
+                  <td style="padding: 28px 32px;">
+                    <p style="margin: 0 0 20px 0; font-size: 11px; letter-spacing: 3px; color: #d4af37; text-transform: uppercase;">Your reservation</p>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520;">
+                          <span style="font-size: 14px; color: #8a7a5c;">Date</span>
+                        </td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520; text-align: right;">
+                          <span style="font-size: 15px; color: #e8e4dc;">${displayDate}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520;">
+                          <span style="font-size: 14px; color: #8a7a5c;">Time</span>
+                        </td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520; text-align: right;">
+                          <span style="font-size: 15px; color: #e8e4dc;">${data.time}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520;">
+                          <span style="font-size: 14px; color: #8a7a5c;">Guests</span>
+                        </td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #2a2520; text-align: right;">
+                          <span style="font-size: 15px; color: #e8e4dc;">${data.partySize} ${data.partySize === 1 ? 'guest' : 'guests'}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px 0;">
+                          <span style="font-size: 14px; color: #8a7a5c;">Phone</span>
+                        </td>
+                        <td style="padding: 10px 0; text-align: right;">
+                          <span style="font-size: 15px; color: #e8e4dc;">${data.phone}</span>
+                        </td>
+                      </tr>
+                      ${data.specialRequests ? `
+                      <tr>
+                        <td colspan="2" style="padding: 16px 0 0 0; border-top: 1px solid #2a2520;">
+                          <p style="margin: 0 0 6px 0; font-size: 14px; color: #8a7a5c;">Special requests</p>
+                          <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #e8e4dc;">${data.specialRequests}</p>
+                        </td>
+                      </tr>
+                      ` : ''}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Note -->
+          <tr>
+            <td style="padding: 0 40px 24px;">
+              <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #c4bfb5;">
+                To modify or cancel, please contact us at least 24 hours in advance. We look forward to welcoming you.
+              </p>
+            </td>
+          </tr>
+          <!-- Quote -->
+          <tr>
+            <td style="padding: 32px 40px 40px; text-align: center;">
+              <table role="presentation" width="80" cellspacing="0" cellpadding="0" border="0" align="center" style="margin-bottom: 16px;">
+                <tr><td style="height: 1px; background: linear-gradient(90deg, transparent, #c9a227, transparent);"></td></tr>
+              </table>
+              <p style="margin: 0; font-size: 20px; font-style: italic; color: #d4af37;">"Partager un repas, c'est créer du lien."</p>
+              <p style="margin: 6px 0 0 0; font-size: 13px; color: #8a7a5c;">Sharing a meal is creating a bond.</p>
+            </td>
+          </tr>
+          <!-- Contact strip -->
+          <tr>
+            <td style="padding: 24px 40px; background-color: #0f0e0c; border-top: 1px solid #2a2520;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="font-size: 13px; color: #8a7a5c;">Rue Liotard 4, 1202 Geneva</td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 6px;">
+                    <a href="tel:+41225034186" style="font-size: 13px; color: #d4af37; text-decoration: none;">+41 22 503 41 86</a>
+                    <span style="color: #4a4540;"> · </span>
+                    <a href="mailto:info@spinella.ch" style="font-size: 13px; color: #d4af37; text-decoration: none;">info@spinella.ch</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
           <!-- Footer -->
           <tr>
-            <td style="background-color: #1A1A1A; padding: 30px; text-align: center;">
-              <p style="margin: 0 0 10px 0; color: #D4AF37; font-size: 24px; font-weight: bold; letter-spacing: 2px;">SPINELLA</p>
-              <p style="margin: 0 0 15px 0; color: #F4E4C1; font-size: 12px;">Authentic Sicilian Cuisine in Geneva</p>
-              <div style="margin: 20px 0;">
-                <a href="https://www.instagram.com/spinellageneva" style="color: #D4AF37; text-decoration: none; margin: 0 10px; font-size: 12px;">Instagram</a>
-                <span style="color: #666666;">|</span>
-                <a href="https://www.facebook.com/spinellageneva" style="color: #D4AF37; text-decoration: none; margin: 0 10px; font-size: 12px;">Facebook</a>
-                <span style="color: #666666;">|</span>
-                <a href="https://spinella-geneva.ch" style="color: #D4AF37; text-decoration: none; margin: 0 10px; font-size: 12px;">Website</a>
-              </div>
-              <p style="margin: 15px 0 0 0; color: #999999; font-size: 11px;">
-                © ${new Date().getFullYear()} Spinella Geneva. All rights reserved.
-              </p>
+            <td style="padding: 24px 40px; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; letter-spacing: 2px; color: #d4af37;">SPINELLA</p>
+              <p style="margin: 0 0 16px 0; font-size: 11px; color: #6a6358;">Authentic Sicilian cuisine in the heart of Geneva</p>
+              <p style="margin: 0; font-size: 11px; color: #4a4540;">© ${new Date().getFullYear()} Spinella Restaurant & Bar. All rights reserved.</p>
             </td>
+          </tr>
+          <!-- Bottom gold rule -->
+          <tr>
+            <td style="height: 3px; background: linear-gradient(90deg, transparent, #c9a227 20%, #e8d48b 50%, #c9a227 80%, transparent);"></td>
           </tr>
         </table>
       </td>
