@@ -84,8 +84,17 @@ Important:
 
 If the API is on a **different domain** than the front end (e.g. API on Railway, site on Vercel):
 
-- Configure CORS on the Express server so the front-end origin is allowed.
-- In the **client**, point tRPC at the API URL (e.g. with an env var like `VITE_API_URL=https://your-api-host`) and use that in `main.tsx` for `httpBatchLink({ url: ... })` instead of `"/api/trpc"`.
+1. **On the API server**, set **`CORS_ORIGIN`** to your site’s origin(s), comma-separated:
+   ```env
+   CORS_ORIGIN=https://spinella-geneva.ch,https://www.spinella-geneva.ch
+   ```
+   The app already uses this in `server/_core/index.ts` to allow cross-origin requests.
+
+2. **When building the front end**, set **`VITE_API_URL`** to your API base URL so the booking form calls the right host:
+   ```env
+   VITE_API_URL=https://your-app.railway.app
+   ```
+   The client reads this in `client/src/main.tsx` and calls `https://your-app.railway.app/api/trpc`.
 
 ### B. Keep only the static site (no API)
 
@@ -105,8 +114,9 @@ So: **Resend and the API are set up correctly in the repo**; they just don’t r
 | Resend code in `server/_core/email.ts` | ✅ Implemented |
 | Resend “from” address / domain | ⚠️ Set and verify in Resend dashboard |
 | `RESEND_API_KEY` in server env | ⚠️ Set where the Node server runs |
-| Node server deployed (e.g. Railway, Render) | ❌ Currently only static site is deployed |
+| Node server deployed (e.g. Railway, Render) | ❌ Deploy with `pnpm run build && pnpm run start` |
 | `DATABASE_URL` on server | ⚠️ Required for saving bookings |
-| Client calling `/api/trpc` | ✅ Relative URL; works when API is on same host |
+| CORS (API on different domain) | ✅ Set `CORS_ORIGIN` on server to your site URL(s) |
+| Client API URL (site on different domain) | ✅ Set `VITE_API_URL` when building the front end |
 
-Once the **API is deployed** and **`DATABASE_URL`** and **`RESEND_API_KEY`** are set there, submitting a reservation from the site will hit the API, save the booking, and send the confirmation email via Resend.
+Once the **API is deployed** and **`DATABASE_URL`** and **`RESEND_API_KEY`** are set there, submitting a reservation will save the booking and send the confirmation email via Resend. If the site and API are on different domains, set **`CORS_ORIGIN`** on the server and **`VITE_API_URL`** for the client build.

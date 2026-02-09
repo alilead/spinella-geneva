@@ -59,7 +59,13 @@ export default function Booking() {
       toast.success("Booking request submitted successfully!");
     },
     onError: (error: { message?: string }) => {
-      toast.error(error?.message || t("booking.errorMessage"));
+      const msg = error?.message ?? "";
+      const isHtmlOrParseError =
+        msg.includes("is not valid JSON") ||
+        msg.includes("Unexpected token") ||
+        msg.includes("Failed to fetch") ||
+        msg.includes("NetworkError");
+      toast.error(isHtmlOrParseError ? t("booking.apiUnavailable") : msg || t("booking.errorMessage"));
     },
   });
 
