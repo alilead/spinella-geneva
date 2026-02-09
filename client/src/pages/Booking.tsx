@@ -17,7 +17,7 @@ import {
 import { Calendar, Clock, Users, CheckCircle, Mail } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { isSlotBlocked, isRequestOnlyDate } from "@/lib/blockedSlots";
+import { isSlotBlocked, isRequestOnlySlot } from "@/lib/blockedSlots";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -53,6 +53,7 @@ export default function Booking() {
   });
 
   const selectedDate = watch("date");
+  const selectedTime = watch("time");
 
   const createBooking = trpc.bookings.create.useMutation({
     onSuccess: () => {
@@ -202,7 +203,7 @@ export default function Booking() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold mb-4">{t("booking.reservationDetails")}</h2>
 
-                {selectedDate && isRequestOnlyDate(selectedDate) && (
+                {selectedDate && selectedTime && isRequestOnlySlot(selectedDate, selectedTime) && (
                   <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
                     <p className="text-sm font-medium">{t("booking.valentinesNotice")}</p>
                   </div>

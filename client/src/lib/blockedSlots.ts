@@ -6,28 +6,33 @@
  * When the backend is deployed, this can be replaced by a tRPC query
  * that fetches blocked slots from the server.
  *
- * Note: 14 February evening is NOT blocked — client wants it "manual only":
- * guests can request 17:30–22:30 on the 14th; restaurant confirms by email.
+ * Reservations are open for all days. Only 14 February 17:00–22:30 is
+ * request-only (manual confirmation by email).
  */
 export const blockedSlots: { date: string; time: string }[] = [
   // Example: block a private event
   // { date: "2026-03-01", time: "19:00" },
 ];
 
-/**
- * Request-only dates: e.g. Valentine's Day. No automatic booking; guests submit
- * a request for their preferred time (including 17:30–22:30) and the restaurant
- * confirms by email within 10–20 minutes.
- */
-export const requestOnlyDates: string[] = [
-  "2026-02-14", // Valentine's Day — manual for the 14th evening (client preference)
-  "2027-02-14",
+/** Evening slots 17:30–22:30 (17h–22h30). On 14 Feb these are request-only. */
+const EVENING_SLOTS_17_22_30 = [
+  "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30",
 ];
 
 export function isSlotBlocked(date: string, time: string): boolean {
   return blockedSlots.some((b) => b.date === date && b.time === time);
 }
 
-export function isRequestOnlyDate(date: string): boolean {
-  return requestOnlyDates.includes(date);
+/** True if date is 14 February (any year). */
+function is14thFebruary(date: string): boolean {
+  const [, month, day] = date.split("-");
+  return month === "02" && day === "14";
+}
+
+/**
+ * Request-only slot: 14 February 17h–22h30. Guests can submit a request;
+ * restaurant confirms by email within 10–20 minutes. All other days/slots are open.
+ */
+export function isRequestOnlySlot(date: string, time: string): boolean {
+  return is14thFebruary(date) && EVENING_SLOTS_17_22_30.includes(time);
 }
