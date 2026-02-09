@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Clock, Users, CheckCircle, Mail } from "lucide-react";
+import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { isSlotBlocked, isRequestOnlySlot } from "@/lib/blockedSlots";
@@ -39,8 +39,6 @@ const ALL_TIME_SLOTS = [
 export default function Booking() {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [apiUnavailable, setApiUnavailable] = useState(false);
-  const [formDataForFallback, setFormDataForFallback] = useState<BookingForm | null>(null);
 
   const {
     register,
@@ -57,28 +55,15 @@ export default function Booking() {
 
   const createBooking = trpc.bookings.create.useMutation({
     onSuccess: () => {
-      setApiUnavailable(false);
       setIsSubmitted(true);
       toast.success("Booking request submitted successfully!");
     },
     onError: (error: { message?: string }) => {
-      const isJsonOrNetworkError =
-        typeof error?.message === "string" &&
-        (error.message.includes("not valid JSON") ||
-          error.message.includes("DOCTYPE") ||
-          error.message.includes("Failed to fetch") ||
-          error.message.includes("NetworkError"));
-      if (isJsonOrNetworkError) {
-        setApiUnavailable(true);
-        toast.error(t("booking.apiUnavailable"));
-      } else {
-        toast.error(error?.message || t("booking.errorMessage"));
-      }
+      toast.error(error?.message || t("booking.errorMessage"));
     },
   });
 
   const onSubmit = (data: BookingForm) => {
-    setFormDataForFallback(data);
     createBooking.mutate({
       name: data.name,
       email: data.email,
@@ -299,34 +284,6 @@ export default function Booking() {
               <p className="text-sm text-muted-foreground text-center">
                 {t("booking.formAgreement")}
               </p>
-
-              {apiUnavailable && (
-                <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border">
-                  <p className="text-sm text-foreground mb-3">
-                    {t("booking.apiUnavailable")}
-                  </p>
-                  <a
-                    href={
-                      formDataForFallback
-                        ? (() => {
-                            const d = formDataForFallback;
-                            const subject = encodeURIComponent(
-                              `Reservation request – ${d.date} ${d.time} – ${d.name}`
-                            );
-                            const body = encodeURIComponent(
-                              `Name: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nDate: ${d.date}\nTime: ${d.time}\nGuests: ${d.partySize}${d.specialRequests ? `\nSpecial requests: ${d.specialRequests}` : ""}`
-                            );
-                            return `mailto:info@spinella.ch?subject=${subject}&body=${body}`;
-                          })()
-                        : "mailto:info@spinella.ch?subject=Reservation request"
-                    }
-                    className="inline-flex items-center gap-2 gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-medium px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Mail className="w-4 h-4" />
-                    {t("booking.sendByEmail")}
-                  </a>
-                </div>
-              )}
             </form>
           </div>
         </div>
