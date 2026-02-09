@@ -55,6 +55,8 @@ export default function Booking() {
 
   const onSubmit = async (data: BookingForm) => {
     setIsSubmitting(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     try {
       const res = await fetch("/api/booking", {
         method: "POST",
@@ -68,7 +70,9 @@ export default function Booking() {
           partySize: parseInt(data.partySize),
           specialRequests: data.specialRequests || null,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.success) {
         setIsSubmitted(true);
@@ -77,6 +81,7 @@ export default function Booking() {
         toast.error(t("booking.errorMessage"));
       }
     } catch {
+      clearTimeout(timeoutId);
       toast.error(t("booking.errorMessage"));
     } finally {
       setIsSubmitting(false);
