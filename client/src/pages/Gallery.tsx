@@ -8,42 +8,22 @@ export default function Gallery() {
   const { t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Gallery image array — comment out any of these 3 to remove from gallery:
-  // 1) Image with Christmas tinsel
-  // 2) Image of the woman in the pink jumper
-  // 3) Bar image with two men (one obscured)
   const images = [
-    // Interior — new Spinella photos
-    { src: "/spinella_interior.jpg", alt: "Spinella interior", categoryKey: "gallery.interior" },
-    { src: "/interior_main.jpg", alt: "Interior view", categoryKey: "gallery.interior" },
-    { src: "/interior_brothers.jpg", alt: "The three brothers", categoryKey: "gallery.brothers" },
-    { src: "/interior_1.jpg", alt: "Interior ambiance", categoryKey: "gallery.interior" },
-    { src: "/interior_4.jpg", alt: "Dining space", categoryKey: "gallery.interior" },
-    { src: "/interior_5.jpg", alt: "Restaurant interior", categoryKey: "gallery.interior" },
-    { src: "/interior_6.jpg", alt: "Interior detail", categoryKey: "gallery.interior" },
-    { src: "/interior_7.jpg", alt: "Ambiance", categoryKey: "gallery.interior" },
-    { src: "/interior_9.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    { src: "/interior_2.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    { src: "/interior_3.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    { src: "/interior_8.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    { src: "/interior_10.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    { src: "/interior_11.jpg", alt: "Interior", categoryKey: "gallery.interior" },
-    // Exterior
-    { src: "/spinella_exterior.jpg", alt: "Spinella exterior", categoryKey: "gallery.exterior" },
-    { src: "/exterior_night_new.jpg", alt: "Exterior at night", categoryKey: "gallery.exterior" },
-    // Chef / team
-    { src: "/a_maybe.jpg", alt: "Chef with desserts", categoryKey: "gallery.chef" },
-    // Food — new Spinella photos
-    { src: "/food_1.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_2.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_3.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_5.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_6.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_7.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_8.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_9.jpg", alt: "Food presentation", categoryKey: "gallery.food" },
-    { src: "/food_10.jpg", alt: "Dish", categoryKey: "gallery.food" },
-    { src: "/food_11.jpg", alt: "Dish", categoryKey: "gallery.food" },
+    { src: "/gallery_1.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_2.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_3.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_4.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_5.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_6.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_7.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_8.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_9.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_10.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_11.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_12.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_13.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_14.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
+    { src: "/gallery_15.jpeg", alt: "Spinella", categoryKey: "gallery.interior" },
   ];
 
   return (
@@ -52,7 +32,7 @@ export default function Gallery() {
       <section className="relative h-96 flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/spinella_exterior.jpg)" }}
+          style={{ backgroundImage: "url(/gallery_1.jpeg)" }}
         >
           <div className="hero-overlay absolute inset-0"></div>
         </div>
