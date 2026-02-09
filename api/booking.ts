@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = "Spinella Geneva <reservations@spinella-geneva.ch>";
+const FROM = "Spinella Geneva <reservations@spinella.ch>";
 const BCC = "info@spinella.ch";
 
 function formatDate(iso: string): string {

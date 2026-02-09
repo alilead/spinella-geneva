@@ -16,8 +16,8 @@ The booking form POSTs to **`/api/booking`**, which is a **Vercel serverless fun
 1. Deploy the site to **Vercel** as usual (connect the repo; Vercel will run `pnpm run build:client` and serve the static site + the `api/` functions).
 2. In **Vercel** → your project → **Settings** → **Environment Variables**, add:
    - **`RESEND_API_KEY`** – your Resend API key ([resend.com/api-keys](https://resend.com/api-keys)).
-   - **`RESTAURANT_EMAIL`** – e.g. `reservations@spinella-geneva.ch` (where you receive each booking).
-3. In Resend, add and verify your sending domain (e.g. spinella-geneva.ch).
+   - **`RESTAURANT_EMAIL`** – e.g. `reservations@spinella.ch` or `info@spinella.ch` (where you receive each booking).
+3. In Resend, add and verify your sending domain (e.g. spinella.ch). Emails are sent from `reservations@spinella.ch`; the domain must match.
 4. Redeploy. Booking will work on **spinella.ch** (or your Vercel URL) with no Render or Node server.
 
 ---
@@ -25,7 +25,7 @@ The booking form POSTs to **`/api/booking`**, which is a **Vercel serverless fun
 ## Setup (if you run the full Node app instead)
 
 1. **Resend** – Create an API key at [resend.com/api-keys](https://resend.com/api-keys) and add/verify your sending domain. Set `RESEND_API_KEY` in your `.env`.
-2. **Your email** – Set `RESTAURANT_EMAIL` to the address where you want to receive each booking (e.g. `reservations@spinella-geneva.ch`).
+2. **Your email** – Set `RESTAURANT_EMAIL` to the address where you want to receive each booking (e.g. `reservations@spinella.ch` or `info@spinella.ch`).
 3. **Database** – **Optional.** Leave `DATABASE_URL` empty if you only need booking emails. You only need a database if you use newsletter signups or auth.
 4. **Run the server** – `pnpm run build && pnpm run start` (or `pnpm run dev`). The site and API must be served together so `/api/trpc` is available.
 
