@@ -5,23 +5,22 @@
  *
  * When the backend is deployed, this can be replaced by a tRPC query
  * that fetches blocked slots from the server.
+ *
+ * Note: 14 February evening is NOT blocked — client wants it "manual only":
+ * guests can request 17:30–22:30 on the 14th; restaurant confirms by email.
  */
-// 14 February evening blocked: 17:30–22:30 (Valentine's private event / reserved)
-const feb14EveningSlots = [
-  "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30",
-];
-
 export const blockedSlots: { date: string; time: string }[] = [
-  ...feb14EveningSlots.map((time) => ({ date: "2026-02-14", time })),
-  ...feb14EveningSlots.map((time) => ({ date: "2027-02-14", time })),
+  // Example: block a private event
+  // { date: "2026-03-01", time: "19:00" },
 ];
 
 /**
  * Request-only dates: e.g. Valentine's Day. No automatic booking; guests submit
- * a request for their preferred time and the restaurant confirms by email.
+ * a request for their preferred time (including 17:30–22:30) and the restaurant
+ * confirms by email within 10–20 minutes.
  */
 export const requestOnlyDates: string[] = [
-  "2026-02-14", // Valentine's Day
+  "2026-02-14", // Valentine's Day — manual for the 14th evening (client preference)
   "2027-02-14",
 ];
 
