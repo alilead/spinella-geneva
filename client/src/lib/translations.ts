@@ -9,6 +9,7 @@ export const translations = {
       events: "Events",
       about: "About",
       contact: "Contact",
+      faq: "FAQ",
       bookTable: "Book a table with us"
     },
     home: {
@@ -16,8 +17,8 @@ export const translations = {
       welcomeHome: "Welcome home.",
       heroParagraph1: "Three Sicilian brothers, one impossible dream, to bring the soul of Sicily, its warmth, its passion, its authentic flavors to the heart of Geneva.",
       heroParagraph2: "Today, Spinella is more than Geneva's top-ranked restaurant. It's a family. A story of love and adventure. A place where every meal creates a bond, and every guest becomes a friend.",
-      subtitle: "A Sicilian Story of Love, Passion & Authentic Italian Cuisine",
-      description: "Three brothers bringing the soul of Sicily to Geneva. Experience traditional Italian dishes, handcrafted cocktails, and warm hospitality in a casual-chic setting.",
+      subtitle: "A Sicilian Story of Love, Passion & Authentic Sicilian Cuisine",
+      description: "Three brothers bringing the soul of Sicily to Geneva. Experience traditional Sicilian dishes, handcrafted cocktails, and warm hospitality in a casual-chic setting.",
       philosophyQuote: "Sharing a meal is creating a bond.",
       philosophySubline: "At Spinella, dining transcends mere consumption. It's about creating emotional connections, celebrating life and culture, and making every guest feel like family.",
       bookYourTable: "Book a table with us",
@@ -34,7 +35,7 @@ export const translations = {
       privateEventsDesc: "Birthdays, business dinners and anniversaries, host your special moments with the Spinella family. We make every celebration unforgettable.",
       threeBrothersTitle: "The Three Brothers",
       threeBrothersDesc1: "Spinella is not just a restaurant, it's a love story and a passionate mission. Salvatore, Marco, and Gabriele left Sicily to transmit its soul to Geneva. Every dish, every cocktail, every smile is an expression of their dedication to authenticity and genuine human connection.",
-      threeBrothersDesc2: "In a casual-chic setting near Cornavin and the lake, traditional Italian cuisine meets handcrafted cocktails. But what truly sets us apart is the warmth: here, every guest becomes part of our extended family.",
+      threeBrothersDesc2: "In a casual-chic setting near Cornavin and the lake, traditional Sicilian cuisine meets handcrafted cocktails. But what truly sets us apart is the warmth: here, every guest becomes part of our extended family.",
       ourStory: "Meet the Brothers",
       reviewsTitle: "The Spinella Family",
       reviewsSubtitle: "What our guests say about the family feeling",
@@ -49,7 +50,7 @@ export const translations = {
     },
     menu: {
       title: "Our Menu",
-      subtitle: "Authentic Italian Flavors from Sicily",
+      subtitle: "Authentic Sicilian Flavors from Sicily",
       description: "Discover our selection of traditional Sicilian dishes, handcrafted with passion and the finest ingredients.",
       introStory: "Our dishes aren't just food, they're emotions and memories. Every recipe carries the soul of Sicily, prepared with first-choice ingredients and the same care our grandmother taught us. Homemade desserts made fresh daily, the way Gabriele's grandmother made them by hand with patience, with love.",
       appetizers: "Appetizers",
@@ -74,7 +75,7 @@ export const translations = {
       subtitle: "Three Brothers, One Dream",
       storyOpening: "This is our story. This is our passion. This is Spinella.",
       story1: "In Sicily, we learned that food is more than sustenance—it's love made visible. It's the way our grandmother welcomed guests with open arms and a full table. It's the laughter that echoed through family dinners that lasted until midnight. It's the soul of an island that has fed the world for centuries.",
-      story2: "When we—Salvatore, Marco, and Gabriele—left our homeland to bring this soul to Geneva, people thought we were crazy. \"Geneva already has Italian restaurants,\" they said. But we weren't opening just another restaurant. We were creating a home away from home. A place where every guest would feel what we felt growing up: that sharing a meal is sharing your heart.",
+      story2: "When we—Salvatore, Marco, and Gabriele—left our homeland to bring this soul to Geneva, people thought we were crazy. \"Geneva already has Sicilian restaurants,\" they said. But we weren't opening just another restaurant. We were creating a home away from home. A place where every guest would feel what we felt growing up: that sharing a meal is sharing your heart.",
       story3: "Today, Spinella is Geneva's top-ranked restaurant. But that's not what makes us proud. What fills our hearts is when a guest tells us, \"I felt like family here.\" Because that's exactly what we set out to create.",
       salvatore: "Salvatore",
       salvatoreTitle: "The Heart of the Bar",
@@ -153,7 +154,7 @@ export const translations = {
       findUs: "Find Us",
       locationDesc: "Located in the heart of Geneva's Charmilles neighborhood, just a short walk from Cornavin central station.",
       readyToVisit: "Ready to Visit?",
-      readyToVisitDesc: "Book your table now and experience authentic Italian cuisine in the heart of Geneva.",
+      readyToVisitDesc: "Book your table now and experience authentic Sicilian cusine in the heart of Geneva.",
       publicTransport: "Public Transport",
       parking: "Parking"
     },
@@ -187,7 +188,10 @@ export const translations = {
       bookingConfirmed: "Booking Confirmed!",
       bookingConfirmedDesc: "Thank you for your reservation request. We've sent a confirmation email to your address. Our team will review your booking and confirm within 10-20 minutes.",
       questionsContact: "If you have any questions, please contact us at",
-      formAgreement: "By submitting this form, you agree to receive a confirmation email. We'll review your request and confirm within 10-20 minutes."
+      formAgreement: "By submitting this form, you agree to receive a confirmation email. We'll review your request and confirm within 10-20 minutes.",
+      apiUnavailable: "Online booking is temporarily unavailable. Please send your request by email or call us—we'll confirm within 10–20 minutes.",
+      sendByEmail: "Send request by email",
+      valentinesNotice: "Valentine's Day at Spinella — Reservations for this date are by request only. Choose your preferred time below and we'll confirm by email within 10–20 minutes."
     },
     footer: {
       stayConnected: "Stay Connected",
@@ -204,6 +208,30 @@ export const translations = {
       author2: "James R., London",
       author3: "Sophie D., Geneva",
       author4: "Antonio M., Italy"
+    },
+    faq: {
+      title: "Frequently Asked Questions",
+      subtitle: "Everything You Need to Know About Spinella",
+      q1: "Do I need a reservation?",
+      a1: "We highly recommend making a reservation, especially for dinner and weekends. You can book online through our website or call us directly at +41 22 734 58 98.",
+      q2: "What are your opening hours?",
+      a2: "We're open Monday-Wednesday 12pm-2pm & 6:30pm-10pm, Thursday-Friday 12pm-2pm & 6:30pm-10:30pm, and Saturday 6:30pm-10:30pm. We're closed on Sundays.",
+      q3: "Do you accommodate dietary restrictions?",
+      a3: "Absolutely! We can accommodate vegetarian, vegan, gluten-free, and other dietary requirements. Please inform us when making your reservation or let your server know.",
+      q4: "Is there parking available?",
+      a4: "Street parking is available nearby. We're also easily accessible by public transport - just a short walk from Cornavin station.",
+      q5: "Do you have a dress code?",
+      a5: "We have a casual-chic atmosphere. While there's no strict dress code, we recommend smart casual attire to match the elegant ambiance.",
+      q6: "Can I host a private event at Spinella?",
+      a6: "Yes! We can accommodate private events for groups of 20-50 guests. Contact us to discuss your event requirements and receive a customized proposal.",
+      q7: "Do you offer takeaway or delivery?",
+      a7: "Currently, we focus on providing the full Spinella dining experience in our restaurant. We don't offer takeaway or delivery services.",
+      q8: "What makes Spinella different from other restaurants?",
+      a8: "Spinella is more than a restaurant - it's a family. Three Sicilian brothers bringing authentic Sicilian soul to Geneva. Every dish is prepared with first-choice ingredients and passion, every cocktail tells a story, and every guest becomes part of our family.",
+      stillHaveQuestions: "Still Have Questions?",
+      contactPrompt: "We're here to help! Get in touch with us or book your table now.",
+      contactUs: "Contact Us",
+      bookTable: "Book a Table"
     }
   },
   fr: {
@@ -214,6 +242,7 @@ export const translations = {
       events: "Événements",
       about: "À Propos",
       contact: "Contact",
+      faq: "FAQ",
       bookTable: "Réserver une table"
     },
     home: {
@@ -221,8 +250,8 @@ export const translations = {
       welcomeHome: "Bienvenue à la maison.",
       heroParagraph1: "Trois frères siciliens. Un rêve impossible. Apporter l'âme de la Sicile—sa chaleur, sa passion, ses saveurs authentiques—au cœur de Genève.",
       heroParagraph2: "Aujourd'hui, Spinella est bien plus que le restaurant #1 de Genève. C'est une famille. Une histoire d'amour et d'aventure. Un lieu où chaque repas crée un lien, et chaque client devient un ami.",
-      subtitle: "Une Histoire Sicilienne d'Amour, Passion & Cuisine Italienne Authentique",
-      description: "Trois frères apportant l'âme de la Sicile à Genève. Découvrez des plats italiens traditionnels, des cocktails artisanaux et une hospitalité chaleureuse dans un cadre casual-chic.",
+      subtitle: "Une Histoire Sicilienne d'Amour, Passion & Cuisine Sicilienne Authentique",
+      description: "Trois frères apportant l'âme de la Sicile à Genève. Découvrez des plats siciliens traditionnels, des cocktails artisanaux et une hospitalité chaleureuse dans un cadre casual-chic.",
       philosophyQuote: "Partager un repas, c'est créer du lien.",
       philosophySubline: "Chez Spinella, dîner transcende la simple consommation. Il s'agit de créer des liens émotionnels, de célébrer la vie et la culture, et de faire en sorte que chaque client se sente comme en famille.",
       bookYourTable: "Réserver une table",
@@ -239,7 +268,7 @@ export const translations = {
       privateEventsDesc: "Anniversaires, dîners d'affaires, fêtes—organisez vos moments spéciaux avec la famille Spinella. Chaque célébration devient inoubliable.",
       threeBrothersTitle: "Les Trois Frères",
       threeBrothersDesc1: "Spinella n'est pas qu'un restaurant—c'est une histoire d'amour et une mission passionnée. Salvatore, Marco et Gabriele ont quitté la Sicile pour en transmettre l'âme à Genève. Chaque plat, chaque cocktail, chaque sourire exprime leur dévouement à l'authenticité et aux vrais liens humains.",
-      threeBrothersDesc2: "Dans un cadre casual-chic près de Cornavin et du lac, la cuisine italienne traditionnelle rencontre les cocktails artisanaux. Mais ce qui nous distingue vraiment, c'est la chaleur : ici, chaque client fait partie de notre famille.",
+      threeBrothersDesc2: "Dans un cadre casual-chic près de Cornavin et du lac, la cuisine sicilienne traditionnelle rencontre les cocktails artisanaux. Mais ce qui nous distingue vraiment, c'est la chaleur : ici, chaque client fait partie de notre famille.",
       ourStory: "Rencontrer les frères",
       reviewsTitle: "La famille Spinella",
       reviewsSubtitle: "Ce que nos clients disent du sentiment de famille",
@@ -254,7 +283,7 @@ export const translations = {
     },
     menu: {
       title: "Notre Menu",
-      subtitle: "Saveurs Italiennes Authentiques de Sicile",
+      subtitle: "Saveurs Siciliennes Authentiques de Sicile",
       description: "Découvrez notre sélection de plats siciliens traditionnels, préparés avec passion et les meilleurs ingrédients.",
       introStory: "Nos plats ne sont pas que de la nourriture—ce sont des émotions et des souvenirs. Chaque recette porte l'âme de la Sicile, préparée avec des ingrédients de premier choix et le même soin que notre grand-mère nous a enseigné. Desserts maison faits frais chaque jour, comme la grand-mère de Gabriele les faisait : à la main, avec patience, avec amour.",
       appetizers: "Entrées",
@@ -280,7 +309,7 @@ export const translations = {
       subtitle: "Trois Frères, Un Rêve",
       storyOpening: "Voici notre histoire. Voici notre passion. Voici Spinella.",
       story1: "En Sicile, nous avons appris que la nourriture est plus qu'une subsistance—c'est l'amour rendu visible. C'est la façon dont notre grand-mère accueillait les invités les bras ouverts et la table garnie. C'est le rire des dîners de famille qui duraient jusqu'à minuit. C'est l'âme d'une île qui a nourri le monde pendant des siècles.",
-      story2: "Quand nous—Salvatore, Marco et Gabriele—avons quitté notre terre pour en apporter l'âme à Genève, on nous a pris pour des fous. « Genève a déjà des restaurants italiens », disaient-ils. Mais nous n'ouvrions pas un restaurant de plus. Nous créions une maison loin de la maison. Un lieu où chaque client ressentirait ce que nous avons ressenti en grandissant : que partager un repas, c'est partager son cœur.",
+      story2: "Quand nous—Salvatore, Marco et Gabriele—avons quitté notre terre pour en apporter l'âme à Genève, on nous a pris pour des fous. « Genève a déjà des restaurants siciliens », disaient-ils. Mais nous n'ouvrions pas un restaurant de plus. Nous créions une maison loin de la maison. Un lieu où chaque client ressentirait ce que nous avons ressenti en grandissant : que partager un repas, c'est partager son cœur.",
       story3: "Aujourd'hui, Spinella est le restaurant le mieux classé de Genève. Mais ce n'est pas ce qui nous rend fiers. Ce qui nous remplit le cœur, c'est quand un client nous dit : « Je me suis senti comme en famille ici. » Parce que c'est exactement ce que nous voulions créer.",
       salvatore: "Salvatore",
       salvatoreTitle: "L'Âme du Bar",
@@ -393,7 +422,10 @@ export const translations = {
       bookingConfirmed: "Réservation confirmée !",
       bookingConfirmedDesc: "Merci pour votre demande de réservation. Nous avons envoyé un email de confirmation à votre adresse. Notre équipe examinera votre réservation et confirmera sous 10 à 20 minutes.",
       questionsContact: "Pour toute question, contactez-nous au",
-      formAgreement: "En soumettant ce formulaire, vous acceptez de recevoir un email de confirmation. Nous examinerons votre demande et confirmerons sous 10 à 20 minutes."
+      formAgreement: "En soumettant ce formulaire, vous acceptez de recevoir un email de confirmation. Nous examinerons votre demande et confirmerons sous 10 à 20 minutes.",
+      apiUnavailable: "La réservation en ligne est temporairement indisponible. Envoyez-nous votre demande par email ou appelez-nous—nous confirmerons sous 10 à 20 minutes.",
+      sendByEmail: "Envoyer la demande par email",
+      valentinesNotice: "Saint-Valentin chez Spinella — Les réservations pour cette date se font sur demande. Choisissez l'heure souhaitée ci-dessous, nous confirmerons par email sous 10 à 20 minutes."
     },
     footer: {
       stayConnected: "Restez Connecté",
@@ -410,6 +442,30 @@ export const translations = {
       author2: "James R., Londres",
       author3: "Sophie D., Genève",
       author4: "Antonio M., Italie"
+    },
+    faq: {
+      title: "Questions Fréquentes",
+      subtitle: "Tout Ce Que Vous Devez Savoir Sur Spinella",
+      q1: "Dois-je réserver?",
+      a1: "Nous recommandons fortement de réserver, surtout pour le dîner et les week-ends. Vous pouvez réserver en ligne sur notre site ou nous appeler au +41 22 734 58 98.",
+      q2: "Quels sont vos horaires d'ouverture?",
+      a2: "Nous sommes ouverts lundi-mercredi 12h-14h & 18h30-22h, jeudi-vendredi 12h-14h & 18h30-22h30, et samedi 18h30-22h30. Nous sommes fermés le dimanche.",
+      q3: "Accommodez-vous les restrictions alimentaires?",
+      a3: "Absolument! Nous pouvons accommoder les régimes végétariens, végétaliens, sans gluten et autres exigences alimentaires. Veuillez nous en informer lors de votre réservation ou le dire à votre serveur.",
+      q4: "Y a-t-il un parking disponible?",
+      a4: "Un parking dans la rue est disponible à proximité. Nous sommes également facilement accessibles en transports publics - à quelques pas de la gare de Cornavin.",
+      q5: "Avez-vous un code vestimentaire?",
+      a5: "Nous avons une atmosphère casual-chic. Bien qu'il n'y ait pas de code vestimentaire strict, nous recommandons une tenue décontractée élégante pour correspondre à l'ambiance.",
+      q6: "Puis-je organiser un événement privé chez Spinella?",
+      a6: "Oui! Nous pouvons accueillir des événements privés pour des groupes de 20 à 50 personnes. Contactez-nous pour discuter de vos besoins et recevoir une proposition personnalisée.",
+      q7: "Proposez-vous des plats à emporter ou la livraison?",
+      a7: "Actuellement, nous nous concentrons sur l'expérience complète Spinella dans notre restaurant. Nous n'offrons pas de service à emporter ou de livraison.",
+      q8: "Qu'est-ce qui rend Spinella différent des autres restaurants?",
+      a8: "Spinella est plus qu'un restaurant - c'est une famille. Trois frères siciliens apportant l'âme sicilienne authentique à Genève. Chaque plat est préparé avec des ingrédients de premier choix et passion, chaque cocktail raconte une histoire, et chaque client devient partie de notre famille.",
+      stillHaveQuestions: "Vous Avez Encore Des Questions?",
+      contactPrompt: "Nous sommes là pour vous aider! Contactez-nous ou réservez votre table maintenant.",
+      contactUs: "Contactez-Nous",
+      bookTable: "Réserver une Table"
     }
   },
   it: {
@@ -420,6 +476,7 @@ export const translations = {
       events: "Eventi",
       about: "Chi Siamo",
       contact: "Contatti",
+      faq: "FAQ",
       bookTable: "Prenota un tavolo"
     },
     home: {
@@ -427,8 +484,8 @@ export const translations = {
       welcomeHome: "Benvenuti a casa.",
       heroParagraph1: "Tre fratelli siciliani. Un sogno impossibile. Portare l'anima della Sicilia—il suo calore, la sua passione, i suoi sapori autentici—nel cuore di Ginevra.",
       heroParagraph2: "Oggi Spinella è molto più del ristorante in cima alla classifica a Ginevra. È una famiglia. Una storia d'amore e avventura. Un luogo dove ogni pasto crea un legame e ogni ospite diventa un amico.",
-      subtitle: "Una Storia Siciliana d'Amore, Passione e Cucina Italiana Autentica",
-      description: "Tre fratelli che portano l'anima della Sicilia a Ginevra. Scopri piatti italiani tradizionali, cocktail artigianali e un'ospitalità calorosa in un ambiente casual-chic.",
+      subtitle: "Una Storia Siciliana d'Amore, Passione e Cucina Siciliana Autentica",
+      description: "Tre fratelli che portano l'anima della Sicilia a Ginevra. Scopri piatti siciliani tradizionali, cocktail artigianali e un'ospitalità calorosa in un ambiente casual-chic.",
       philosophyQuote: "Condividere un pasto è creare un legame.",
       philosophySubline: "Da Spinella, pranzare trascende il semplice consumo. Si tratta di creare connessioni emotive, celebrare la vita e la cultura, e far sentire ogni ospite come in famiglia.",
       bookYourTable: "Prenota un tavolo",
@@ -445,7 +502,7 @@ export const translations = {
       privateEventsDesc: "Compleanni, cene aziendali, anniversari—organizza i tuoi momenti speciali con la famiglia Spinella. Ogni festa è indimenticabile.",
       threeBrothersTitle: "I Tre Fratelli",
       threeBrothersDesc1: "Spinella non è solo un ristorante—è una storia d'amore e una missione appassionata. Salvatore, Marco e Gabriele hanno lasciato la Sicilia per portarne l'anima a Ginevra. Ogni piatto, ogni cocktail, ogni sorriso esprime la loro dedizione all'autenticità e al vero legame umano.",
-      threeBrothersDesc2: "In un ambiente casual-chic vicino a Cornavin e al lago, la cucina italiana tradizionale incontra i cocktail artigianali. Ma ciò che ci distingue è il calore: qui ogni ospite fa parte della nostra famiglia.",
+      threeBrothersDesc2: "In un ambiente casual-chic vicino a Cornavin e al lago, la cucina siciliana tradizionale incontra i cocktail artigianali. Ma ciò che ci distingue è il calore: qui ogni ospite fa parte della nostra famiglia.",
       ourStory: "Incontra i Fratelli",
       reviewsTitle: "La Famiglia Spinella",
       reviewsSubtitle: "Cosa dicono i nostri ospiti del clima familiare",
@@ -460,7 +517,7 @@ export const translations = {
     },
     menu: {
       title: "Il Nostro Menu",
-      subtitle: "Sapori Italiani Autentici dalla Sicilia",
+      subtitle: "Sapori Siciliani Autentici dalla Sicilia",
       description: "Scopri la nostra selezione di piatti siciliani tradizionali, preparati con passione e i migliori ingredienti.",
       introStory: "I nostri piatti non sono solo cibo—sono emozioni e ricordi. Ogni ricetta porta l'anima della Sicilia, preparata con ingredienti di prima scelta e la stessa cura che ci ha insegnato la nonna. Dolci fatti in casa, freschi ogni giorno, come li faceva la nonna di Gabriele: a mano, con pazienza, con amore.",
       appetizers: "Antipasti",
@@ -486,7 +543,7 @@ export const translations = {
       subtitle: "Tre Fratelli, Un Sogno",
       storyOpening: "Questa è la nostra storia. Questa è la nostra passione. Questa è Spinella.",
       story1: "In Sicilia abbiamo imparato che il cibo è più del nutrimento—è l'amore reso visibile. È il modo in cui nostra nonna accoglieva gli ospiti a braccia aperte e con la tavola piena. È le risate che echeggiavano nei pranzi di famiglia fino a mezzanotte. È l'anima di un'isola che ha nutrito il mondo per secoli.",
-      story2: "Quando noi—Salvatore, Marco e Gabriele—abbiamo lasciato la nostra terra per portare quest'anima a Ginevra, dicevano che eravamo pazzi. \"Ginevra ha già ristoranti italiani.\" Ma non stavamo aprendo un ristorante in più. Stavamo creando una casa lontano da casa. Un luogo dove ogni ospite avrebbe sentito ciò che abbiamo sentito noi crescendo: che condividere un pasto è condividere il cuore.",
+      story2: "Quando noi—Salvatore, Marco e Gabriele—abbiamo lasciato la nostra terra per portare quest'anima a Ginevra, dicevano che eravamo pazzi. \"Ginevra ha già ristoranti siciliani.\" Ma non stavamo aprendo un ristorante in più. Stavamo creando una casa lontano da casa. Un luogo dove ogni ospite avrebbe sentito ciò che abbiamo sentito noi crescendo: che condividere un pasto è condividere il cuore.",
       story3: "Oggi Spinella è il ristorante in cima alla classifica a Ginevra. Ma non è questo che ci rende orgogliosi. Ci riempie il cuore quando un ospite ci dice: \"Mi sono sentito come in famiglia qui.\" Perché è esattamente ciò che volevamo creare.",
       salvatore: "Salvatore",
       salvatoreTitle: "L'Anima del Bar",
@@ -565,7 +622,7 @@ export const translations = {
       findUs: "Dove Siamo",
       locationDesc: "Nel cuore del quartiere Charmilles a Ginevra, a pochi passi dalla stazione centrale di Cornavin.",
       readyToVisit: "Pronto a Venire?",
-      readyToVisitDesc: "Prenota il tuo tavolo e scopri la cucina italiana autentica nel cuore di Ginevra.",
+      readyToVisitDesc: "Prenota il tuo tavolo e scopri la cucina siciliana autentica nel cuore di Ginevra.",
       publicTransport: "Trasporti Pubblici",
       parking: "Parcheggio"
     },
@@ -599,7 +656,10 @@ export const translations = {
       bookingConfirmed: "Prenotazione confermata!",
       bookingConfirmedDesc: "Grazie per la tua richiesta. Abbiamo inviato un'email di conferma al tuo indirizzo. Il nostro team esaminerà la prenotazione e confermerà entro 10-20 minuti.",
       questionsContact: "Per domande, contattaci al",
-      formAgreement: "Inviando questo modulo accetti di ricevere un'email di conferma. Esamineremo la tua richiesta e confermeremo entro 10-20 minuti."
+      formAgreement: "Inviando questo modulo accetti di ricevere un'email di conferma. Esamineremo la tua richiesta e confermeremo entro 10-20 minuti.",
+      apiUnavailable: "La prenotazione online è temporaneamente non disponibile. Inviaci la richiesta per email o chiamaci—confermeremo entro 10-20 minuti.",
+      sendByEmail: "Invia richiesta per email",
+      valentinesNotice: "San Valentino da Spinella — Per questa data le prenotazioni sono su richiesta. Scegli l'ora preferita qui sotto, confermeremo per email entro 10-20 minuti."
     },
     footer: {
       stayConnected: "Resta in Contatto",
@@ -616,6 +676,30 @@ export const translations = {
       author2: "James R., Londra",
       author3: "Sophie D., Ginevra",
       author4: "Antonio M., Italia"
+    },
+    faq: {
+      title: "Domande Frequenti",
+      subtitle: "Tutto Quello Che Devi Sapere Su Spinella",
+      q1: "Devo prenotare?",
+      a1: "Consigliamo vivamente di prenotare, soprattutto per cena e nei weekend. Puoi prenotare online sul nostro sito o chiamarci al +41 22 734 58 98.",
+      q2: "Quali sono gli orari di apertura?",
+      a2: "Siamo aperti lunedì-mercoledì 12-14 & 18:30-22, giovedì-venerdì 12-14 & 18:30-22:30, e sabato 18:30-22:30. Siamo chiusi la domenica.",
+      q3: "Accommodate le restrizioni alimentari?",
+      a3: "Assolutamente! Possiamo accommodare diete vegetariane, vegane, senza glutine e altre esigenze alimentari. Informaci al momento della prenotazione o dillo al tuo cameriere.",
+      q4: "C'è un parcheggio disponibile?",
+      a4: "Il parcheggio in strada è disponibile nelle vicinanze. Siamo anche facilmente raggiungibili con i mezzi pubblici - a pochi passi dalla stazione di Cornavin.",
+      q5: "Avete un codice di abbigliamento?",
+      a5: "Abbiamo un'atmosfera casual-chic. Anche se non c'è un codice di abbigliamento rigoroso, raccomandiamo un abbigliamento smart casual per abbinarsi all'ambiente elegante.",
+      q6: "Posso organizzare un evento privato da Spinella?",
+      a6: "Sì! Possiamo ospitare eventi privati per gruppi di 20-50 persone. Contattaci per discutere le tue esigenze e ricevere una proposta personalizzata.",
+      q7: "Offrite asporto o consegna?",
+      a7: "Attualmente ci concentriamo sull'esperienza completa Spinella nel nostro ristorante. Non offriamo servizi di asporto o consegna.",
+      q8: "Cosa rende Spinella diverso dagli altri ristoranti?",
+      a8: "Spinella è più di un ristorante - è una famiglia. Tre fratelli siciliani che portano l'anima siciliana autentica a Ginevra. Ogni piatto è preparato con ingredienti di prima scelta e passione, ogni cocktail racconta una storia, e ogni ospite diventa parte della nostra famiglia.",
+      stillHaveQuestions: "Hai Ancora Domande?",
+      contactPrompt: "Siamo qui per aiutarti! Mettiti in contatto con noi o prenota il tuo tavolo ora.",
+      contactUs: "Contattaci",
+      bookTable: "Prenota un Tavolo"
     }
   }
 };

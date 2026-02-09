@@ -5,6 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { createBooking, getAllBookings, getBookingsByDate, subscribeNewsletter, getAllNewsletterSubscribers } from "./db";
 import { notifyOwner } from "./_core/notification";
+import { sendBookingConfirmationEmail } from "./_core/email";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -43,6 +44,17 @@ export const appRouter = router({
           partySize: input.partySize,
           specialRequests: input.specialRequests || null,
           status: "pending",
+        });
+
+        // Send confirmation email to customer
+        await sendBookingConfirmationEmail({
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          date: input.date,
+          time: input.time,
+          partySize: input.partySize,
+          specialRequests: input.specialRequests,
         });
 
         // Send notification to owner

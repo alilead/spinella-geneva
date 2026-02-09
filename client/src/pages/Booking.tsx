@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
+import { Calendar, Clock, Users, CheckCircle, Mail } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { isSlotBlocked, isRequestOnlyDate } from "@/lib/blockedSlots";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,9 +31,16 @@ const bookingSchema = z.object({
 
 type BookingForm = z.infer<typeof bookingSchema>;
 
+const ALL_TIME_SLOTS = [
+  "12:00", "12:30", "13:00", "13:30", "14:00",
+  "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
+];
+
 export default function Booking() {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [apiUnavailable, setApiUnavailable] = useState(false);
+  const [formDataForFallback, setFormDataForFallback] = useState<BookingForm | null>(null);
 
   const {
     register,
@@ -44,17 +52,32 @@ export default function Booking() {
     resolver: zodResolver(bookingSchema),
   });
 
+  const selectedDate = watch("date");
+
   const createBooking = trpc.bookings.create.useMutation({
     onSuccess: () => {
+      setApiUnavailable(false);
       setIsSubmitted(true);
       toast.success("Booking request submitted successfully!");
     },
     onError: (error: { message?: string }) => {
-      toast.error(error.message || "Failed to submit booking. Please try again.");
+      const isJsonOrNetworkError =
+        typeof error?.message === "string" &&
+        (error.message.includes("not valid JSON") ||
+          error.message.includes("DOCTYPE") ||
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("NetworkError"));
+      if (isJsonOrNetworkError) {
+        setApiUnavailable(true);
+        toast.error(t("booking.apiUnavailable"));
+      } else {
+        toast.error(error?.message || t("booking.errorMessage"));
+      }
     },
   });
 
   const onSubmit = (data: BookingForm) => {
+    setFormDataForFallback(data);
     createBooking.mutate({
       name: data.name,
       email: data.email,
@@ -66,10 +89,10 @@ export default function Booking() {
     });
   };
 
-  const timeSlots = [
-    "12:00", "12:30", "13:00", "13:30", "14:00",
-    "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
-  ];
+  const timeSlots = useMemo(() => {
+    if (!selectedDate) return ALL_TIME_SLOTS;
+    return ALL_TIME_SLOTS.filter((time) => !isSlotBlocked(selectedDate, time));
+  }, [selectedDate]);
 
   const partySizes = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
 
@@ -178,7 +201,13 @@ export default function Booking() {
               {/* Reservation Details */}
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold mb-4">{t("booking.reservationDetails")}</h2>
-                
+
+                {selectedDate && isRequestOnlyDate(selectedDate) && (
+                  <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
+                    <p className="text-sm font-medium">{t("booking.valentinesNotice")}</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="date" className="flex items-center">
@@ -269,6 +298,34 @@ export default function Booking() {
               <p className="text-sm text-muted-foreground text-center">
                 {t("booking.formAgreement")}
               </p>
+
+              {apiUnavailable && (
+                <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border">
+                  <p className="text-sm text-foreground mb-3">
+                    {t("booking.apiUnavailable")}
+                  </p>
+                  <a
+                    href={
+                      formDataForFallback
+                        ? (() => {
+                            const d = formDataForFallback;
+                            const subject = encodeURIComponent(
+                              `Reservation request – ${d.date} ${d.time} – ${d.name}`
+                            );
+                            const body = encodeURIComponent(
+                              `Name: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nDate: ${d.date}\nTime: ${d.time}\nGuests: ${d.partySize}${d.specialRequests ? `\nSpecial requests: ${d.specialRequests}` : ""}`
+                            );
+                            return `mailto:info@spinella.ch?subject=${subject}&body=${body}`;
+                          })()
+                        : "mailto:info@spinella.ch?subject=Reservation request"
+                    }
+                    className="inline-flex items-center gap-2 gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-medium px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <Mail className="w-4 h-4" />
+                    {t("booking.sendByEmail")}
+                  </a>
+                </div>
+              )}
             </form>
           </div>
         </div>

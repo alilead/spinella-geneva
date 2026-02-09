@@ -1,7 +1,7 @@
 # Spinella Geneva - Design System
 
 ## Visual Direction
-Elegant Italian luxury with Sicilian warmth - combining sophistication with authentic family hospitality.
+Elegant Sicilian luxury with Sicilian warmth - combining sophistication with authentic family hospitality.
 
 ## Color Palette
 **Primary Colors:**

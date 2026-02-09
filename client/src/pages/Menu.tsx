@@ -37,7 +37,7 @@ export default function Menu() {
       items: [
         {
           name: "Risotto alla Milanese",
-          description: "Italian saffron risotto with Parmigiano cheese",
+          description: "Sicilian saffron risotto with Parmigiano cheese",
           price: "32 CHF",
         },
         {
@@ -89,7 +89,7 @@ export default function Menu() {
       items: [
         {
           name: "Tiramisù Classico",
-          description: "Traditional Italian coffee-flavored dessert",
+          description: "Traditional Sicilian coffee-flavored dessert",
           price: "14 CHF",
         },
         {

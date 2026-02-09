@@ -12,6 +12,7 @@ import Menu from "./pages/Menu";
 import Gallery from "./pages/Gallery";
 import About from "./pages/About";
 import Events from "./pages/Events";
+import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Booking from "./pages/Booking";
 
@@ -25,6 +26,7 @@ function Router() {
         <Route path="/gallery" component={Gallery} />
         <Route path="/about" component={About} />
         <Route path="/events" component={Events} />
+        <Route path="/faq" component={FAQ} />
         <Route path="/contact" component={Contact} />
         <Route path="/booking" component={Booking} />
         <Route path="/404" component={NotFound} />
