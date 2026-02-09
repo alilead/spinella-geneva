@@ -1,122 +1,78 @@
-# Why Reservations “Don’t Work” & How to Fix It
+# Booking (Resend only)
 
-## What’s going on
+Booking is **Resend-only**: no database, no Render, no separate Node server. When someone submits the form, a **Vercel serverless function** sends two emails via Resend and that’s it.
 
-When you deploy only the **front end** (e.g. Netlify or Vercel with “static” build):
+1. **Confirmation to the client** – the guest receives the booking details.
+2. **Copy to you** – the address in `RESTAURANT_EMAIL` (and BCC `info@spinella.ch`) receives the same details.
 
-- The site you see is just the React app (HTML/JS/CSS).
-- There is **no Node server running**.
-- The “Book a table” form sends a request to **`/api/trpc`** on the same domain.
-- On a static deploy, **`/api/trpc` doesn’t exist** → the host returns the SPA (index.html), so the app gets HTML instead of JSON → **“Unexpected token '<' … is not valid JSON”** and the reservation never reaches the backend.
-
-So: **Resend and the booking API are correctly set up in code**, but they only run when the **Node server** is running. Right now only the static site is deployed, so the API (and thus Resend) is never used.
+All bookings live in your inbox.
 
 ---
 
-## What has to be running for reservations to work
+## Vercel + Resend only (recommended)
 
-1. **Node API server**  
-   - Serves the tRPC endpoint at `/api/trpc`.  
-   - Handles `bookings.create` (saves to DB and sends the Resend email).
+The booking form POSTs to **`/api/booking`**, which is a **Vercel serverless function** in this repo (`api/booking.ts`). It only uses Resend; no database or other backend.
 
-2. **Environment variables on the server**
-   - **`DATABASE_URL`** – MySQL connection string (e.g. `mysql://user:password@host:3306/spinella`).  
-     Without this, the server will respond with “Database not available” when someone tries to book.
-   - **`RESEND_API_KEY`** – From [Resend](https://resend.com).  
-     Without this, the booking can be saved but the confirmation email will not be sent (and the server logs a warning).
-
-3. **Resend setup**
-   - Create an API key in the Resend dashboard and set it as `RESEND_API_KEY`.
-   - In Resend, add and verify the **domain** you send from (e.g. `spinella-geneva.ch` or `spinella.ch`).
-   - The code currently sends from: **`Spinella Geneva <reservations@spinella-geneva.ch>`**.  
-     If your domain is different, change the `from` address in `server/_core/email.ts` to match a verified sender in Resend.
+1. Deploy the site to **Vercel** as usual (connect the repo; Vercel will run `pnpm run build:client` and serve the static site + the `api/` functions).
+2. In **Vercel** → your project → **Settings** → **Environment Variables**, add:
+   - **`RESEND_API_KEY`** – your Resend API key ([resend.com/api-keys](https://resend.com/api-keys)).
+   - **`RESTAURANT_EMAIL`** – e.g. `reservations@spinella-geneva.ch` (where you receive each booking).
+3. In Resend, add and verify your sending domain (e.g. spinella-geneva.ch).
+4. Redeploy. Booking will work on **spinella.ch** (or your Vercel URL) with no Render or Node server.
 
 ---
 
-## 1. Test the API locally
+## Setup (if you run the full Node app instead)
 
-This confirms that the server, DB, and Resend are correctly configured.
+1. **Resend** – Create an API key at [resend.com/api-keys](https://resend.com/api-keys) and add/verify your sending domain. Set `RESEND_API_KEY` in your `.env`.
+2. **Your email** – Set `RESTAURANT_EMAIL` to the address where you want to receive each booking (e.g. `reservations@spinella-geneva.ch`).
+3. **Database** – **Optional.** Leave `DATABASE_URL` empty if you only need booking emails. You only need a database if you use newsletter signups or auth.
+4. **Run the server** – `pnpm run build && pnpm run start` (or `pnpm run dev`). The site and API must be served together so `/api/trpc` is available.
 
-```bash
-# Install dependencies
-pnpm install
+## Site on Vercel, API at spinella.ch
 
-# Create .env (copy from .env.example) and set at least:
-#   DATABASE_URL=mysql://...
-#   RESEND_API_KEY=re_...
-
-# Run the full app (server + client in dev)
-pnpm run dev
-```
-
-Then open the app (e.g. http://localhost:3000), go to the booking page, and submit a reservation.
-
-- If the **API is running and DB + Resend are set**: the request succeeds and the guest receives the Resend confirmation email.
-- If you see **“Unexpected token '<'”** in the browser: the request is not hitting the Node server (e.g. you’re opening the built static files without running the server).
-
-To test the API in production mode locally:
-
-```bash
-pnpm run build
-pnpm run start
-```
-
-Then use the same URL (e.g. http://localhost:3000) and submit a booking again.
+1. Deploy the API on the host that serves **spinella.ch**: `pnpm run build && pnpm run start`, with `RESEND_API_KEY` and `RESTAURANT_EMAIL` set (no `DATABASE_URL` needed for booking).
+2. On the API server, set **`CORS_ORIGIN`** to your Vercel/site origin.
+3. In Vercel, add build env **`VITE_API_URL`** = **`https://www.spinella.ch`**. Redeploy.
 
 ---
 
-## 2. Deploy the API so it runs in production
+## Troubleshooting: 404 and “is not valid JSON”
 
-You have two main options.
+If you see **404** on `api/trpc/bookings.create` and **"Unexpected token 'T', \"The page c\"... is not valid JSON"**, the browser is calling a URL that **does not run the Node API** — the server returns an HTML page (e.g. “The page could not be found”) instead of JSON.
 
-### A. Deploy the existing Node server (recommended)
+**Common case: spinella.ch is on Vercel**  
+Vercel only runs `pnpm run build:client` (static site). There is **no** `/api/trpc` on Vercel, so every booking request gets a 404/HTML response.
 
-Deploy the **same Express server** that already has tRPC and Resend wired up. Good options:
+**Fix (choose one):**
 
-- **Railway** – Connect the repo, set `DATABASE_URL` and `RESEND_API_KEY`, and use `pnpm run build && pnpm run start` (or run the built server as in the `start` script).
-- **Render** – Same idea: build and start the Node server, add a MySQL DB and env vars.
-- **Fly.io** – Similar: run the built server, attach a MySQL or use a managed DB.
+**Option A – API on the same domain (spinella.ch)**  
+1. Deploy the **full app** (Node server + client) on a host that runs Node: **Railway**, **Render**, or **Fly.io**.  
+2. Build: `pnpm run build` (this builds both client and server).  
+3. Start: `pnpm run start`.  
+4. Point your domain **spinella.ch** to that host.  
+5. Do **not** set `VITE_API_URL` (the client will use `https://spinella.ch/api/trpc`).  
+6. On the server, set `RESEND_API_KEY`, `RESTAURANT_EMAIL`, and if needed `CORS_ORIGIN`.
 
-Important:
-
-- Set **`DATABASE_URL`** and **`RESEND_API_KEY`** (and any other env vars from `.env.example`) in the host’s environment.
-- The booking API will be at **`https://your-api-host/api/trpc`**.
-
-If the API is on a **different domain** than the front end (e.g. API on Railway, site on Vercel):
-
-1. **On the API server**, set **`CORS_ORIGIN`** to your site’s origin(s), comma-separated:
-   ```env
-   CORS_ORIGIN=https://spinella-geneva.ch,https://www.spinella-geneva.ch
-   ```
-   The app already uses this in `server/_core/index.ts` to allow cross-origin requests.
-
-2. **When building the front end**, set **`VITE_API_URL`** to your API base URL so the booking form calls the right host:
-   ```env
-   VITE_API_URL=https://your-app.railway.app
-   ```
-   The client reads this in `client/src/main.tsx` and calls `https://your-app.railway.app/api/trpc`.
-
-### B. Keep only the static site (no API)
-
-If you don’t deploy the Node server:
-
-- Reservations will **not** hit the API and **will not** use Resend or the database.
-- The app already shows a fallback: “Send request by email” (mailto) when the request fails, so guests can still send their details by email and you can confirm manually.
-
-So: **Resend and the API are set up correctly in the repo**; they just don’t run until the Node server is deployed and env vars (including `RESEND_API_KEY`) are set on that server.
+**Option B – Site on Vercel, API elsewhere**  
+1. Deploy **only the API** on Railway/Render: run `pnpm run build && pnpm run start` there, with `RESEND_API_KEY` and `RESTAURANT_EMAIL`.  
+2. Note the API URL (e.g. `https://spinella-api.railway.app`).  
+3. On that API server, set **`CORS_ORIGIN`** = `https://www.spinella.ch` (or your Vercel URL).  
+4. In **Vercel** → your project → **Settings** → **Environment Variables**, add **`VITE_API_URL`** = that API URL (e.g. `https://spinella-api.railway.app`) for **Production** (and Preview if you use it).  
+5. **Redeploy** the Vercel project so the new build uses `VITE_API_URL`. The booking form will then call the Railway/Render API instead of spinella.ch, and the 404 will stop.
 
 ---
 
-## Quick checklist
+## Optional: free database (if you want to store data later)
 
-| Item | Status |
-|------|--------|
-| Resend code in `server/_core/email.ts` | ✅ Implemented |
-| Resend “from” address / domain | ⚠️ Set and verify in Resend dashboard |
-| `RESEND_API_KEY` in server env | ⚠️ Set where the Node server runs |
-| Node server deployed (e.g. Railway, Render) | ❌ Deploy with `pnpm run build && pnpm run start` |
-| `DATABASE_URL` on server | ⚠️ Required for saving bookings |
-| CORS (API on different domain) | ✅ Set `CORS_ORIGIN` on server to your site URL(s) |
-| Client API URL (site on different domain) | ✅ Set `VITE_API_URL` when building the front end |
+If you later want to store bookings, newsletter signups, or auth in a database, here are **free** options:
 
-Once the **API is deployed** and **`DATABASE_URL`** and **`RESEND_API_KEY`** are set there, submitting a reservation will save the booking and send the confirmation email via Resend. If the site and API are on different domains, set **`CORS_ORIGIN`** on the server and **`VITE_API_URL`** for the client build.
+| Service | Type | Free tier |
+|--------|------|-----------|
+| [Supabase](https://supabase.com) | PostgreSQL | 500 MB, good for small apps |
+| [Neon](https://neon.tech) | PostgreSQL | 0.5 GB, serverless |
+| [PlanetScale](https://planetscale.com) | MySQL | 5 GB, then scales to zero |
+| [Turso](https://turso.tech) | SQLite (edge) | 9 GB total, 500 DBs |
+| [Airtable](https://airtable.com) | Spreadsheet-style API | 1,000 records per base |
+
+This app’s schema is MySQL (Drizzle). For Supabase/Neon you’d switch to PostgreSQL and adjust the schema; PlanetScale stays MySQL. For “booking only”, Resend + inbox is enough.

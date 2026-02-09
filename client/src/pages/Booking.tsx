@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { isSlotBlocked, isRequestOnlySlot } from "@/lib/blockedSlots";
 
@@ -39,6 +38,7 @@ const ALL_TIME_SLOTS = [
 export default function Booking() {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -53,32 +53,34 @@ export default function Booking() {
   const selectedDate = watch("date");
   const selectedTime = watch("time");
 
-  const createBooking = trpc.bookings.create.useMutation({
-    onSuccess: () => {
-      setIsSubmitted(true);
-      toast.success("Booking request submitted successfully!");
-    },
-    onError: (error: { message?: string }) => {
-      const msg = error?.message ?? "";
-      const isHtmlOrParseError =
-        msg.includes("is not valid JSON") ||
-        msg.includes("Unexpected token") ||
-        msg.includes("Failed to fetch") ||
-        msg.includes("NetworkError");
-      toast.error(isHtmlOrParseError ? t("booking.apiUnavailable") : msg || t("booking.errorMessage"));
-    },
-  });
-
-  const onSubmit = (data: BookingForm) => {
-    createBooking.mutate({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      date: data.date,
-      time: data.time,
-      partySize: parseInt(data.partySize),
-      specialRequests: data.specialRequests || null,
-    });
+  const onSubmit = async (data: BookingForm) => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          date: data.date,
+          time: data.time,
+          partySize: parseInt(data.partySize),
+          specialRequests: data.specialRequests || null,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.success) {
+        setIsSubmitted(true);
+        toast.success("Booking request submitted successfully!");
+      } else {
+        toast.error(t("booking.errorMessage"));
+      }
+    } catch {
+      toast.error(t("booking.errorMessage"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const timeSlots = useMemo(() => {
@@ -281,9 +283,9 @@ export default function Booking() {
                   type="submit"
                   size="lg"
                   className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg"
-                  disabled={createBooking.isPending}
+                  disabled={isSubmitting}
                 >
-                  {createBooking.isPending ? t("booking.submitting") : t("booking.submit")}
+                  {isSubmitting ? t("booking.submitting") : t("booking.submit")}
                 </Button>
               </div>
 

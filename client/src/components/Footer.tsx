@@ -8,6 +8,15 @@ function TripAdvisorIcon({ size = 20 }: { size?: number }) {
     </svg>
   );
 }
+
+/** TikTok logo – inline SVG for footer link */
+function TikTokIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+  );
+}
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
@@ -49,15 +58,15 @@ export default function Footer() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>{t("contact.monWed")}:</span>
-                <span className="gold-text">10am-3pm, 5pm-12am</span>
+                <span className="gold-text">{t("contact.monWedHours")}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("contact.thuFri")}:</span>
-                <span className="gold-text">10am-3pm, 5pm-2am</span>
+                <span className="gold-text">{t("contact.thuFriHours")}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("contact.saturday")}:</span>
-                <span className="gold-text">5pm-2am</span>
+                <span className="gold-text">{t("contact.satHours")}</span>
               </div>
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="font-semibold gold-text">{t("contact.kitchenHours")}:</p>
@@ -92,6 +101,15 @@ export default function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook size={20} />
+              </a>
+              <a
+                href="https://www.tiktok.com/@spinellageneve"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full gold-bg flex items-center justify-center text-black hover:bg-[oklch(0.52_0.15_85)] transition-colors"
+                aria-label="TikTok"
+              >
+                <TikTokIcon size={20} />
               </a>
               <a
                 href="https://www.tripadvisor.com/Restaurant_Review-g188057-d18930037-Reviews-Spinella_Restaurant_Bar-Geneva.html"
