@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getSupabase, BOOKINGS_TABLE } from "./lib/supabase";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
@@ -103,6 +104,12 @@ export default async function handler(
     return;
   }
 
+  const dateObj = new Date(date + "T12:00:00");
+  if (dateObj.getDay() === 0) {
+    res.status(400).json({ error: "We are closed on Sundays" });
+    return;
+  }
+
   const resend = new Resend(key);
   const data = { name, email, phone, date, time, partySize, specialRequests };
 
@@ -129,6 +136,26 @@ export default async function handler(
         html: restaurantEmailHtml(data),
       });
       if (err2) console.error("[booking] Restaurant email failed:", err2);
+    }
+
+    // Optional: store in Supabase for admin (view/accept/import). Booking works with Resend only; Supabase is for data management.
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const supabase = getSupabase();
+        const status = partySize >= 8 ? "request" : "pending";
+        await supabase.from(BOOKINGS_TABLE).insert({
+          name,
+          email,
+          phone,
+          date,
+          time,
+          party_size: partySize,
+          special_requests: specialRequests ?? null,
+          status,
+        });
+      } catch (dbErr) {
+        console.error("[booking] Supabase save failed:", dbErr);
+      }
     }
 
     res.status(200).json({ success: true });

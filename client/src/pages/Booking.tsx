@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { isSlotBlocked, isRequestOnlySlot } from "@/lib/blockedSlots";
+import { getTimeSlotsForDate, isSunday, isRequestOnlySlot, isRequestOnlyPartySize } from "@/lib/blockedSlots";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,10 +30,7 @@ const bookingSchema = z.object({
 
 type BookingForm = z.infer<typeof bookingSchema>;
 
-const ALL_TIME_SLOTS = [
-  "12:00", "12:30", "13:00", "13:30", "14:00",
-  "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30"
-];
+/** Mon–Wed last slot 22:00; Thu–Sat 22:30. Sunday has no slots (see getTimeSlotsForDate). */
 
 const RESTAURANT_EMAIL = "info@spinella.ch";
 
@@ -71,6 +68,10 @@ export default function Booking() {
 
   const selectedDate = watch("date");
   const selectedTime = watch("time");
+
+  useEffect(() => {
+    if (selectedDate && isSunday(selectedDate)) setValue("time", "");
+  }, [selectedDate, setValue]);
 
   const onSubmit = async (data: BookingForm) => {
     setLastFailedData(null);
@@ -111,11 +112,13 @@ export default function Booking() {
   };
 
   const timeSlots = useMemo(() => {
-    if (!selectedDate) return ALL_TIME_SLOTS;
-    return ALL_TIME_SLOTS.filter((time) => !isSlotBlocked(selectedDate, time));
+    if (!selectedDate) return [];
+    return getTimeSlotsForDate(selectedDate);
   }, [selectedDate]);
 
   const partySizes = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  const selectedPartySizeNum = watch("partySize") ? (parseInt(watch("partySize"), 10) || (watch("partySize") === "10+" ? 10 : 0)) : 0;
+  const isLargeTable = isRequestOnlyPartySize(selectedPartySizeNum);
 
   if (isSubmitted) {
     return (
@@ -223,9 +226,19 @@ export default function Booking() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold mb-4">{t("booking.reservationDetails")}</h2>
 
+                {selectedDate && isSunday(selectedDate) && (
+                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-foreground">
+                    <p className="text-sm font-medium">{t("booking.sundayClosed")}</p>
+                  </div>
+                )}
                 {selectedDate && selectedTime && isRequestOnlySlot(selectedDate, selectedTime) && (
                   <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
                     <p className="text-sm font-medium">{t("booking.valentinesNotice")}</p>
+                  </div>
+                )}
+                {isLargeTable && (
+                  <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
+                    <p className="text-sm font-medium">{t("booking.largeTableNotice")}</p>
                   </div>
                 )}
 
@@ -310,7 +323,7 @@ export default function Booking() {
                   type="submit"
                   size="lg"
                   className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (!!selectedDate && isSunday(selectedDate))}
                 >
                   {isSubmitting ? t("booking.submitting") : t("booking.submit")}
                 </Button>

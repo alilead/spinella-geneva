@@ -1,11 +1,10 @@
-# Booking (Vercel serverless + Resend)
+# Booking (Vercel serverless + Resend + Supabase)
 
-Booking uses **only Vercel serverless**: no database, no Node server (Railway, Fly.io, etc.). When someone submits the form, a **Vercel serverless function** (`/api/booking`) sends two emails via Resend and that’s it.
+When someone submits the form, a **Vercel serverless function** (`/api/booking`) sends two emails via Resend and, if Supabase is configured, saves the booking to **Supabase** (status `pending` or `request` for 8+ guests). The **admin page** (`/admin`) lets you view, accept, and import reservations.
 
 1. **Confirmation to the client** – the guest receives the booking details.
 2. **Copy to you** – the address in `RESTAURANT_EMAIL` (and BCC `info@spinella.ch`) receives the same details.
-
-All bookings live in your inbox.
+3. **Supabase** – each booking is stored in the `bookings` table (when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set). See **SUPABASE_SETUP.md** for setup.
 
 ---
 
@@ -17,8 +16,12 @@ The booking form POSTs to **`/api/booking`**, which is a **Vercel serverless fun
 2. In **Vercel** → your project → **Settings** → **Environment Variables**, add:
    - **`RESEND_API_KEY`** – your Resend API key ([resend.com/api-keys](https://resend.com/api-keys)).
    - **`RESTAURANT_EMAIL`** – e.g. `info@spinella.ch` (where you receive each booking).
+   - **`ADMIN_PASSWORD`** – password for admin login (default if unset: `spinella*10`). Admin username is **`spinella`**.
+   - **`SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`** – (optional) from your Supabase project so bookings are stored and the admin page can list/accept/import them. See **SUPABASE_SETUP.md**.
 3. In Resend, add and verify your sending domain (e.g. spinella.ch). Emails are sent from `info@spinella.ch`; the domain must match.
 4. Redeploy. Booking will work on **spinella.ch** (or your Vercel URL).
+
+**Admin page** (`/admin`): log in with username **spinella** and the password set in `ADMIN_PASSWORD` (or `spinella*10` if not set). You can view all reservations (from Supabase), **Accept** pending/request-only bookings to confirm them, and **Import JSON** to load old Wix/legacy bookings into Supabase.
 
 ---
 
@@ -36,16 +39,4 @@ The client calls **`/api/booking`** (same origin). There is no separate API host
 
 ---
 
-## Optional: free database (if you want to store data later)
-
-If you later want to store bookings, newsletter signups, or auth in a database, here are **free** options:
-
-| Service | Type | Free tier |
-|--------|------|-----------|
-| [Supabase](https://supabase.com) | PostgreSQL | 500 MB, good for small apps |
-| [Neon](https://neon.tech) | PostgreSQL | 0.5 GB, serverless |
-| [PlanetScale](https://planetscale.com) | MySQL | 5 GB, then scales to zero |
-| [Turso](https://turso.tech) | SQLite (edge) | 9 GB total, 500 DBs |
-| [Airtable](https://airtable.com) | Spreadsheet-style API | 1,000 records per base |
-
-For “booking only”, Resend + inbox is enough.
+This project uses **Supabase** for storing bookings when configured; see **SUPABASE_SETUP.md** for setup. For “booking only” without a database, Resend + inbox is enough (emails still work).

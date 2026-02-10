@@ -15,6 +15,7 @@ import Events from "./pages/Events";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Booking from "./pages/Booking";
+import Admin from "./pages/Admin";
 
 function Router() {
   return (
@@ -29,6 +30,8 @@ function Router() {
         <Route path="/faq" component={FAQ} />
         <Route path="/contact" component={Contact} />
         <Route path="/booking" component={Booking} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/admin/" component={Admin} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
