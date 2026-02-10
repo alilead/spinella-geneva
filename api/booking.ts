@@ -1,6 +1,9 @@
 import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE } from "./lib/supabase.js";
 
+import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./lib/valentinesEmail.js";
+import { confirmedEmailHtml } from "./lib/confirmedEmail.js";
+
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
 
@@ -113,36 +116,67 @@ export default async function handler(
   const resend = new Resend(key);
   const data = { name, email, phone, date, time, partySize, specialRequests };
 
+  const isValentines = date === VALENTINES_DATE;
+  const flyerUrl = `${getBaseUrl()}/valentines-menu.png`;
+
+  // Request-only: special day (e.g. 14 Feb) or 8+ people → guest gets "request received", admin must Accept. Otherwise: auto-confirm + confirmation email to guest.
+  const requestOnly = isValentines || partySize >= 8;
+  const status = requestOnly ? "request" : "confirmed";
+
   try {
-    const { error: err1 } = await resend.emails.send({
-      from: FROM,
-      to: [email],
-      bcc: [BCC],
-      subject: `Booking Confirmation - ${name}`,
-      html: guestEmailHtml(data),
-    });
-    if (err1) {
-      console.error("[booking] Guest email failed:", err1);
-      res.status(500).json({ error: "Failed to send confirmation email" });
-      return;
+    if (requestOnly) {
+      // Guest: request-received (or Valentine's flyer email); BCC restaurant so they see it.
+      const { error: err1 } = await resend.emails.send({
+        from: FROM,
+        to: [email],
+        bcc: [BCC],
+        subject: isValentines ? `Saint-Valentin à Spinella – Votre table est réservée` : `Booking Confirmation - ${name}`,
+        html: isValentines ? valentinesGuestEmailHtml(name, flyerUrl) : guestEmailHtml(data),
+      });
+      if (err1) {
+        console.error("[booking] Guest email failed:", err1);
+        res.status(500).json({ error: "Failed to send confirmation email" });
+        return;
+      }
+    } else {
+      // Auto-confirm: send confirmation email to guest only (no BCC).
+      const { error: err1 } = await resend.emails.send({
+        from: FROM,
+        to: [email],
+        subject: `Réservation confirmée – Spinella Genève`,
+        html: confirmedEmailHtml(data),
+      });
+      if (err1) {
+        console.error("[booking] Guest confirmation email failed:", err1);
+        res.status(500).json({ error: "Failed to send confirmation email" });
+        return;
+      }
+      // Notify restaurant of new auto-confirmed booking (separate email).
+      if (restaurantEmail) {
+        const { error: err2 } = await resend.emails.send({
+          from: FROM,
+          to: [restaurantEmail],
+          subject: `[Spinella] Nouvelle réservation (confirmée) : ${name} – ${date} ${time}`,
+          html: restaurantEmailHtml(data),
+        });
+        if (err2) console.error("[booking] Restaurant email failed:", err2);
+      }
     }
 
-    if (restaurantEmail) {
+    // For request-only we don't send a separate restaurant email (BCC on guest email); optional extra to RESTAURANT_EMAIL if you want.
+    if (requestOnly && restaurantEmail) {
       const { error: err2 } = await resend.emails.send({
         from: FROM,
         to: [restaurantEmail],
-        bcc: [BCC],
-        subject: `[Spinella] New booking: ${name} – ${date} ${time}`,
+        subject: `[Spinella] Demande de réservation : ${name} – ${date} ${time}`,
         html: restaurantEmailHtml(data),
       });
       if (err2) console.error("[booking] Restaurant email failed:", err2);
     }
 
-    // Optional: store in Supabase for admin (view/accept/import). Booking works with Resend only; Supabase is for data management.
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const supabase = getSupabase();
-        const status = partySize >= 8 ? "request" : "pending";
         await supabase.from(BOOKINGS_TABLE).insert({
           name,
           email,
@@ -158,7 +192,7 @@ export default async function handler(
       }
     }
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, confirmed: !requestOnly });
   } catch (err) {
     console.error("[booking] Error:", err);
     res.status(500).json({ error: "Failed to process booking" });

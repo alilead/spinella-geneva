@@ -3,9 +3,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
-import { createBooking, getAllBookings, getBookingsByDate, subscribeNewsletter, getAllNewsletterSubscribers } from "./db";
-import { notifyOwner } from "./_core/notification";
-import { sendBookingConfirmationEmail } from "./_core/email";
+import { getAllBookings, getBookingsByDate, subscribeNewsletter, getAllNewsletterSubscribers } from "./db";
+import { sendBookingConfirmationEmail, sendBookingNotificationToRestaurant } from "./_core/email";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -35,19 +34,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        const booking = await createBooking({
-          name: input.name,
-          email: input.email,
-          phone: input.phone,
-          date: input.date,
-          time: input.time,
-          partySize: input.partySize,
-          specialRequests: input.specialRequests || null,
-          status: "pending",
-        });
-
-        // Send confirmation email to customer
-        await sendBookingConfirmationEmail({
+        const emailData = {
           name: input.name,
           email: input.email,
           phone: input.phone,
@@ -55,15 +42,10 @@ export const appRouter = router({
           time: input.time,
           partySize: input.partySize,
           specialRequests: input.specialRequests,
-        });
-
-        // Send notification to owner
-        await notifyOwner({
-          title: "New Table Booking Request",
-          content: `New booking from ${input.name} for ${input.partySize} guests on ${input.date} at ${input.time}. Email: ${input.email}, Phone: ${input.phone}`,
-        });
-
-        return { success: true, bookingId: booking };
+        };
+        await sendBookingConfirmationEmail(emailData);
+        await sendBookingNotificationToRestaurant(emailData);
+        return { success: true };
       }),
     list: protectedProcedure.query(async () => {
       return await getAllBookings();

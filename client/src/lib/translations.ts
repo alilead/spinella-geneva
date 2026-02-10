@@ -48,7 +48,10 @@ export const translations = {
       visitTitle: "Visit Us in Geneva",
       visitDesc1: "Rue Liotard 4, tucked away yet steps from Cornavin, the city center, and the lake. A hidden gem in plain sight. Terrace available for outdoor dining.",
       visitDesc2: "Whether you're here for a romantic dinner, business lunch, or evening cocktails with friends, we welcome you with the same warmth we learned in Sicily.",
-      getDirections: "Get Directions"
+      getDirections: "Get Directions",
+      valentinesBannerTitle: "Menu Saint-Valentin – 69 CHF per person",
+      valentinesBannerCta: "Discover the menu",
+      valentinesBannerDismiss: "Dismiss"
     },
     menu: {
       title: "Our Menu",
@@ -136,7 +139,16 @@ export const translations = {
       bookingInfoDesc1: "We recommend booking your event at least 2-3 weeks in advance to ensure availability and allow time for menu customization. Our team will work closely with you to plan every detail.",
       bookingInfoDesc2: "For weekend events and larger parties, we suggest booking even earlier. Contact us to discuss your specific needs and receive a customised quote.",
       readyToPlan: "Ready to Plan Your Event?",
-      readyToPlanDesc: "Get in touch with us to discuss your event requirements and receive a personalised proposal."
+      readyToPlanDesc: "Get in touch with us to discuss your event requirements and receive a personalised proposal.",
+      valentinesTitle: "Menu Saint-Valentin",
+      valentinesIntro: "Celebrate Valentine's Day at Spinella with our special menu.",
+      valentinesMenuTitle: "Saint-Valentin menu",
+      valentinesEntree: "Starter: Salade sfiziosa",
+      valentinesPlat1: "Risotto with asparagus, Pecorino Moliterno with truffle, beetroot and Parmesan crisps",
+      valentinesPlat2: "Gnocchi with Sicilian pistachio, candied cherry tomatoes and stracciatella",
+      valentinesDessert: "Dessert: Strawberry tiramisu",
+      valentinesPrice: "69 CHF per person",
+      valentinesCta: "Book your table for 14 February"
     },
     contact: {
       title: "Contact Us",
@@ -193,6 +205,7 @@ export const translations = {
       makeAnotherBooking: "Make Another Booking",
       bookingConfirmed: "Booking Confirmed!",
       bookingConfirmedDesc: "Thank you for your reservation request. We've sent a confirmation email to your address. Our team will review your booking and confirm within 10-20 minutes.",
+      bookingConfirmedDescAuto: "Your table is confirmed! We've sent a confirmation email to your address. We look forward to welcoming you.",
       questionsContact: "If you have any questions, please contact us at",
       formAgreement: "By submitting this form, you agree to receive a confirmation email. We'll review your request and confirm within 10-20 minutes.",
       apiUnavailable: "There was an error processing your reservation. Please try again or call us directly.",
@@ -244,7 +257,12 @@ export const translations = {
       fetchError: "Failed to load reservations",
       authNotConfigured: "Admin auth is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then create an admin user in Supabase Authentication.",
       invalidCredentials: "Invalid email or password",
-      loading: "Loading..."
+      loading: "Loading...",
+      valentinesSend: "Send Valentine's email (14 Feb)",
+      valentinesSending: "Sending...",
+      valentinesSent: "Valentine's email sent to {count} guests.",
+      valentinesBatchProgress: "{sent}/{total} sent. {remaining} remaining. Next batch in 2 min.",
+      valentinesError: "Failed to send Valentine's emails."
     },
     footer: {
       stayConnected: "Stay Connected",
@@ -332,7 +350,10 @@ export const translations = {
       visitTitle: "Visitez-nous à Genève",
       visitDesc1: "Rue Liotard 4—discret mais à deux pas de Cornavin, du centre-ville et du lac. Un joyau caché à la vue de tous. Terrasse disponible.",
       visitDesc2: "Que ce soit pour un dîner romantique, un déjeuner d'affaires ou des cocktails entre amis, nous vous accueillons avec la même chaleur que nous avons connue en Sicile.",
-      getDirections: "Obtenir l'itinéraire"
+      getDirections: "Obtenir l'itinéraire",
+      valentinesBannerTitle: "Menu Saint-Valentin – 69 CHF par personne",
+      valentinesBannerCta: "Découvrir le menu",
+      valentinesBannerDismiss: "Fermer"
     },
     menu: {
       title: "Notre Menu",
@@ -421,7 +442,16 @@ export const translations = {
       bookingInfoDesc1: "Nous recommandons de réserver votre événement au moins 2-3 semaines à l'avance pour garantir la disponibilité et permettre la personnalisation du menu. Notre équipe travaillera en étroite collaboration avec vous pour planifier chaque détail.",
       bookingInfoDesc2: "Pour les événements de week-end et les grandes fêtes, nous suggérons de réserver encore plus tôt. Contactez-nous pour discuter de vos besoins spécifiques et recevoir un devis personnalisé.",
       readyToPlan: "Prêt à Planifier Votre Événement?",
-      readyToPlanDesc: "Contactez-nous pour discuter de vos besoins en matière d'événement et recevoir une proposition personnalisée."
+      readyToPlanDesc: "Contactez-nous pour discuter de vos besoins en matière d'événement et recevoir une proposition personnalisée.",
+      valentinesTitle: "Menu Saint-Valentin",
+      valentinesIntro: "Célébrez la Saint-Valentin chez Spinella avec notre menu spécial.",
+      valentinesMenuTitle: "Menu Saint-Valentin",
+      valentinesEntree: "Entrée : Salade sfiziosa",
+      valentinesPlat1: "Risotto aux asperges, pecorino moliterno à la truffe, betterave et tuiles de parmigiano",
+      valentinesPlat2: "Gnocchis à la pistache de Sicile, tomates cerises confites et stracciatella",
+      valentinesDessert: "Dessert : Tiramisu à la fraise",
+      valentinesPrice: "69 CHF par personne",
+      valentinesCta: "Réserver votre table pour le 14 février"
     },
     contact: {
       title: "Contactez-Nous",
@@ -478,6 +508,7 @@ export const translations = {
       makeAnotherBooking: "Faire une autre réservation",
       bookingConfirmed: "Réservation confirmée !",
       bookingConfirmedDesc: "Merci pour votre demande de réservation. Nous avons envoyé un email de confirmation à votre adresse. Notre équipe examinera votre réservation et confirmera sous 10 à 20 minutes.",
+      bookingConfirmedDescAuto: "Votre table est confirmée ! Nous avons envoyé un email de confirmation à votre adresse. Nous avons hâte de vous accueillir.",
       questionsContact: "Pour toute question, contactez-nous au",
       formAgreement: "En soumettant ce formulaire, vous acceptez de recevoir un email de confirmation. Nous examinerons votre demande et confirmerons sous 10 à 20 minutes.",
       apiUnavailable: "Une erreur s'est produite lors du traitement de votre réservation. Veuillez réessayer ou nous appeler directement.",
@@ -529,7 +560,12 @@ export const translations = {
       fetchError: "Échec du chargement des réservations",
       authNotConfigured: "L'authentification admin n'est pas configurée. Définissez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY, puis créez un utilisateur admin dans Supabase Authentication.",
       invalidCredentials: "Email ou mot de passe incorrect",
-      loading: "Chargement..."
+      loading: "Chargement...",
+      valentinesSend: "Envoyer email Saint-Valentin (14 fév.)",
+      valentinesSending: "Envoi en cours...",
+      valentinesSent: "Email Saint-Valentin envoyé à {count} personnes.",
+      valentinesBatchProgress: "{sent}/{total} envoyés. {remaining} restants. Prochain envoi dans 2 min.",
+      valentinesError: "Échec de l'envoi des emails Saint-Valentin."
     },
     footer: {
       stayConnected: "Restez connectés",
@@ -617,7 +653,10 @@ export const translations = {
       visitTitle: "Vienici a trovare a Ginevra",
       visitDesc1: "Rue Liotard 4—nascosto ma a due passi da Cornavin, dal centro e dal lago. Un gioiello in bella vista. Terrazza disponibile.",
       visitDesc2: "Che sia una cena romantica, un pranzo di lavoro o cocktail con amici, vi accogliamo con lo stesso calore che abbiamo imparato in Sicilia.",
-      getDirections: "Indicazioni"
+      getDirections: "Indicazioni",
+      valentinesBannerTitle: "Menu San Valentino – 69 CHF a persona",
+      valentinesBannerCta: "Scopri il menu",
+      valentinesBannerDismiss: "Chiudi"
     },
     menu: {
       title: "Il Nostro Menu",
@@ -706,7 +745,16 @@ export const translations = {
       bookingInfoDesc1: "Consigliamo di prenotare il tuo evento almeno 2-3 settimane in anticipo per garantire disponibilità e tempo per personalizzare il menu. Il nostro team lavorerà a stretto contatto con te per pianificare ogni dettaglio.",
       bookingInfoDesc2: "Per eventi nel weekend e feste più grandi, suggeriamo di prenotare con ancora più anticipo. Contattaci per discutere le tue esigenze e ricevere un preventivo personalizzato.",
       readyToPlan: "Pronto a Pianificare il Tuo Evento?",
-      readyToPlanDesc: "Mettiti in contatto con noi per discutere le tue esigenze e ricevere una proposta personalizzata."
+      readyToPlanDesc: "Mettiti in contatto con noi per discutere le tue esigenze e ricevere una proposta personalizzata.",
+      valentinesTitle: "Menu San Valentino",
+      valentinesIntro: "Celebra San Valentino da Spinella con il nostro menu speciale.",
+      valentinesMenuTitle: "Menu San Valentino",
+      valentinesEntree: "Antipasto: Insalata sfiziosa",
+      valentinesPlat1: "Risotto agli asparagi, pecorino moliterno al tartufo, barbabietola e chips di parmigiano",
+      valentinesPlat2: "Gnocchi al pistacchio di Sicilia, pomodorini canditi e stracciatella",
+      valentinesDessert: "Dolce: Tiramisù alle fragole",
+      valentinesPrice: "69 CHF a persona",
+      valentinesCta: "Prenota il tuo tavolo per il 14 febbraio"
     },
     contact: {
       title: "Contattaci",
@@ -763,6 +811,7 @@ export const translations = {
       makeAnotherBooking: "Fai un'altra prenotazione",
       bookingConfirmed: "Prenotazione confermata!",
       bookingConfirmedDesc: "Grazie per la tua richiesta. Abbiamo inviato un'email di conferma al tuo indirizzo. Il nostro team esaminerà la prenotazione e confermerà entro 10-20 minuti.",
+      bookingConfirmedDescAuto: "Il tuo tavolo è confermato! Abbiamo inviato un'email di conferma al tuo indirizzo. Non vediamo l'ora di accoglierti.",
       questionsContact: "Per domande, contattaci al",
       formAgreement: "Inviando questo modulo accetti di ricevere un'email di conferma. Esamineremo la tua richiesta e confermeremo entro 10-20 minuti.",
       apiUnavailable: "Si è verificato un errore durante l'elaborazione della prenotazione. Riprova o chiamaci.",
@@ -814,7 +863,12 @@ export const translations = {
       fetchError: "Impossibile caricare le prenotazioni",
       authNotConfigured: "L'autenticazione admin non è configurata. Imposta VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY, poi crea un utente admin in Supabase Authentication.",
       invalidCredentials: "Email o password non validi",
-      loading: "Caricamento..."
+      loading: "Caricamento...",
+      valentinesSend: "Invia email San Valentino (14 feb)",
+      valentinesSending: "Invio in corso...",
+      valentinesSent: "Email San Valentino inviata a {count} persone.",
+      valentinesBatchProgress: "{sent}/{total} inviate. {remaining} rimanenti. Proximo invio tra 2 min.",
+      valentinesError: "Invio email San Valentino non riuscito."
     },
     footer: {
       stayConnected: "Restate connessi",

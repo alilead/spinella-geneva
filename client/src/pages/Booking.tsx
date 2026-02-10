@@ -57,6 +57,7 @@ export default function Booking() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastFailedData, setLastFailedData] = useState<BookingForm | null>(null);
+  const [wasAutoConfirmed, setWasAutoConfirmed] = useState(false);
 
   const bookingSchema = useMemo(() => buildBookingSchema(t), [t]);
   const {
@@ -99,6 +100,7 @@ export default function Booking() {
       clearTimeout(timeoutId);
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.success) {
+        setWasAutoConfirmed(Boolean(json.confirmed));
         setIsSubmitted(true);
         toast.success(t("booking.successToast"));
       } else {
@@ -138,7 +140,9 @@ export default function Booking() {
             <h1 className="text-4xl font-bold mb-4">{t("booking.bookingConfirmed")}</h1>
             <div className="gold-divider"></div>
             <p className="text-lg mb-6">
-              {t("booking.bookingConfirmedDesc")}
+              {wasAutoConfirmed
+                ? t("booking.bookingConfirmedDescAuto")
+                : t("booking.bookingConfirmedDesc")}
             </p>
             <p className="text-muted-foreground mb-8">
               {t("booking.questionsContact")}{" "}

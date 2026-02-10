@@ -1,5 +1,9 @@
+import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./lib/supabase.js";
 import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth.js";
+import { confirmedEmailHtml } from "./lib/confirmedEmail.js";
+
+const FROM = "Spinella Geneva <info@spinella.ch>";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 
@@ -101,6 +105,29 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     }
     try {
       const supabase = getSupabase();
+      if (status === "confirmed") {
+        const { data: row, error: fetchErr } = await supabase.from(BOOKINGS_TABLE).select("name, email, phone, date, time, party_size, special_requests").eq("id", id).maybeSingle();
+        if (!fetchErr && row?.email) {
+          const resendKey = process.env.RESEND_API_KEY;
+          if (resendKey) {
+            const resend = new Resend(resendKey);
+            const { error: sendErr } = await resend.emails.send({
+              from: FROM,
+              to: [row.email],
+              subject: `Spinella – Votre réservation est confirmée`,
+              html: confirmedEmailHtml({
+                name: row.name ?? "Client",
+                date: row.date ?? "",
+                time: row.time ?? "",
+                partySize: row.party_size ?? 0,
+                phone: row.phone ?? "",
+                specialRequests: row.special_requests ?? null,
+              }),
+            });
+            if (sendErr) console.error("[bookings] Confirmation email failed:", sendErr);
+          }
+        }
+      }
       const { error } = await supabase.from(BOOKINGS_TABLE).update({ status, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       res.status(200).json({ ok: true });

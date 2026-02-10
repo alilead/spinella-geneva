@@ -12,7 +12,7 @@ interface BookingEmailData {
   specialRequests?: string | null;
 }
 
-const FROM_EMAIL = 'Spinella Geneva <reservations@spinella.ch>';
+const FROM_EMAIL = 'Spinella Geneva <info@spinella.ch>';
 const BCC_EMAIL = 'info@spinella.ch';
 
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Briefcase, PartyPopper, Utensils, Music, Wine } from "lucide-react";
@@ -5,6 +7,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Events() {
   const { t } = useLanguage();
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#saint-valentin") {
+      const el = document.getElementById("saint-valentin");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
   
   const eventTypes = [
     {
@@ -62,6 +70,42 @@ export default function Events() {
           <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("events.title")}</h1>
           <div className="gold-divider"></div>
           <p className="text-xl">{t("events.subtitle")}</p>
+        </div>
+      </section>
+
+      {/* Saint-Valentin special menu */}
+      <section id="saint-valentin" className="section-spacing cream-bg scroll-mt-24">
+        <div className="container max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 gold-text">{t("events.valentinesTitle")}</h2>
+            <div className="gold-divider"></div>
+            <p className="text-lg text-muted-foreground mt-4">{t("events.valentinesIntro")}</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            <div className="rounded-xl overflow-hidden border border-[oklch(0.45_0.08_85)] shadow-xl">
+              <img
+                src="/valentines-menu.png"
+                alt={t("events.valentinesMenuTitle")}
+                className="w-full h-auto object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="bg-card text-card-foreground p-6 md:p-8 rounded-xl border border-[oklch(0.45_0.08_85)]">
+              <h3 className="text-2xl font-bold mb-6 gold-text">{t("events.valentinesMenuTitle")}</h3>
+              <ul className="space-y-4 text-base md:text-lg">
+                <li><span className="font-semibold text-foreground">{t("events.valentinesEntree")}</span></li>
+                <li className="text-muted-foreground">{t("events.valentinesPlat1")}</li>
+                <li className="text-muted-foreground">{t("events.valentinesPlat2")}</li>
+                <li><span className="font-semibold text-foreground">{t("events.valentinesDessert")}</span></li>
+              </ul>
+              <p className="mt-6 text-xl font-bold gold-text">{t("events.valentinesPrice")}</p>
+              <Link href="/booking" className="inline-block mt-6">
+                <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
+                  {t("events.valentinesCta")}
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -31,7 +31,6 @@ describe("bookings.create", () => {
     });
 
     expect(result).toHaveProperty("success", true);
-    expect(result).toHaveProperty("bookingId");
   });
 
   it("validates required fields", async () => {

@@ -40,6 +40,8 @@ export default function Admin() {
   const [fetchError, setFetchError] = useState("");
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [valentinesSending, setValentinesSending] = useState(false);
+  const [valentinesMessage, setValentinesMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -171,6 +173,51 @@ export default function Admin() {
     }
   };
 
+  const VALENTINES_BATCH_DELAY_MS = 2 * 60 * 1000; // 2 minutes between batches
+
+  const sendValentinesBatch = useCallback(
+    async (offset: number) => {
+      if (!token) return;
+      const res = await fetch("/api/bookings/valentines", {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ offset, batchSize: 3 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.sent !== "number") {
+        setValentinesMessage(t("admin.valentinesError"));
+        setValentinesSending(false);
+        return;
+      }
+      const totalSent = offset + data.sent;
+      if (data.remaining > 0) {
+        setValentinesMessage(
+          t("admin.valentinesBatchProgress")
+            .replace("{sent}", String(totalSent))
+            .replace("{total}", String(data.total))
+            .replace("{remaining}", String(data.remaining))
+        );
+        setTimeout(() => sendValentinesBatch(data.nextOffset), VALENTINES_BATCH_DELAY_MS);
+      } else {
+        setValentinesMessage(t("admin.valentinesSent").replace("{count}", String(data.total)));
+        setValentinesSending(false);
+      }
+    },
+    [token, t]
+  );
+
+  const handleSendValentines = async () => {
+    if (!token) return;
+    setValentinesMessage(null);
+    setValentinesSending(true);
+    try {
+      await sendValentinesBatch(0);
+    } catch {
+      setValentinesMessage(t("admin.valentinesError"));
+      setValentinesSending(false);
+    }
+  };
+
   const [verified, setVerified] = useState<boolean | null>(null);
   useEffect(() => {
     if (!token) {
@@ -297,6 +344,10 @@ export default function Admin() {
                 </span>
               </Button>
             </label>
+            <Button variant="outline" onClick={handleSendValentines} disabled={valentinesSending}>
+              {valentinesSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {valentinesSending ? t("admin.valentinesSending") : t("admin.valentinesSend")}
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               {t("admin.logOut")}
@@ -304,6 +355,7 @@ export default function Admin() {
           </div>
         </div>
 
+        {valentinesMessage && <p className="text-sm mb-4 text-muted-foreground">{valentinesMessage}</p>}
         {fetchError && <p className="text-sm text-destructive mb-4">{fetchError}</p>}
         <p className="text-sm text-muted-foreground mb-6">
           {t("admin.instructions")}
