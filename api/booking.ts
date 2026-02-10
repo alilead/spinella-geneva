@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { getSupabase, BOOKINGS_TABLE } from "./lib/supabase";
+import { getSupabase, BOOKINGS_TABLE } from "./lib/supabase.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";

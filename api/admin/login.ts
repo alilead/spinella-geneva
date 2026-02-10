@@ -1,4 +1,4 @@
-import { verifySupabaseToken, isAllowedAdmin } from "../lib/supabaseAuth";
+import { verifySupabaseToken, isAllowedAdmin } from "../lib/supabaseAuth.js";
 
 type Req = { method?: string; headers?: { authorization?: string } };
 type Res = {

@@ -1,5 +1,5 @@
-import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./lib/supabase";
-import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth";
+import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./lib/supabase.js";
+import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth.js";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 
