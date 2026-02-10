@@ -11,13 +11,17 @@ export default function Home() {
   return (
     <div className="min-h-screen pt-20 md:pt-20">
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
+      <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          <div className="hero-overlay absolute inset-0"></div>
-        </div>
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
+        <div className="hero-overlay absolute inset-0" />
         
         <div className="relative z-10 container text-center text-foreground">
           <div className="max-w-4xl mx-auto">
