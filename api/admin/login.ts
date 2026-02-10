@@ -25,8 +25,19 @@ export default async function handler(req: Req, res: Res) {
     }
     if (req.method === "GET") {
       const token = getAuthTokenFromRequest(req);
-      const user = await verifySupabaseToken(token);
-      if (isAllowedAdmin(user)) {
+      if (!token) {
+        sendJson(res, 401, { error: "Unauthorized" });
+        return;
+      }
+      let user: Awaited<ReturnType<typeof verifySupabaseToken>> = null;
+      try {
+        user = await verifySupabaseToken(token);
+      } catch (verifyErr) {
+        console.error("[admin/login] verify error:", verifyErr);
+        sendJson(res, 401, { error: "Unauthorized" });
+        return;
+      }
+      if (user && isAllowedAdmin(user)) {
         sendJson(res, 200, { ok: true });
         return;
       }

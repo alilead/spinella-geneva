@@ -16,6 +16,7 @@ function getAuthClient() {
 /**
  * Verify a Supabase Auth JWT (access_token). Returns the user or null.
  * Uses a client with the JWT in the Authorization header and calls getUser().
+ * Never throws — returns null on any failure.
  */
 export async function verifySupabaseToken(
   accessToken: string
@@ -29,7 +30,9 @@ export async function verifySupabaseToken(
       auth: { persistSession: false },
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
     });
-    const { data: { user }, error } = await client.auth.getUser();
+    const result = await client.auth.getUser();
+    const user = result?.data?.user;
+    const error = result?.error;
     if (error || !user) return null;
     return { id: user.id, email: user.email ?? undefined };
   } catch {
