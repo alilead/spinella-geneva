@@ -180,6 +180,30 @@ export default function Admin() {
     if (token && verified) fetchBookings(token);
   }, [token, verified, fetchBookings]);
 
+  const byDate = useMemo(() => {
+    const map: Record<string, BookingRecord[]> = {};
+    bookings.forEach((b) => {
+      if (!b.date) return;
+      if (!map[b.date]) map[b.date] = [];
+      map[b.date].push(b);
+    });
+    Object.keys(map).forEach((d) => map[d].sort((a, b) => a.time.localeCompare(b.time)));
+    return map;
+  }, [bookings]);
+
+  const sortedBookings = useMemo(() => {
+    return [...bookings].sort((a, b) => {
+      const d = a.date.localeCompare(b.date);
+      return d !== 0 ? d : a.time.localeCompare(b.time);
+    });
+  }, [bookings]);
+
+  const specialRequestsBookings = useMemo(() => {
+    return sortedBookings.filter(
+      (b) => b.partySize >= 8 || (b.specialRequests != null && String(b.specialRequests).trim() !== "")
+    );
+  }, [sortedBookings]);
+
   if (verified === null) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -247,30 +271,6 @@ export default function Admin() {
       </div>
     );
   }
-
-  const byDate = useMemo(() => {
-    const map: Record<string, BookingRecord[]> = {};
-    bookings.forEach((b) => {
-      if (!b.date) return;
-      if (!map[b.date]) map[b.date] = [];
-      map[b.date].push(b);
-    });
-    Object.keys(map).forEach((d) => map[d].sort((a, b) => a.time.localeCompare(b.time)));
-    return map;
-  }, [bookings]);
-
-  const sortedBookings = useMemo(() => {
-    return [...bookings].sort((a, b) => {
-      const d = a.date.localeCompare(b.date);
-      return d !== 0 ? d : a.time.localeCompare(b.time);
-    });
-  }, [bookings]);
-
-  const specialRequestsBookings = useMemo(() => {
-    return sortedBookings.filter(
-      (b) => b.partySize >= 8 || (b.specialRequests != null && String(b.specialRequests).trim() !== "")
-    );
-  }, [sortedBookings]);
 
   return (
     <div className="min-h-screen pt-20 pb-12">
