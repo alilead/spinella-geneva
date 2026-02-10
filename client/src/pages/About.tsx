@@ -67,19 +67,19 @@ export default function About() {
 
           <div className="space-y-16">
             <div>
-              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.salvatore")} — {t("about.salvatoreTitle")}</h3>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.salvatore")} {t("about.salvatoreTitle")}</h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
                 {t("about.salvatoreDesc")}
               </p>
             </div>
             <div>
-              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.marco")} — {t("about.marcoTitle")}</h3>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.marco")} {t("about.marcoTitle")}</h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
                 {t("about.marcoDesc")}
               </p>
             </div>
             <div>
-              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.gabriele")} — {t("about.gabrieleTitle")}</h3>
+              <h3 className="text-2xl md:text-3xl font-bold gold-text mb-2">{t("about.gabriele")} {t("about.gabrieleTitle")}</h3>
               <p className="text-lg leading-relaxed text-muted-foreground">
                 {t("about.gabrieleDesc")}
               </p>
