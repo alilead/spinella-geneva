@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type BookingRecord = {
   id: string;
@@ -26,7 +27,10 @@ function getAuthHeaders(token: string): HeadersInit {
   };
 }
 
+const POLL_INTERVAL_MS = 45_000;
+
 export default function Admin() {
+  const { t } = useLanguage();
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,26 +76,26 @@ export default function Admin() {
       if (res.ok && Array.isArray(data.bookings)) {
         setBookings(data.bookings);
       } else {
-        setFetchError("Failed to load reservations");
+        setFetchError(t("admin.fetchError"));
       }
     } catch {
-      setFetchError("Failed to load reservations");
+      setFetchError(t("admin.fetchError"));
     }
-  }, []);
+  }, [t]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
     setLoading(true);
     if (!supabase) {
-      setLoginError("Admin auth not configured");
+      setLoginError(t("admin.authNotConfigured"));
       setLoading(false);
       return;
     }
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setLoginError(error.message || "Invalid email or password");
+        setLoginError(error.message || t("admin.invalidCredentials"));
         return;
       }
       if (data.session?.access_token) {
@@ -100,7 +104,7 @@ export default function Admin() {
         setPassword("");
       }
     } catch {
-      setLoginError("Connection error");
+      setLoginError(t("admin.fetchError"));
     } finally {
       setLoading(false);
     }
@@ -180,6 +184,12 @@ export default function Admin() {
     if (token && verified) fetchBookings(token);
   }, [token, verified, fetchBookings]);
 
+  useEffect(() => {
+    if (!token || !verified) return;
+    const interval = setInterval(() => fetchBookings(token), POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [token, verified, fetchBookings]);
+
   const byDate = useMemo(() => {
     const map: Record<string, BookingRecord[]> = {};
     bookings.forEach((b) => {
@@ -207,7 +217,7 @@ export default function Admin() {
   if (verified === null) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">{t("admin.loading")}</p>
       </div>
     );
   }
@@ -218,7 +228,7 @@ export default function Admin() {
         <Card className="w-full max-w-sm">
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground text-center">
-              Admin auth is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then create an admin user in Supabase Authentication.
+              {t("admin.authNotConfigured")}
             </p>
           </CardContent>
         </Card>
@@ -231,13 +241,13 @@ export default function Admin() {
       <div className="min-h-screen pt-20 flex items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardHeader>
-            <h1 className="text-2xl font-bold">Admin</h1>
-            <p className="text-sm text-muted-foreground">Reservations</p>
+            <h1 className="text-2xl font-bold">{t("admin.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("admin.reservations")}</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="admin-email">Email</Label>
+                <Label htmlFor="admin-email">{t("admin.email")}</Label>
                 <Input
                   id="admin-email"
                   type="email"
@@ -250,20 +260,20 @@ export default function Admin() {
                 />
               </div>
               <div>
-                <Label htmlFor="admin-password">Password</Label>
+                <Label htmlFor="admin-password">{t("admin.password")}</Label>
                 <Input
                   id="admin-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1"
-                  placeholder="Password"
+                  placeholder={t("admin.password")}
                   autoComplete="current-password"
                 />
               </div>
               {loginError && <p className="text-sm text-destructive">{loginError}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Signing in..." : "Log in"}
+                {loading ? t("admin.signingIn") : t("admin.logIn")}
               </Button>
             </form>
           </CardContent>
@@ -276,62 +286,62 @@ export default function Admin() {
     <div className="min-h-screen pt-20 pb-12">
       <div className="container max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <h1 className="text-3xl font-bold">Reservations</h1>
+          <h1 className="text-3xl font-bold">{t("admin.reservations")}</h1>
           <div className="flex items-center gap-2">
             <label>
               <input type="file" accept=".json" className="hidden" onChange={handleImport} disabled={importing} />
               <Button type="button" variant="outline" asChild disabled={importing}>
                 <span>
                   {importing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                  Import JSON
+                  {t("admin.importJson")}
                 </span>
               </Button>
             </label>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
-              Log out
+              {t("admin.logOut")}
             </Button>
           </div>
         </div>
 
         {fetchError && <p className="text-sm text-destructive mb-4">{fetchError}</p>}
         <p className="text-sm text-muted-foreground mb-6">
-          Reservations are stored in Supabase. Accept pending or request-only bookings to confirm them. Import from the old site: export as JSON (name, email, phone, date YYYY-MM-DD, time, partySize) and upload here.
+          {t("admin.instructions")}
         </p>
 
         <Tabs defaultValue="list">
           <TabsList>
             <TabsTrigger value="list">
               <List className="w-4 h-4 mr-2" />
-              List
+              {t("admin.list")}
             </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="w-4 h-4 mr-2" />
-              Calendar
+              {t("admin.calendar")}
             </TabsTrigger>
             <TabsTrigger value="special">
               <UserCheck className="w-4 h-4 mr-2" />
-              Special requests
+              {t("admin.specialRequests")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-6">
             <Card>
               <CardContent className="p-0">
                 {sortedBookings.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">No reservations. They will appear here when saved to Supabase (new bookings or import).</div>
+                  <div className="p-8 text-center text-muted-foreground">{t("admin.emptyList")}</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
-                          <th className="text-left p-3">Date</th>
-                          <th className="text-left p-3">Time</th>
-                          <th className="text-left p-3">Name</th>
-                          <th className="text-left p-3">Guests</th>
-                          <th className="text-left p-3">Status</th>
-                          <th className="text-left p-3">Phone</th>
-                          <th className="text-left p-3">Email</th>
-                          <th className="text-left p-3 w-24">Action</th>
+                          <th className="text-left p-3">{t("admin.date")}</th>
+                          <th className="text-left p-3">{t("admin.time")}</th>
+                          <th className="text-left p-3">{t("admin.name")}</th>
+                          <th className="text-left p-3">{t("admin.guests")}</th>
+                          <th className="text-left p-3">{t("admin.status")}</th>
+                          <th className="text-left p-3">{t("admin.phone")}</th>
+                          <th className="text-left p-3">{t("admin.email")}</th>
+                          <th className="text-left p-3 w-24">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -343,7 +353,7 @@ export default function Admin() {
                             <td className="p-3">{b.partySize}</td>
                             <td className="p-3">
                               <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
-                                {b.status === "request" ? "Request" : b.status === "pending" ? "Pending" : b.status === "cancelled" ? "Cancelled" : "Confirmed"}
+                                {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
                               </span>
                             </td>
                             <td className="p-3">{b.phone}</td>
@@ -357,7 +367,7 @@ export default function Admin() {
                                   onClick={() => handleAccept(b.id)}
                                 >
                                   {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  Accept
+                                  {t("admin.accept")}
                                 </Button>
                               )}
                             </td>
@@ -374,7 +384,7 @@ export default function Admin() {
             <Card>
               <CardContent className="p-6">
                 {Object.keys(byDate).length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">No reservations. Import a JSON file.</div>
+                  <div className="text-center text-muted-foreground py-8">{t("admin.emptyCalendar")}</div>
                 ) : (
                   <div className="space-y-6">
                     {Object.entries(byDate)
@@ -387,9 +397,9 @@ export default function Admin() {
                               <li key={b.id} className="flex flex-wrap gap-2 text-sm items-center">
                                 <span className="font-medium">{b.time}</span>
                                 <span>{b.name}</span>
-                                <span className="text-muted-foreground">({b.partySize} guests)</span>
+                                <span className="text-muted-foreground">({b.partySize} {t("admin.guests").toLowerCase()})</span>
                                 <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
-                                  {b.status === "request" ? "Request" : b.status === "pending" ? "Pending" : "Confirmed"}
+                                  {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : t("admin.statusConfirmed")}
                                 </span>
                                 {(b.status === "pending" || b.status === "request") && (
                                   <Button size="sm" variant="outline" disabled={acceptingId !== null} onClick={() => handleAccept(b.id)}>
@@ -411,22 +421,22 @@ export default function Admin() {
             <Card>
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground mb-4">
-                  Large tables (8+ guests) and bookings with special requests. Accept or manage these separately.
+                  {t("admin.specialIntro")}
                 </p>
                 {specialRequestsBookings.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">No special requests at the moment.</div>
+                  <div className="text-center text-muted-foreground py-8">{t("admin.emptySpecial")}</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
-                          <th className="text-left p-3">Date</th>
-                          <th className="text-left p-3">Time</th>
-                          <th className="text-left p-3">Name</th>
-                          <th className="text-left p-3">Guests</th>
-                          <th className="text-left p-3">Status</th>
-                          <th className="text-left p-3">Special requests</th>
-                          <th className="text-left p-3 w-24">Action</th>
+                          <th className="text-left p-3">{t("admin.date")}</th>
+                          <th className="text-left p-3">{t("admin.time")}</th>
+                          <th className="text-left p-3">{t("admin.name")}</th>
+                          <th className="text-left p-3">{t("admin.guests")}</th>
+                          <th className="text-left p-3">{t("admin.status")}</th>
+                          <th className="text-left p-3">{t("admin.specialRequests")}</th>
+                          <th className="text-left p-3 w-24">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -438,7 +448,7 @@ export default function Admin() {
                             <td className="p-3">{b.partySize}</td>
                             <td className="p-3">
                               <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
-                                {b.status === "request" ? "Request" : b.status === "pending" ? "Pending" : b.status === "cancelled" ? "Cancelled" : "Confirmed"}
+                                {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
                               </span>
                             </td>
                             <td className="p-3 max-w-[200px] truncate" title={b.specialRequests ?? ""}>
@@ -453,7 +463,7 @@ export default function Admin() {
                                   onClick={() => handleAccept(b.id)}
                                 >
                                   {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  Accept
+                                  {t("admin.accept")}
                                 </Button>
                               )}
                             </td>

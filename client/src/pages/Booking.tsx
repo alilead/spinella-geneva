@@ -18,17 +18,19 @@ import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getTimeSlotsForDate, isSunday, isRequestOnlySlot, isRequestOnlyPartySize } from "@/lib/blockedSlots";
 
-const bookingSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 characters"),
-  date: z.string().min(1, "Please select a date"),
-  time: z.string().min(1, "Please select a time"),
-  partySize: z.string().min(1, "Please select party size"),
-  specialRequests: z.string().optional(),
-});
+function buildBookingSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(2, t("booking.validation.nameMin")),
+    email: z.string().email(t("booking.validation.emailInvalid")),
+    phone: z.string().min(10, t("booking.validation.phoneMin")),
+    date: z.string().min(1, t("booking.validation.dateRequired")),
+    time: z.string().min(1, t("booking.validation.timeRequired")),
+    partySize: z.string().min(1, t("booking.validation.partySizeRequired")),
+    specialRequests: z.string().optional(),
+  });
+}
 
-type BookingForm = z.infer<typeof bookingSchema>;
+type BookingForm = z.infer<ReturnType<typeof buildBookingSchema>>;
 
 /** Mon–Wed last slot 22:00; Thu–Sat 22:30. Sunday has no slots (see getTimeSlotsForDate). */
 
@@ -56,6 +58,7 @@ export default function Booking() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastFailedData, setLastFailedData] = useState<BookingForm | null>(null);
 
+  const bookingSchema = useMemo(() => buildBookingSchema(t), [t]);
   const {
     register,
     handleSubmit,
@@ -97,7 +100,7 @@ export default function Booking() {
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.success) {
         setIsSubmitted(true);
-        toast.success("Booking request submitted successfully!");
+        toast.success(t("booking.successToast"));
       } else {
         setLastFailedData(data);
         toast.error(t("booking.errorMessage"));
