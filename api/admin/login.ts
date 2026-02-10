@@ -37,8 +37,7 @@ export default async function handler(req: Req, res: Res) {
       const password = typeof body.password === "string" ? body.password : "";
       const expectedPassword = process.env.ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD;
       if (username === ADMIN_USERNAME && password === expectedPassword) {
-        const token = await getDailyToken();
-        sendJson(res, 200, { token });
+        sendJson(res, 200, { token: getDailyToken() });
         return;
       }
       sendJson(res, 401, { error: "Invalid username or password" });
@@ -47,7 +46,7 @@ export default async function handler(req: Req, res: Res) {
 
     if (req.method === "GET") {
       const token = getAuthTokenFromRequest(req);
-      if (await verifyAdminToken(token)) {
+      if (verifyAdminToken(token)) {
         sendJson(res, 200, { ok: true });
         return;
       }

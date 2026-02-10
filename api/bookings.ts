@@ -3,13 +3,13 @@ import { verifyAdminToken, getAuthTokenFromRequest } from "./lib/auth";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 
-async function requireAuth(req: { method?: string; headers?: { authorization?: string } }, res: Res): Promise<boolean> {
+function requireAuth(req: { method?: string; headers?: { authorization?: string } }, res: Res): boolean {
   if (req.method === "OPTIONS") {
     res.status(204).json({});
     return false;
   }
   const token = getAuthTokenFromRequest(req);
-  if (!(await verifyAdminToken(token))) {
+  if (!verifyAdminToken(token)) {
     res.status(401).json({ error: "Unauthorized" });
     return false;
   }
@@ -55,7 +55,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   res.setHeader?.("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "GET") {
-    if (!(await requireAuth(req, res))) return;
+    if (!requireAuth(req, res)) return;
     try {
       const supabase = getSupabase();
       const { data: rows, error } = await supabase
@@ -74,7 +74,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   if (req.method === "PATCH") {
-    if (!(await requireAuth(req, res))) return;
+    if (!requireAuth(req, res)) return;
     let body: unknown;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
@@ -106,7 +106,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   if (req.method === "POST") {
-    if (!(await requireAuth(req, res))) return;
+    if (!requireAuth(req, res)) return;
     let body: unknown;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
