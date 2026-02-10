@@ -80,17 +80,19 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="pt-8 text-center">
-                <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="w-8 h-8 text-black" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">{t("home.easyBooking")}</h3>
-                <p className="text-muted-foreground">
-                  {t("home.easyBookingDesc")}
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/booking">
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full hover:ring-2 hover:ring-[oklch(0.62_0.15_85)] hover:ring-offset-2 hover:ring-offset-background">
+                <CardContent className="pt-8 text-center">
+                  <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="w-8 h-8 text-black" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{t("home.easyBooking")}</h3>
+                  <p className="text-muted-foreground">
+                    {t("home.easyBookingDesc")}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
               <CardContent className="pt-8 text-center">
