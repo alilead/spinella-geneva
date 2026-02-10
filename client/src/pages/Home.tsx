@@ -26,7 +26,7 @@ export default function Home() {
         <div className="relative z-10 container text-center text-foreground">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-              {t("home.welcome")} <span className="gold-text">Spinella</span>
+              {t("home.welcome")} <span className="brand-font gold-text">Spinella</span>
             </h1>
             <p className="text-lg md:text-xl mb-4 font-light max-w-2xl mx-auto">
               {t("home.heroParagraph1")}

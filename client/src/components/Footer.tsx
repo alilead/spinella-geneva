@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Contact Info */}
           <div>
-            <h3 className="text-2xl font-bold gold-text mb-6">Spinella</h3>
+            <h3 className="brand-font text-2xl font-bold gold-text mb-6">Spinella</h3>
             <div className="space-y-4 text-sm">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 gold-text flex-shrink-0 mt-0.5" />

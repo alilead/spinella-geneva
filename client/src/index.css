@@ -205,13 +205,18 @@
 
 @layer base {
   body {
-    font-family: "Broadway Engraved Regular", Georgia, serif;
+    font-family: "Lora", Georgia, serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Broadway Engraved Regular", Georgia, serif;
-    font-weight: normal;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 600;
   }
+}
+
+/* Broadway only for the Spinella brand (logo, hero name) */
+.brand-font {
+  font-family: "Broadway Engraved Regular", Georgia, serif;
 }
 
 /* Custom utility classes for Spinella */

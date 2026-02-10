@@ -30,8 +30,13 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center space-x-2 cursor-pointer">
-              <span className="text-2xl font-bold gold-text">SPINELLA</span>
+            <div className="flex items-center gap-2 cursor-pointer">
+              <img
+                src="/logo.png"
+                alt="Spinella"
+                className="h-10 w-auto md:h-12"
+              />
+              <span className="brand-font text-xl font-bold gold-text hidden sm:inline">SPINELLA</span>
             </div>
           </Link>
 

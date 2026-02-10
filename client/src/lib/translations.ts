@@ -1,5 +1,7 @@
 export type Language = "en" | "fr" | "it";
 
+/** When editing translations: update the same key in en, fr, and it so all languages stay in sync. */
+
 export const translations = {
   en: {
     nav: {
@@ -58,7 +60,8 @@ export const translations = {
       mains: "Main Courses",
       desserts: "Desserts",
       drinks: "Drinks & Cocktails",
-      downloadMenu: "Download Full Menu"
+      downloadMenu: "Download Full Menu",
+      fullMenuPdf: "Our full menu with details and prices is available in the PDF below."
     },
     gallery: {
       title: "Gallery",
@@ -137,7 +140,7 @@ export const translations = {
     },
     contact: {
       title: "Contact Us",
-      subtitle: "We Can't Wait to Welcome You",
+      subtitle: "Get in Touch",
       getInTouchWelcome: "We can't wait to welcome you. Whether you have a question, want to book a table, or simply say hello—we're here.",
       getInTouch: "Get in Touch",
       address: "Address",
@@ -294,7 +297,8 @@ export const translations = {
       mains: "Plats Principaux",
       desserts: "Desserts",
       drinks: "Boissons & Cocktails",
-      downloadMenu: "Télécharger le Menu Complet"
+      downloadMenu: "Télécharger le Menu Complet",
+      fullMenuPdf: "Notre carte complète avec les détails et les prix se trouve dans le PDF ci-dessous."
     },
     gallery: {
       title: "Galerie",
@@ -374,8 +378,8 @@ export const translations = {
     },
     contact: {
       title: "Contactez-Nous",
-      subtitle: "Nous Avons Hâte de Vous Accueillir",
-      getInTouchWelcome: "Nous avons hâte de vous accueillir. Que vous ayez une question, souhaitiez réserver une table ou simplement dire bonjour—nous sommes là.",
+      subtitle: "Prenez Contact",
+      getInTouchWelcome: "Nous avons hâte de vous accueillir. Si vous avez une question, souhaitez réserver une table ou simplement dire bonjour—nous sommes là.",
       getInTouch: "Prenez Contact",
       address: "Adresse",
       phone: "Téléphone",
@@ -434,7 +438,7 @@ export const translations = {
       valentinesNotice: "Saint-Valentin chez Spinella — Les réservations pour cette date se font sur demande. Choisissez l'heure souhaitée ci-dessous, nous confirmerons par email sous 10 à 20 minutes."
     },
     footer: {
-      stayConnected: "Restez Connecté",
+      stayConnected: "Restez connectés",
       followUs: "Suivez-nous pour des offres exclusives, événements et plats spéciaux!",
       openingHours: "Heures d'Ouverture",
       allRightsReserved: "Tous droits réservés"
@@ -531,7 +535,8 @@ export const translations = {
       mains: "Secondi Piatti",
       desserts: "Dolci",
       drinks: "Bevande e Cocktail",
-      downloadMenu: "Scarica il Menu Completo"
+      downloadMenu: "Scarica il Menu Completo",
+      fullMenuPdf: "Il nostro menu completo con dettagli e prezzi è disponibile nel PDF qui sotto."
     },
     gallery: {
       title: "Galleria",
@@ -611,8 +616,8 @@ export const translations = {
     },
     contact: {
       title: "Contattaci",
-      subtitle: "Non Vediamo l'Ora di Accogliervi",
-      getInTouchWelcome: "Non vediamo l'ora di accogliervi. Che abbiate una domanda, vogliate prenotare un tavolo o semplicemente salutare—siamo qui.",
+      subtitle: "Mettiti in Contatto",
+      getInTouchWelcome: "Non vediamo l'ora di accogliervi. Se avete una domanda, volete prenotare un tavolo o semplicemente salutare—siamo qui.",
       getInTouch: "Mettiti in Contatto",
       address: "Indirizzo",
       phone: "Telefono",
@@ -671,7 +676,7 @@ export const translations = {
       valentinesNotice: "San Valentino da Spinella — Per questa data le prenotazioni sono su richiesta. Scegli l'ora preferita qui sotto, confermeremo per email entro 10-20 minuti."
     },
     footer: {
-      stayConnected: "Resta in Contatto",
+      stayConnected: "Restate connessi",
       followUs: "Seguici per offerte esclusive, eventi e piatti speciali!",
       openingHours: "Orari di Apertura",
       allRightsReserved: "Tutti i diritti riservati"
