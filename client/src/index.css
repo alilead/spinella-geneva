@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Broadway Engraved Regular – CDN (onlinewebfonts) */
+@font-face {
+  font-family: "Broadway Engraved Regular";
+  src: url("https://db.onlinewebfonts.com/t/2a75e9c11823fdf570ab9d60d41f4042.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/2a75e9c11823fdf570ab9d60d41f4042.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -195,12 +205,12 @@
 
 @layer base {
   body {
-    font-family: "Lora", Georgia, serif;
+    font-family: "Broadway Engraved Regular", Georgia, serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-weight: 600;
+    font-family: "Broadway Engraved Regular", Georgia, serif;
+    font-weight: normal;
   }
 }
 
