@@ -67,7 +67,7 @@ export default async function handler(req: ReqWithBody, res: Res): Promise<void>
     const total = guests.length;
     const batch = guests.slice(offset, offset + batchSize);
     const resend = new Resend(key);
-    const flyerUrl = `${getBaseUrl()}/valentines-menu.png`;
+    const flyerUrl = `${getBaseUrl()}/valentines-menu.jpeg`;
     let sent = 0;
     for (const g of batch) {
       const name = (g as { name?: string }).name ?? "Client";

@@ -84,7 +84,7 @@ export default function Events() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
             <div className="rounded-xl overflow-hidden border border-[oklch(0.45_0.08_85)] shadow-xl">
               <img
-                src="/valentines-menu.png"
+                src="/valentines-menu.jpeg"
                 alt={t("events.valentinesMenuTitle")}
                 className="w-full h-auto object-cover"
                 loading="lazy"

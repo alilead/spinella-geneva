@@ -281,3 +281,16 @@
   margin: 3rem auto;
   max-width: 200px;
 }
+
+/* Marquee for sticky banner */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}

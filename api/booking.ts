@@ -117,7 +117,7 @@ export default async function handler(
   const data = { name, email, phone, date, time, partySize, specialRequests };
 
   const isValentines = date === VALENTINES_DATE;
-  const flyerUrl = `${getBaseUrl()}/valentines-menu.png`;
+  const flyerUrl = `${getBaseUrl()}/valentines-menu.jpeg`;
 
   // Request-only: special day (e.g. 14 Feb) or 8+ people → guest gets "request received", admin must Accept. Otherwise: auto-confirm + confirmation email to guest.
   const requestOnly = isValentines || partySize >= 8;
