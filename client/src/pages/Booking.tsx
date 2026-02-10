@@ -35,10 +35,29 @@ const ALL_TIME_SLOTS = [
   "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30"
 ];
 
+const RESTAURANT_EMAIL = "info@spinella.ch";
+
+function buildMailtoUrl(data: BookingForm): string {
+  const subject = `Reservation request - ${data.name} - ${data.date} at ${data.time}`;
+  const body = [
+    `Reservation request for Spinella`,
+    ``,
+    `Name: ${data.name}`,
+    `Email: ${data.email}`,
+    `Phone: ${data.phone}`,
+    `Date: ${data.date}`,
+    `Time: ${data.time}`,
+    `Number of guests: ${data.partySize}`,
+    ...(data.specialRequests?.trim() ? [`Special requests: ${data.specialRequests.trim()}`] : []),
+  ].join("\n");
+  return `mailto:${RESTAURANT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 export default function Booking() {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastFailedData, setLastFailedData] = useState<BookingForm | null>(null);
 
   const {
     register,
@@ -54,6 +73,7 @@ export default function Booking() {
   const selectedTime = watch("time");
 
   const onSubmit = async (data: BookingForm) => {
+    setLastFailedData(null);
     setIsSubmitting(true);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
@@ -78,10 +98,12 @@ export default function Booking() {
         setIsSubmitted(true);
         toast.success("Booking request submitted successfully!");
       } else {
+        setLastFailedData(data);
         toast.error(t("booking.errorMessage"));
       }
     } catch {
       clearTimeout(timeoutId);
+      setLastFailedData(data);
       toast.error(t("booking.errorMessage"));
     } finally {
       setIsSubmitting(false);
@@ -293,6 +315,18 @@ export default function Booking() {
                   {isSubmitting ? t("booking.submitting") : t("booking.submit")}
                 </Button>
               </div>
+
+              {lastFailedData && (
+                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-foreground">
+                  <p className="text-sm font-medium mb-2">{t("booking.errorMessage")}</p>
+                  <a
+                    href={buildMailtoUrl(lastFailedData)}
+                    className="inline-flex items-center text-sm font-semibold text-[oklch(0.62_0.15_85)] hover:underline"
+                  >
+                    {t("booking.sendByEmail")}
+                  </a>
+                </div>
+              )}
 
               <p className="text-sm text-muted-foreground text-center">
                 {t("booking.formAgreement")}
