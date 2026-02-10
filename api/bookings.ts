@@ -1,15 +1,21 @@
 import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./lib/supabase";
-import { verifyAdminToken, getAuthTokenFromRequest } from "./lib/auth";
+import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 
-function requireAuth(req: { method?: string; headers?: { authorization?: string } }, res: Res): boolean {
+function getAuthTokenFromRequest(req: { headers?: { authorization?: string } }): string {
+  const auth = req.headers?.authorization;
+  return auth?.startsWith("Bearer ") ? auth.slice(7) : "";
+}
+
+async function requireAuth(req: { method?: string; headers?: { authorization?: string } }, res: Res): Promise<boolean> {
   if (req.method === "OPTIONS") {
     res.status(204).json({});
     return false;
   }
   const token = getAuthTokenFromRequest(req);
-  if (!verifyAdminToken(token)) {
+  const user = await verifySupabaseToken(token);
+  if (!isAllowedAdmin(user)) {
     res.status(401).json({ error: "Unauthorized" });
     return false;
   }
@@ -55,7 +61,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   res.setHeader?.("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "GET") {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireAuth(req, res))) return;
     try {
       const supabase = getSupabase();
       const { data: rows, error } = await supabase
@@ -74,7 +80,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   if (req.method === "PATCH") {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireAuth(req, res))) return;
     let body: unknown;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
@@ -106,7 +112,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   if (req.method === "POST") {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireAuth(req, res))) return;
     let body: unknown;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};

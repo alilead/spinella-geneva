@@ -58,7 +58,18 @@ create policy "Service role only"
 
 ---
 
-## Step 3: Get your project URL and keys
+## Step 3: Create the admin user (Supabase Authentication)
+
+1. In the Supabase dashboard, go to **Authentication** → **Users** in the left menu.
+2. Click **Add user** → **Create new user**.
+3. Enter an **email** (e.g. `admin@spinella.ch`) and set **Password** to **`spinellaadmin*1`** (or your chosen admin password).
+4. Click **Create user**.
+
+This user is the only one who can log in to the **Admin** page (`/admin`). Optionally set **ADMIN_EMAIL** in Vercel to this email so the API only accepts that user.
+
+---
+
+## Step 4: Get your project URL and keys
 
 1. In the Supabase dashboard, go to **Project Settings** (gear icon in the left sidebar).
 2. Open the **API** section.
@@ -72,31 +83,39 @@ Copy the **Project URL** and the **service_role** key (click “Reveal” if nee
 
 ---
 
-## Step 4: Add the variables to Vercel
+## Step 5: Add the variables to Vercel
 
 1. In **Vercel** → your project → **Settings** → **Environment Variables**, add:
 
    | Name | Value | Environment |
    |------|--------|-------------|
-   | `SUPABASE_URL` | Your Project URL (e.g. `https://xxxxx.supabase.co`) | Production (and Preview if you use it) |
-   | `SUPABASE_SERVICE_ROLE_KEY` | Your **service_role** key (long string) | Production (and Preview if you use it) |
+   | `SUPABASE_URL` | Your Project URL | Production (and Preview) |
+   | `SUPABASE_ANON_KEY` | Your **anon public** key | Production (and Preview) |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Your **service_role** key | Production (and Preview) |
+   | `VITE_SUPABASE_URL` | Same as Project URL | Production (and Preview) |
+   | `VITE_SUPABASE_ANON_KEY` | Same as **anon public** key | Production (and Preview) |
+   | `ADMIN_EMAIL` | (optional) e.g. `admin@spinella.ch` | Production (and Preview) |
 
-2. Save and **redeploy** the project so the new variables are available.
+2. Save and **redeploy** the project.
 
-**Important:** Never expose the **service_role** key in the browser or in client-side code. Use it only in server-side API routes (as this project does).
+**Important:** Never expose the **service_role** key in the browser. The **anon** key is safe in the client for Authentication.
 
 ---
 
-## Step 5: Local development (optional)
+## Step 6: Local development (optional)
 
 To test booking and admin with Supabase on your machine:
 
 1. Create a `.env` file in the project root (and add `.env` to `.gitignore` if it isn’t already).
-2. Add the same two variables:
+2. Add the same variables (and for admin login, the VITE_ ones for the client):
 
    ```env
    SUPABASE_URL=https://xxxxx.supabase.co
+   SUPABASE_ANON_KEY=your-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   VITE_SUPABASE_URL=https://xxxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ADMIN_EMAIL=admin@spinella.ch
    ```
 
 3. Run your dev server. Ensure it loads `.env` for the API.
@@ -135,8 +154,9 @@ If bookings don’t appear:
 |------|--------|
 | 1 | Create a project at [supabase.com](https://supabase.com) → **New project**. |
 | 2 | In **SQL Editor**, run the `create table public.bookings` script (and optionally enable RLS). |
-| 3 | In **Project settings** → **API**, copy **Project URL** and **service_role** key. |
-| 4 | In Vercel, add **`SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`**, then redeploy. |
-| 5 | (Optional) Add the same variables to `.env` for local dev. |
+| 3 | In **Authentication** → **Users**, create an admin user (e.g. `admin@spinella.ch`, password **`spinellaadmin*1`**). |
+| 4 | In **Project settings** → **API**, copy **Project URL**, **anon** key, and **service_role** key. |
+| 5 | In Vercel, add **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, **`SUPABASE_SERVICE_ROLE_KEY`**, **`VITE_SUPABASE_URL`**, **`VITE_SUPABASE_ANON_KEY`** (and optionally **`ADMIN_EMAIL`**), then redeploy. |
+| 6 | (Optional) Add the same variables to `.env` for local dev. |
 
 After this, booking continues to work with Resend (emails), and Supabase is used to store and manage reservation data for the admin page.

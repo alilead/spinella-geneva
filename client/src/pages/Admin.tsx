@@ -5,8 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck } from "lucide-react";
-
-const ADMIN_TOKEN_KEY = "spinella_admin_token";
+import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 
 export type BookingRecord = {
   id: string;
@@ -29,7 +28,7 @@ function getAuthHeaders(token: string): HeadersInit {
 
 export default function Admin() {
   const [token, setToken] = useState<string | null>(null);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,8 +38,16 @@ export default function Admin() {
   const [importing, setImporting] = useState(false);
 
   useEffect(() => {
-    const t = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (t) setToken(t);
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.access_token) setToken(session.access_token);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setToken(session?.access_token ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const verifyToken = async () => {
@@ -53,7 +60,6 @@ export default function Admin() {
     } catch {
       /* ignore */
     }
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
     setToken(null);
     return false;
   };
@@ -77,20 +83,21 @@ export default function Admin() {
     e.preventDefault();
     setLoginError("");
     setLoading(true);
+    if (!supabase) {
+      setLoginError("Admin auth not configured");
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.token) {
-        localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
-        setToken(data.token);
-        setUsername("");
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setLoginError(error.message || "Invalid email or password");
+        return;
+      }
+      if (data.session?.access_token) {
+        setToken(data.session.access_token);
+        setEmail("");
         setPassword("");
-      } else {
-        setLoginError("Invalid username or password");
       }
     } catch {
       setLoginError("Connection error");
@@ -99,8 +106,8 @@ export default function Admin() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
+  const handleLogout = async () => {
+    if (supabase) await supabase.auth.signOut();
     setToken(null);
   };
 
@@ -181,6 +188,20 @@ export default function Admin() {
     );
   }
 
+  if (!isSupabaseAuthConfigured()) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center p-4">
+        <Card className="w-full max-w-sm">
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground text-center">
+              Admin auth is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then create an admin user in Supabase Authentication.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!token || !verified) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center p-4">
@@ -192,15 +213,15 @@ export default function Admin() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Label htmlFor="admin-username">Username</Label>
+                <Label htmlFor="admin-email">Email</Label>
                 <Input
-                  id="admin-username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="admin-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="mt-1"
-                  placeholder="Username"
-                  autoComplete="username"
+                  placeholder="admin@spinella.ch"
+                  autoComplete="email"
                   autoFocus
                 />
               </div>
@@ -218,7 +239,7 @@ export default function Admin() {
               </div>
               {loginError && <p className="text-sm text-destructive">{loginError}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Checking..." : "Log in"}
+                {loading ? "Signing in..." : "Log in"}
               </Button>
             </form>
           </CardContent>

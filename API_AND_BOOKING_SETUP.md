@@ -16,12 +16,11 @@ The booking form POSTs to **`/api/booking`**, which is a **Vercel serverless fun
 2. In **Vercel** → your project → **Settings** → **Environment Variables**, add:
    - **`RESEND_API_KEY`** – your Resend API key ([resend.com/api-keys](https://resend.com/api-keys)).
    - **`RESTAURANT_EMAIL`** – e.g. `info@spinella.ch` (where you receive each booking).
-   - **`ADMIN_PASSWORD`** – password for admin login (default if unset: `spinella*10`). Admin username is **`spinella`**.
-   - **`SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`** – (optional) from your Supabase project so bookings are stored and the admin page can list/accept/import them. See **SUPABASE_SETUP.md**.
+   - **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, **`SUPABASE_SERVICE_ROLE_KEY`**, **`VITE_SUPABASE_URL`**, **`VITE_SUPABASE_ANON_KEY`** – from your Supabase project (bookings + admin login). See **SUPABASE_SETUP.md**. Optionally **`ADMIN_EMAIL`** to restrict admin to one email.
 3. In Resend, add and verify your sending domain (e.g. spinella.ch). Emails are sent from `info@spinella.ch`; the domain must match.
 4. Redeploy. Booking will work on **spinella.ch** (or your Vercel URL).
 
-**Admin page** (`/admin`): log in with username **spinella** and the password set in `ADMIN_PASSWORD` (or `spinella*10` if not set). You can view all reservations (from Supabase), **Accept** pending/request-only bookings to confirm them, and **Import JSON** to load old Wix/legacy bookings into Supabase.
+**Admin page** (`/admin`): log in with the **Supabase Auth** user you created (e.g. `admin@spinella.ch` / **`spinellaadmin*1`**). You can view all reservations, **Accept** pending/request-only bookings, and **Import JSON** to load old bookings. See **SUPABASE_SETUP.md** for creating the admin user.
 
 ---
 

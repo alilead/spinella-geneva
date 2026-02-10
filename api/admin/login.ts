@@ -1,17 +1,15 @@
-import { getDailyToken, verifyAdminToken, getAuthTokenFromRequest } from "../lib/auth";
+import { verifySupabaseToken, isAllowedAdmin } from "../lib/supabaseAuth";
 
-const ADMIN_USERNAME = "spinella";
-const DEFAULT_ADMIN_PASSWORD = "spinella*10";
-
-type Req = {
-  method?: string;
-  body?: string | { username?: string; password?: string };
-  headers?: { authorization?: string };
-};
+type Req = { method?: string; headers?: { authorization?: string } };
 type Res = {
   status: (code: number) => { json: (body: object) => void };
   setHeader?: (name: string, value: string) => void;
 };
+
+function getAuthTokenFromRequest(req: Req): string {
+  const auth = req.headers?.authorization;
+  return auth?.startsWith("Bearer ") ? auth.slice(7) : "";
+}
 
 function sendJson(res: Res, code: number, body: object) {
   res.setHeader?.("Access-Control-Allow-Origin", "*");
@@ -25,35 +23,16 @@ export default async function handler(req: Req, res: Res) {
       sendJson(res, 204, {});
       return;
     }
-
-    if (req.method === "POST") {
-      let body: { username?: string; password?: string } = {};
-      try {
-        body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body ?? {}) as object;
-      } catch {
-        body = {};
-      }
-      const username = typeof body.username === "string" ? body.username.trim() : "";
-      const password = typeof body.password === "string" ? body.password : "";
-      const expectedPassword = process.env.ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD;
-      if (username === ADMIN_USERNAME && password === expectedPassword) {
-        sendJson(res, 200, { token: getDailyToken() });
-        return;
-      }
-      sendJson(res, 401, { error: "Invalid username or password" });
-      return;
-    }
-
     if (req.method === "GET") {
       const token = getAuthTokenFromRequest(req);
-      if (verifyAdminToken(token)) {
+      const user = await verifySupabaseToken(token);
+      if (isAllowedAdmin(user)) {
         sendJson(res, 200, { ok: true });
         return;
       }
       sendJson(res, 401, { error: "Unauthorized" });
       return;
     }
-
     sendJson(res, 405, { error: "Method not allowed" });
   } catch (err) {
     console.error("[admin/login]", err);
