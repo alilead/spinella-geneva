@@ -49,12 +49,12 @@ export default function FAQ() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-80 flex items-center justify-center">
+      <section className="relative min-h-[240px] sm:min-h-[280px] md:h-72 lg:h-80 flex items-center justify-center">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="hero-bg absolute inset-0"
           style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
         >
-          <div className="hero-overlay absolute inset-0"></div>
+          <div className="hero-overlay absolute inset-0" />
         </div>
         
         <div className="relative z-10 container text-center text-foreground">

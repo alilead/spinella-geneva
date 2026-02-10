@@ -7,12 +7,12 @@ export default function About() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center">
+      <section className="relative min-h-[280px] sm:min-h-[320px] md:h-80 lg:h-96 flex items-center justify-center">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="hero-bg absolute inset-0"
           style={{ backgroundImage: "url(/food_1.jpg)" }}
         >
-          <div className="hero-overlay absolute inset-0"></div>
+          <div className="hero-overlay absolute inset-0" />
         </div>
         
         <div className="relative z-10 container text-center text-foreground">
@@ -147,11 +147,13 @@ export default function About() {
                 {t("about.experienceDesc3")}
               </p>
             </div>
-            <div className="relative h-96 lg:h-full">
+            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
               <img
                 src="/interior_main.jpg"
                 alt="Spinella interior ambiance"
-                className="w-full h-full object-cover rounded-lg shadow-2xl"
+                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>

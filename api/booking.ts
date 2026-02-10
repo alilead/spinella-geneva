@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = "Spinella Geneva <reservations@spinella.ch>";
+const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
 
 function formatDate(iso: string): string {
@@ -62,35 +62,33 @@ ${data.specialRequests ? `<li><strong>Special requests:</strong> ${data.specialR
 </ul>`;
 }
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
+/** Vercel serverless: respond to POST only; use Node (req, res) so response is always sent. */
+export default async function handler(
+  req: { method?: string; body?: string | object },
+  res: { status: (code: number) => { json: (body: object) => void; end: () => void }; setHeader: (name: string, value: string) => void }
+): Promise<void> {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed" });
+    return;
   }
 
   const key = process.env.RESEND_API_KEY;
   const restaurantEmail = process.env.RESTAURANT_EMAIL?.trim();
   if (!key) {
     console.error("[booking] RESEND_API_KEY not set");
-    return new Response(
-      JSON.stringify({ error: "Booking service not configured" }),
-      { status: 503, headers: { "Content-Type": "application/json" } }
-    );
+    res.status(503).json({ error: "Booking service not configured" });
+    return;
   }
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(400).json({ error: "Invalid JSON" });
+    return;
   }
 
-  const o = body as Record<string, unknown>;
+  const o = (body ?? {}) as Record<string, unknown>;
   const name = typeof o?.name === "string" ? o.name.trim() : "";
   const email = typeof o?.email === "string" ? o.email.trim() : "";
   const phone = typeof o?.phone === "string" ? o.phone.trim() : "";
@@ -101,10 +99,8 @@ export default async function handler(request: Request): Promise<Response> {
     o?.specialRequests != null && o.specialRequests !== "" ? String(o.specialRequests) : null;
 
   if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 10 || !date || !time || !Number.isInteger(partySize) || partySize < 1) {
-    return new Response(JSON.stringify({ error: "Invalid booking data" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(400).json({ error: "Invalid booking data" });
+    return;
   }
 
   const resend = new Resend(key);
@@ -120,10 +116,8 @@ export default async function handler(request: Request): Promise<Response> {
     });
     if (err1) {
       console.error("[booking] Guest email failed:", err1);
-      return new Response(
-        JSON.stringify({ error: "Failed to send confirmation email" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      res.status(500).json({ error: "Failed to send confirmation email" });
+      return;
     }
 
     if (restaurantEmail) {
@@ -137,15 +131,9 @@ export default async function handler(request: Request): Promise<Response> {
       if (err2) console.error("[booking] Restaurant email failed:", err2);
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(200).json({ success: true });
   } catch (err) {
     console.error("[booking] Error:", err);
-    return new Response(
-      JSON.stringify({ error: "Failed to process booking" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    res.status(500).json({ error: "Failed to process booking" });
   }
 }

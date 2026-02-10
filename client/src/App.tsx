@@ -18,7 +18,7 @@ import Booking from "./pages/Booking";
 
 function Router() {
   return (
-    <>
+    <div className="min-h-screen overflow-x-hidden">
       <Navigation />
       <Switch>
         <Route path="/" component={Home} />
@@ -33,7 +33,7 @@ function Router() {
         <Route component={NotFound} />
       </Switch>
       <Footer />
-    </>
+    </div>
   );
 }
 

@@ -29,12 +29,12 @@ export default function Gallery() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center">
+      <section className="relative min-h-[280px] sm:min-h-[320px] md:h-80 lg:h-96 flex items-center justify-center">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="hero-bg absolute inset-0"
           style={{ backgroundImage: "url(/gallery_1.jpeg)" }}
         >
-          <div className="hero-overlay absolute inset-0"></div>
+          <div className="hero-overlay absolute inset-0" />
         </div>
         
         <div className="relative z-10 container text-center text-foreground">
@@ -47,20 +47,21 @@ export default function Gallery() {
       {/* Gallery Grid */}
       <section className="section-spacing cream-bg">
         <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {images.map((image, idx) => (
               <div
                 key={idx}
-                className="group relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer bg-gray-100"
+                className="group relative aspect-square overflow-hidden rounded-lg shadow-lg cursor-pointer bg-muted min-h-[200px] sm:min-h-0"
                 onClick={() => setSelectedImage(image.src)}
               >
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 relative z-0"
+                  className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105 sm:group-hover:scale-110 relative z-0"
                   loading="lazy"
+                  decoding="async"
                   onLoad={(e) => {
-                    e.currentTarget.style.opacity = '1';
+                    e.currentTarget.style.opacity = "1";
                   }}
                   onError={(e) => {
                     const parent = e.currentTarget.parentElement;
@@ -76,24 +77,25 @@ export default function Gallery() {
       {/* Lightbox Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 sm:p-6"
           onClick={() => setSelectedImage(null)}
         >
           <button
-            className="absolute top-4 right-4 text-white hover:text-[oklch(0.62_0.15_85)] transition-colors z-10"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[oklch(0.62_0.15_85)] transition-colors z-10 rounded-full hover:bg-white/10"
             onClick={() => setSelectedImage(null)}
             aria-label="Close"
           >
-            <X size={32} />
+            <X size={28} className="sm:w-8 sm:h-8" />
           </button>
           <img
             src={selectedImage}
             alt="Selected"
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-[85vh] sm:max-h-[90vh] w-auto h-auto object-contain rounded"
             onClick={(e) => e.stopPropagation()}
+            decoding="async"
             onError={(e) => {
               console.error(`Failed to load image in lightbox: ${selectedImage}`);
-              e.currentTarget.style.display = 'none';
+              e.currentTarget.style.display = "none";
             }}
           />
         </div>

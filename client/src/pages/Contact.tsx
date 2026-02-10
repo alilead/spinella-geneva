@@ -10,12 +10,12 @@ export default function Contact() {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center">
+      <section className="relative min-h-[280px] sm:min-h-[320px] md:h-80 lg:h-96 flex items-center justify-center">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="hero-bg absolute inset-0"
           style={{ backgroundImage: "url(/spinella_exterior.jpg)" }}
         >
-          <div className="hero-overlay absolute inset-0"></div>
+          <div className="hero-overlay absolute inset-0" />
         </div>
         
         <div className="relative z-10 container text-center text-foreground">

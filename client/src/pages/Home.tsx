@@ -11,13 +11,13 @@ export default function Home() {
   return (
     <div className="min-h-screen pt-20 md:pt-20">
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[100dvh] min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full min-w-full min-h-full object-cover"
         >
           <source src="/hero.mp4" type="video/mp4" />
         </video>
@@ -155,11 +155,13 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-            <div className="relative h-96 lg:h-full">
+            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
               <img
                 src="/interior_brothers.jpg"
                 alt="The three Spinella brothers"
-                className="w-full h-full object-cover rounded-lg shadow-2xl"
+                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -173,11 +175,13 @@ export default function Home() {
       <section className="section-spacing cream-bg">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 relative h-96 lg:h-full">
+            <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
               <img
                 src="/spinella_exterior.jpg"
                 alt="Spinella exterior"
-                className="w-full h-full object-cover rounded-lg shadow-2xl"
+                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="order-1 lg:order-2">

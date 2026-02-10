@@ -118,9 +118,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
+  /* Responsive images: prevent overflow and keep clarity */
+  img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+  img[class*="object-cover"] {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -221,8 +238,27 @@
   }
 }
 
+/* Hero background: responsive, clear on all screens */
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 639px) {
+  .hero-bg {
+    background-attachment: scroll;
+  }
+}
+
 .hero-overlay {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.45));
+}
+
+/* Content images: crisp scaling on phone and laptop */
+.img-content {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .gold-divider {

@@ -77,12 +77,12 @@ export default function Navigation() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden pb-6">
-            <div className="flex flex-col space-y-4">
+          <div className="md:hidden pb-6 pt-2">
+            <div className="flex flex-col">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <span
-                    className={`block text-sm font-medium transition-colors cursor-pointer ${
+                    className={`block py-3 text-sm font-medium transition-colors cursor-pointer border-b border-border/50 ${
                       isActive(item.href)
                         ? "gold-text"
                         : "text-foreground hover:text-[oklch(0.62_0.15_85)]"
@@ -95,15 +95,15 @@ export default function Navigation() {
               ))}
               <button
                 onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : "en")}
-                className="flex items-center gap-2 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
+                className="flex items-center gap-2 py-3 min-h-[44px] text-left text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors border-b border-border/50 w-full"
                 aria-label="Switch language"
               >
                 <Languages size={18} />
                 <span className="font-semibold">{language === "en" ? "FR" : language === "fr" ? "IT" : "EN"}</span>
               </button>
-              <Link href="/booking">
+              <Link href="/booking" className="mt-4">
                 <Button
-                  className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold w-full"
+                  className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold w-full min-h-[44px]"
                   onClick={() => setIsOpen(false)}
                 >
                   {t("nav.bookTable")}
