@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload } from "lucide-react";
+import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = "spinella_admin_token";
 
@@ -245,6 +245,12 @@ export default function Admin() {
     });
   }, [bookings]);
 
+  const specialRequestsBookings = useMemo(() => {
+    return sortedBookings.filter(
+      (b) => b.partySize >= 8 || (b.specialRequests != null && String(b.specialRequests).trim() !== "")
+    );
+  }, [sortedBookings]);
+
   return (
     <div className="min-h-screen pt-20 pb-12">
       <div className="container max-w-6xl">
@@ -281,6 +287,10 @@ export default function Admin() {
             <TabsTrigger value="calendar">
               <CalendarIcon className="w-4 h-4 mr-2" />
               Calendar
+            </TabsTrigger>
+            <TabsTrigger value="special">
+              <UserCheck className="w-4 h-4 mr-2" />
+              Special requests
             </TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-6">
@@ -371,6 +381,65 @@ export default function Admin() {
                           </ul>
                         </div>
                       ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="special" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Large tables (8+ guests) and bookings with special requests. Accept or manage these separately.
+                </p>
+                {specialRequestsBookings.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">No special requests at the moment.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-muted/50">
+                          <th className="text-left p-3">Date</th>
+                          <th className="text-left p-3">Time</th>
+                          <th className="text-left p-3">Name</th>
+                          <th className="text-left p-3">Guests</th>
+                          <th className="text-left p-3">Status</th>
+                          <th className="text-left p-3">Special requests</th>
+                          <th className="text-left p-3 w-24">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {specialRequestsBookings.map((b) => (
+                          <tr key={b.id} className="border-b">
+                            <td className="p-3">{b.date}</td>
+                            <td className="p-3">{b.time}</td>
+                            <td className="p-3">{b.name}</td>
+                            <td className="p-3">{b.partySize}</td>
+                            <td className="p-3">
+                              <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
+                                {b.status === "request" ? "Request" : b.status === "pending" ? "Pending" : b.status === "cancelled" ? "Cancelled" : "Confirmed"}
+                              </span>
+                            </td>
+                            <td className="p-3 max-w-[200px] truncate" title={b.specialRequests ?? ""}>
+                              {b.specialRequests?.trim() || "—"}
+                            </td>
+                            <td className="p-3">
+                              {(b.status === "pending" || b.status === "request") && (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  disabled={acceptingId !== null}
+                                  onClick={() => handleAccept(b.id)}
+                                >
+                                  {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                  Accept
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </CardContent>

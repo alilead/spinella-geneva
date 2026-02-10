@@ -88,7 +88,7 @@ export default function Booking() {
           phone: data.phone,
           date: data.date,
           time: data.time,
-          partySize: parseInt(data.partySize),
+          partySize: data.partySize === "21" ? 21 : parseInt(data.partySize, 10),
           specialRequests: data.specialRequests || null,
         }),
         signal: controller.signal,
@@ -116,9 +116,13 @@ export default function Booking() {
     return getTimeSlotsForDate(selectedDate);
   }, [selectedDate]);
 
-  const partySizes = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
-  const selectedPartySizeNum = watch("partySize") ? (parseInt(watch("partySize"), 10) || (watch("partySize") === "10+" ? 10 : 0)) : 0;
+  const partySizes = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
+  const partySizeRaw = watch("partySize");
+  const selectedPartySizeNum = partySizeRaw
+    ? (parseInt(partySizeRaw, 10) || (partySizeRaw === "21" ? 21 : 0))
+    : 0;
   const isLargeTable = isRequestOnlyPartySize(selectedPartySizeNum);
+  const isGroupEvent = selectedPartySizeNum >= 21;
 
   if (isSubmitted) {
     return (
@@ -297,11 +301,21 @@ export default function Booking() {
                             {size} {parseInt(size) === 1 ? t("booking.guest") : t("booking.guestsPlural")}
                           </SelectItem>
                         ))}
-                        <SelectItem value="10+">10+ {t("booking.guestsPlural")}</SelectItem>
+                        <SelectItem value="21">{t("booking.groupEventOption")}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.partySize && (
                       <p className="text-sm text-red-500 mt-1">{errors.partySize.message}</p>
+                    )}
+                    {isLargeTable && (
+                      <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">
+                        {t("booking.largeTableNotice")}
+                      </p>
+                    )}
+                    {isGroupEvent && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {t("booking.groupEventNotice")}
+                      </p>
                     )}
                   </div>
                 </div>

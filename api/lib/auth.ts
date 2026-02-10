@@ -1,7 +1,9 @@
 import crypto from "crypto";
 
+const DEFAULT_ADMIN_PASSWORD = "spinella*10";
+
 export function getDailyToken(): string {
-  const secret = process.env.ADMIN_PASSWORD ?? "";
+  const secret = process.env.ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD;
   const date = new Date().toISOString().slice(0, 10);
   return crypto.createHmac("sha256", secret).update(date).digest("hex");
 }

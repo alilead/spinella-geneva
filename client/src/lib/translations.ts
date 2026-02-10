@@ -199,7 +199,9 @@ export const translations = {
       sendByEmail: "Send request by email",
       valentinesNotice: "Valentine's Day at Spinella — Reservations for this date are by request only. Choose your preferred time below and we'll confirm by email within 10–20 minutes.",
       sundayClosed: "We are closed on Sundays. Please choose another day.",
-      largeTableNotice: "Tables for 8 or more guests are subject to confirmation. We'll confirm by email within 10–20 minutes."
+      largeTableNotice: "Tables for 8 or more guests are subject to confirmation. We'll confirm by email within 10–20 minutes.",
+      groupEventOption: "21+ (group / event)",
+      groupEventNotice: "For 21+ guests we will contact you to confirm. You can specify the exact number in the special requests field below."
     },
     footer: {
       stayConnected: "Stay Connected",
@@ -439,7 +441,9 @@ export const translations = {
       sendByEmail: "Envoyer la demande par email",
       valentinesNotice: "Saint-Valentin chez Spinella — Les réservations pour cette date se font sur demande. Choisissez l'heure souhaitée ci-dessous, nous confirmerons par email sous 10 à 20 minutes.",
       sundayClosed: "Nous sommes fermés le dimanche. Veuillez choisir un autre jour.",
-      largeTableNotice: "Les tables de 8 personnes ou plus sont soumises à confirmation. Nous confirmerons par email sous 10 à 20 minutes."
+      largeTableNotice: "Les tables de 8 personnes ou plus sont soumises à confirmation. Nous confirmerons par email sous 10 à 20 minutes.",
+      groupEventOption: "21+ (groupe / événement)",
+      groupEventNotice: "Pour 21 personnes ou plus, nous vous contacterons pour confirmer. Vous pouvez indiquer le nombre exact dans les demandes spéciales ci-dessous."
     },
     footer: {
       stayConnected: "Restez connectés",
@@ -679,7 +683,9 @@ export const translations = {
       sendByEmail: "Invia richiesta per email",
       valentinesNotice: "San Valentino da Spinella — Per questa data le prenotazioni sono su richiesta. Scegli l'ora preferita qui sotto, confermeremo per email entro 10-20 minuti.",
       sundayClosed: "Siamo chiusi la domenica. Scegli un altro giorno.",
-      largeTableNotice: "Le tavole per 8 o più persone sono su richiesta. Confermeremo per email entro 10-20 minuti."
+      largeTableNotice: "Le tavole per 8 o più persone sono su richiesta. Confermeremo per email entro 10-20 minuti.",
+      groupEventOption: "21+ (gruppo / evento)",
+      groupEventNotice: "Per 21 o più persone ti contatteremo per confermare. Puoi indicare il numero esatto nel campo richieste speciali sotto."
     },
     footer: {
       stayConnected: "Restate connessi",

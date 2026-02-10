@@ -99,7 +99,7 @@ export default async function handler(
   const specialRequests =
     o?.specialRequests != null && o.specialRequests !== "" ? String(o.specialRequests) : null;
 
-  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 10 || !date || !time || !Number.isInteger(partySize) || partySize < 1) {
+  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 10 || !date || !time || !Number.isInteger(partySize) || partySize < 1 || partySize > 70) {
     res.status(400).json({ error: "Invalid booking data" });
     return;
   }
