@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck } from "lucide-react";
+import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck, X } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -39,6 +39,7 @@ export default function Admin() {
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [fetchError, setFetchError] = useState("");
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [decliningId, setDecliningId] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [valentinesSending, setValentinesSending] = useState(false);
   const [valentinesMessage, setValentinesMessage] = useState<string | null>(null);
@@ -170,6 +171,21 @@ export default function Admin() {
       if (res.ok) await fetchBookings(token);
     } finally {
       setAcceptingId(null);
+    }
+  };
+
+  const handleDecline = async (id: string) => {
+    if (!token) return;
+    setDecliningId(id);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ id, status: "cancelled" }),
+      });
+      if (res.ok) await fetchBookings(token);
+    } finally {
+      setDecliningId(null);
     }
   };
 
@@ -412,15 +428,26 @@ export default function Admin() {
                             <td className="p-3">{b.email}</td>
                             <td className="p-3">
                               {(b.status === "pending" || b.status === "request") && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  disabled={acceptingId !== null}
-                                  onClick={() => handleAccept(b.id)}
-                                >
-                                  {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  {t("admin.accept")}
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    disabled={acceptingId !== null || decliningId !== null}
+                                    onClick={() => handleAccept(b.id)}
+                                  >
+                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                    {t("admin.accept")}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={acceptingId !== null || decliningId !== null}
+                                    onClick={() => handleDecline(b.id)}
+                                  >
+                                    {decliningId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4 mr-1" />}
+                                    {t("admin.decline")}
+                                  </Button>
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -450,13 +477,18 @@ export default function Admin() {
                                 <span className="font-medium">{b.time}</span>
                                 <span>{b.name}</span>
                                 <span className="text-muted-foreground">({b.partySize} {t("admin.guests").toLowerCase()})</span>
-                                <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
-                                  {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : t("admin.statusConfirmed")}
+                                <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : b.status === "cancelled" ? "text-red-600" : "text-muted-foreground"}>
+                                  {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
                                 </span>
                                 {(b.status === "pending" || b.status === "request") && (
-                                  <Button size="sm" variant="outline" disabled={acceptingId !== null} onClick={() => handleAccept(b.id)}>
-                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                                  </Button>
+                                  <div className="flex gap-1">
+                                    <Button size="sm" variant="outline" disabled={acceptingId !== null || decliningId !== null} onClick={() => handleAccept(b.id)}>
+                                      {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                    </Button>
+                                    <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" disabled={acceptingId !== null || decliningId !== null} onClick={() => handleDecline(b.id)}>
+                                      {decliningId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+                                    </Button>
+                                  </div>
                                 )}
                                 {b.phone && <span className="text-muted-foreground">{b.phone}</span>}
                               </li>
@@ -508,15 +540,26 @@ export default function Admin() {
                             </td>
                             <td className="p-3">
                               {(b.status === "pending" || b.status === "request") && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  disabled={acceptingId !== null}
-                                  onClick={() => handleAccept(b.id)}
-                                >
-                                  {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  {t("admin.accept")}
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    disabled={acceptingId !== null || decliningId !== null}
+                                    onClick={() => handleAccept(b.id)}
+                                  >
+                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                    {t("admin.accept")}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={acceptingId !== null || decliningId !== null}
+                                    onClick={() => handleDecline(b.id)}
+                                  >
+                                    {decliningId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4 mr-1" />}
+                                    {t("admin.decline")}
+                                  </Button>
+                                </div>
                               )}
                             </td>
                           </tr>
