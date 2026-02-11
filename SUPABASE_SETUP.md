@@ -80,6 +80,9 @@ alter table public.clients enable row level security;
 create policy "Service role only" on public.clients for all using (false) with check (false);
 ```
 
+**If you get "file or directory could not be found" or 500 on /api/clients:**  
+Redeploy after the latest push (vercel.json includes `api/_lib` for API routes). In Vercel → Project → Deployments → select the latest → **Functions** tab: open the log for `api/clients` to see the exact error (e.g. missing module vs Supabase).
+
 ---
 
 ## Step 3: Create the admin user (Supabase Authentication)
