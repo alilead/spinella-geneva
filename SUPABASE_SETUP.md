@@ -164,7 +164,9 @@ Never commit `.env` or share the service role key.
 1. Log in to `/admin`.
 2. Open the **Clients** tab.
 3. Click **Import CSV** and select your contacts file.
-4. CSV columns expected: `Prénom`, `Nom de famille`, `E-mail 1`, `Téléphone 1` (other names work if similar).
+4. CSV columns expected: `Name` (or `Prénom`, `Nom de famille`), `Email` or `E-mail 1`, `Phone` or `Téléphone 1`.
+
+If you see **"Failed to import clients"**, the message below it now shows the server error (e.g. Supabase constraint or timeout). For very large files (e.g. 6000+ rows), use Option B to avoid timeouts.
 
 **Option B: Via Node script (for large files, e.g. ~6000 contacts)**
 

@@ -375,7 +375,8 @@ export default function Admin() {
         setClientsError("No valid contacts with email found in CSV. Use columns: Name (or Prénom, Nom de famille), Email (or E-mail 1), Phone (or Téléphone).");
         return;
       }
-      const BATCH = 200;
+      // Use smaller batches for large CSVs to avoid timeouts and payload limits (e.g. 6000 rows = 60 requests of 100).
+      const BATCH = 100;
       let imported = 0;
       for (let i = 0; i < toImport.length; i += BATCH) {
         const batch = toImport.slice(i, i + BATCH);
@@ -385,7 +386,10 @@ export default function Admin() {
           body: JSON.stringify({ clients: batch }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(typeof data?.error === "string" ? data.error : "Import failed");
+        if (!res.ok || !data.ok) {
+          const serverMsg = typeof data?.details === "string" ? data.details : typeof data?.error === "string" ? data.error : "Import failed";
+          throw new Error(serverMsg);
+        }
         imported += batch.length;
       }
       await fetchClients(token);

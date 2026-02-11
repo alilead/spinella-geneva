@@ -116,8 +116,9 @@ export default async function handler(
         }
         res.status(200).json({ ok: true, synced, total: toUpsert.length });
       } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
         console.error("[clients] syncFromBookings error:", err);
-        res.status(500).json({ error: "Failed to sync reservations to clients" });
+        res.status(500).json({ error: "Failed to sync reservations to clients", details: message });
       }
       return;
     }
@@ -166,8 +167,9 @@ export default async function handler(
       }
       res.status(200).json({ ok: true, imported, total: toUpsert.length });
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error("[clients] POST import error:", err);
-      res.status(500).json({ error: "Failed to import clients" });
+      res.status(500).json({ error: "Failed to import clients", details: message });
     }
     return;
   }
