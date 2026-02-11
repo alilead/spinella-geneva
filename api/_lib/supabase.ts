@@ -25,6 +25,8 @@ export type ClientRow = {
   created_at?: string;
 };
 
+export type SentEmailEntry = { id: string; type: string; sentAt: string };
+
 export type BookingRow = {
   id: string;
   name: string;
@@ -36,4 +38,5 @@ export type BookingRow = {
   special_requests: string | null;
   status: string;
   created_at?: string;
+  sent_emails?: SentEmailEntry[] | null;
 };

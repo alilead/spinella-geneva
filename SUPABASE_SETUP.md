@@ -85,6 +85,21 @@ Redeploy after the latest push (vercel.json includes `api/_lib` for API routes).
 
 ---
 
+## Step 2c: Add `sent_emails` to `bookings` (optional, for email status in admin)
+
+To see which emails were sent for each reservation and their status (e.g. delivered, opened), add a column to store Resend email IDs:
+
+1. In Supabase → **SQL Editor**, run:
+
+```sql
+alter table public.bookings
+  add column if not exists sent_emails jsonb default '[]' not null;
+```
+
+2. Redeploy or ensure your API uses the latest code. After this, new booking and confirmation/decline emails will be recorded, and in the admin you can open a reservation to see “Emails sent” and status.
+
+---
+
 ## Step 3: Create the admin user (Supabase Authentication)
 
 1. In the Supabase dashboard, go to **Authentication** → **Users** in the left menu.
@@ -177,6 +192,16 @@ If you see **"Failed to import clients"**, the message below it now shows the se
    node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
    ```
 
+**Get the full list from Resend (everyone who received an email)**
+
+To add all recipients of emails you’ve sent via Resend (e.g. booking confirmations) into the clients list:
+
+1. Log in to `/admin` → open the **Clients** tab.
+2. Click **Sync from Resend**. The app will fetch sent emails from Resend and add any new recipients as clients (existing clients are skipped).
+3. After it finishes, the message shows how many were added and how many were already in the list.
+
+Run this whenever you want to refresh the client list from Resend. New bookings are already added to clients when they’re created.
+
 ---
 
 ## What the app stores in Supabase
@@ -209,6 +234,8 @@ If bookings don’t appear:
 |------|--------|
 | 1 | Create a project at [supabase.com](https://supabase.com) → **New project**. |
 | 2 | In **SQL Editor**, run the `create table public.bookings` script (and optionally enable RLS). |
+| 2b | Create the `clients` table (SQL in Step 2b). |
+| 2c | (Optional) Add `sent_emails` column to `bookings` for email status in admin (SQL in Step 2c). |
 | 3 | In **Authentication** → **Users**, create an admin user (e.g. `admin@spinella.ch`, password **`spinellaadmin*1`**). |
 | 4 | In **Project settings** → **API**, copy **Project URL**, **anon** key, and **service_role** key. |
 | 5 | In Vercel, add **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, **`SUPABASE_SERVICE_ROLE_KEY`**, **`VITE_SUPABASE_URL`**, **`VITE_SUPABASE_ANON_KEY`** (and optionally **`ADMIN_EMAIL`**), then redeploy. |

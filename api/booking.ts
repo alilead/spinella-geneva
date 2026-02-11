@@ -132,30 +132,42 @@ export default async function handler(
   try {
     // Save to Supabase FIRST so the dashboard always has the booking when the guest gets the email.
     const supabase = getSupabase();
-    const { error: insertErr } = await supabase.from(BOOKINGS_TABLE).insert({
-      name,
-      email,
-      phone,
-      date,
-      time,
-      party_size: partySize,
-      special_requests: specialRequests ?? null,
-      status,
-    });
-    if (insertErr) {
+    const { data: inserted, error: insertErr } = await supabase
+      .from(BOOKINGS_TABLE)
+      .insert({
+        name,
+        email,
+        phone,
+        date,
+        time,
+        party_size: partySize,
+        special_requests: specialRequests ?? null,
+        status,
+      })
+      .select("id")
+      .single();
+    if (insertErr || !inserted) {
       console.error("[booking] Supabase insert failed:", insertErr);
       res.status(500).json({ error: "Failed to save reservation" });
       return;
     }
+    const bookingId = (inserted as { id: string }).id;
     const { error: clientErr } = await supabase.from(CLIENTS_TABLE).upsert(
       { name, email, phone: phone || null, source: "booking" },
       { onConflict: "email", doUpdate: { name, phone: phone || null, updated_at: new Date().toISOString() } }
     );
     if (clientErr) console.error("[booking] Clients upsert failed:", clientErr);
 
+    const appendSentEmail = async (resendId: string, type: string) => {
+      const { data: row } = await supabase.from(BOOKINGS_TABLE).select("sent_emails").eq("id", bookingId).single();
+      const prev = (row as { sent_emails?: unknown[] } | null)?.sent_emails ?? [];
+      const next = [...prev, { id: resendId, type, sentAt: new Date().toISOString() }];
+      await supabase.from(BOOKINGS_TABLE).update({ sent_emails: next }).eq("id", bookingId);
+    };
+
     // Then send email(s).
     if (requestOnly) {
-      const { error: err1 } = await resend.emails.send({
+      const { data: sendData, error: err1 } = await resend.emails.send({
         from: FROM,
         to: [email],
         bcc: [BCC],
@@ -167,8 +179,10 @@ export default async function handler(
         res.status(500).json({ error: "Failed to send confirmation email" });
         return;
       }
+      const resendId = (sendData as { id?: string })?.id;
+      if (resendId) await appendSentEmail(resendId, isValentines ? "valentines" : "request");
     } else {
-      const { error: err1 } = await resend.emails.send({
+      const { data: sendData, error: err1 } = await resend.emails.send({
         from: FROM,
         to: [email],
         subject: `Réservation confirmée – Spinella Genève`,
@@ -179,6 +193,8 @@ export default async function handler(
         res.status(500).json({ error: "Failed to send confirmation email" });
         return;
       }
+      const resendId = (sendData as { id?: string })?.id;
+      if (resendId) await appendSentEmail(resendId, "confirmation");
       if (restaurantEmail) {
         const { error: err2 } = await resend.emails.send({
           from: FROM,

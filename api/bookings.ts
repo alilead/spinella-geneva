@@ -41,6 +41,9 @@ async function requireAuth(req: { method?: string; headers?: { authorization?: s
   return true;
 }
 
+export type SentEmailEntry = { id: string; type: string; sentAt: string };
+export type SentEmailWithStatus = SentEmailEntry & { status?: string };
+
 export type BookingDoc = {
   id: string;
   name: string;
@@ -52,9 +55,11 @@ export type BookingDoc = {
   specialRequests?: string | null;
   status: string;
   createdAt?: string;
+  sentEmails?: SentEmailEntry[];
 };
 
 function rowToBooking(row: BookingRow): BookingDoc {
+  const sent = row.sent_emails;
   return {
     id: row.id,
     name: row.name,
@@ -66,6 +71,7 @@ function rowToBooking(row: BookingRow): BookingDoc {
     specialRequests: row.special_requests ?? null,
     status: row.status,
     createdAt: row.created_at,
+    sentEmails: Array.isArray(sent) ? sent : [],
   };
 }
 
@@ -81,8 +87,46 @@ export default async function handler(req: Req, res: Res): Promise<void> {
 
   if (req.method === "GET") {
     if (!(await requireAuth(req, res))) return;
+    let bookingId = (req as { query?: { id?: string } }).query?.id?.trim();
+    if (!bookingId && typeof (req as { url?: string }).url === "string") {
+      const u = (req as { url: string }).url;
+      const i = u.indexOf("?");
+      if (i !== -1) bookingId = new URLSearchParams(u.slice(i)).get("id")?.trim() ?? undefined;
+    }
     try {
       const supabase = getSupabase();
+      if (bookingId) {
+        const { data: row, error } = await supabase
+          .from(BOOKINGS_TABLE)
+          .select("*")
+          .eq("id", bookingId)
+          .maybeSingle();
+        if (error || !row) {
+          res.status(404).json({ error: "Booking not found" });
+          return;
+        }
+        const booking = rowToBooking(row as BookingRow);
+        const sentEmails = booking.sentEmails ?? [];
+        const resendKey = process.env.RESEND_API_KEY;
+        let emailStatuses: SentEmailWithStatus[] = sentEmails.map((e) => ({ ...e }));
+        if (resendKey && sentEmails.length > 0) {
+          const resend = new Resend(resendKey);
+          const statuses = await Promise.all(
+            sentEmails.map(async (e) => {
+              try {
+                const got = await resend.emails.get(e.id);
+                const d = (got as { data?: { last_event?: string } }).data;
+                return { ...e, status: d?.last_event ?? "unknown" };
+              } catch {
+                return { ...e, status: "—" };
+              }
+            })
+          );
+          emailStatuses = statuses;
+        }
+        res.status(200).json({ booking, emailStatuses });
+        return;
+      }
       const { data: rows, error } = await supabase
         .from(BOOKINGS_TABLE)
         .select("*")
@@ -122,7 +166,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       const supabase = getSupabase();
       const { data: row, error: fetchErr } = await supabase
         .from(BOOKINGS_TABLE)
-        .select("name, email, phone, date, time, party_size, special_requests, status")
+        .select("name, email, phone, date, time, party_size, special_requests, status, sent_emails")
         .eq("id", id)
         .maybeSingle();
       if (fetchErr || !row) {
@@ -130,12 +174,13 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         return;
       }
       const previousStatus = (row as { status?: string }).status ?? "";
+      const prevSent = (row as { sent_emails?: SentEmailEntry[] }).sent_emails ?? [];
 
       if (status === "confirmed" && row.email) {
         const resendKey = process.env.RESEND_API_KEY;
         if (resendKey) {
           const resend = new Resend(resendKey);
-          const { error: sendErr } = await resend.emails.send({
+          const { data: sendData, error: sendErr } = await resend.emails.send({
             from: FROM,
             to: [row.email],
             subject: `Spinella – Votre réservation est confirmée`,
@@ -149,6 +194,13 @@ export default async function handler(req: Req, res: Res): Promise<void> {
             }),
           });
           if (sendErr) console.error("[bookings] Confirmation email failed:", sendErr);
+          else {
+            const resendId = (sendData as { id?: string })?.id;
+            if (resendId) {
+              const nextSent = [...prevSent, { id: resendId, type: "confirmed", sentAt: new Date().toISOString() }];
+              await supabase.from(BOOKINGS_TABLE).update({ sent_emails: nextSent }).eq("id", id);
+            }
+          }
         }
       }
 
@@ -156,7 +208,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         const resendKey = process.env.RESEND_API_KEY;
         if (resendKey) {
           const resend = new Resend(resendKey);
-          const { error: sendErr } = await resend.emails.send({
+          const { data: sendData, error: sendErr } = await resend.emails.send({
             from: FROM,
             to: [row.email],
             subject: `Spinella – Demande de réservation`,
@@ -167,6 +219,13 @@ export default async function handler(req: Req, res: Res): Promise<void> {
             }),
           });
           if (sendErr) console.error("[bookings] Decline email failed:", sendErr);
+          else {
+            const resendId = (sendData as { id?: string })?.id;
+            if (resendId) {
+              const nextSent = [...prevSent, { id: resendId, type: "decline", sentAt: new Date().toISOString() }];
+              await supabase.from(BOOKINGS_TABLE).update({ sent_emails: nextSent }).eq("id", id);
+            }
+          }
         }
       }
 

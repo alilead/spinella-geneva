@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Check, Download, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Check, Download, Eye, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -95,6 +95,12 @@ export default function Admin() {
   const [addFromListSaving, setAddFromListSaving] = useState(false);
   const [syncingReservationsToClients, setSyncingReservationsToClients] = useState(false);
   const [syncingFromResend, setSyncingFromResend] = useState(false);
+  const [bookingDetailId, setBookingDetailId] = useState<string | null>(null);
+  const [bookingDetail, setBookingDetail] = useState<{
+    booking: BookingRecord;
+    emailStatuses: Array<{ id: string; type: string; sentAt: string; status?: string }>;
+  } | null>(null);
+  const [bookingDetailLoading, setBookingDetailLoading] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -549,6 +555,24 @@ export default function Admin() {
     }
   };
 
+  useEffect(() => {
+    if (!bookingDetailId || !token) {
+      setBookingDetail(null);
+      return;
+    }
+    setBookingDetailLoading(true);
+    setBookingDetail(null);
+    fetch(`/api/bookings?id=${encodeURIComponent(bookingDetailId)}`, { headers: getAuthHeaders(token) })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.booking && Array.isArray(data.emailStatuses)) {
+          setBookingDetail({ booking: data.booking, emailStatuses: data.emailStatuses });
+        }
+      })
+      .catch(() => setBookingDetail(null))
+      .finally(() => setBookingDetailLoading(false));
+  }, [bookingDetailId, token]);
+
   const VALENTINES_BATCH_DELAY_MS = 2 * 60 * 1000; // 2 minutes between batches
 
   const sendValentinesBatch = useCallback(
@@ -804,17 +828,22 @@ export default function Admin() {
                             <td className="p-3">{b.phone}</td>
                             <td className="p-3">{b.email}</td>
                             <td className="p-3">
-                              {(b.status === "pending" || b.status === "request") && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  disabled={acceptingId !== null}
-                                  onClick={() => handleAccept(b.id)}
-                                >
-                                  {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  {t("admin.accept")}
+                              <div className="flex items-center gap-1">
+                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")}>
+                                  <Eye className="w-4 h-4" />
                                 </Button>
-                              )}
+                                {(b.status === "pending" || b.status === "request") && (
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    disabled={acceptingId !== null}
+                                    onClick={() => handleAccept(b.id)}
+                                  >
+                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                    {t("admin.accept")}
+                                  </Button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -824,6 +853,76 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+            <Dialog open={!!bookingDetailId} onOpenChange={(open) => !open && setBookingDetailId(null)}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>{t("admin.reservationDetails")}</DialogTitle>
+                </DialogHeader>
+                {bookingDetailLoading ? (
+                  <div className="py-8 flex justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : bookingDetail ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <span className="text-muted-foreground">{t("admin.date")}</span>
+                      <span>{bookingDetail.booking.date}</span>
+                      <span className="text-muted-foreground">{t("admin.time")}</span>
+                      <span>{bookingDetail.booking.time}</span>
+                      <span className="text-muted-foreground">{t("admin.name")}</span>
+                      <span>{bookingDetail.booking.name}</span>
+                      <span className="text-muted-foreground">{t("admin.email")}</span>
+                      <span>{bookingDetail.booking.email}</span>
+                      <span className="text-muted-foreground">{t("admin.phone")}</span>
+                      <span>{bookingDetail.booking.phone}</span>
+                      <span className="text-muted-foreground">{t("admin.status")}</span>
+                      <span>
+                        {bookingDetail.booking.status === "request"
+                          ? t("admin.statusRequest")
+                          : bookingDetail.booking.status === "confirmed"
+                            ? t("admin.statusConfirmed")
+                            : bookingDetail.booking.status === "cancelled"
+                              ? t("admin.statusCancelled")
+                              : t("admin.statusPending")}
+                      </span>
+                    </div>
+                    {bookingDetail.booking.specialRequests && (
+                      <>
+                        <span className="text-sm text-muted-foreground">{t("admin.specialRequests")}</span>
+                        <p className="text-sm">{bookingDetail.booking.specialRequests}</p>
+                      </>
+                    )}
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">{t("admin.emailsSent")}</h4>
+                      {bookingDetail.emailStatuses.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t("admin.noEmailsSent")}</p>
+                      ) : (
+                        <table className="w-full text-sm border rounded">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left p-2">{t("admin.emailType")}</th>
+                              <th className="text-left p-2">{t("admin.date")}</th>
+                              <th className="text-left p-2">{t("admin.emailStatus")}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {bookingDetail.emailStatuses.map((e) => (
+                              <tr key={e.id} className="border-b">
+                                <td className="p-2">{e.type}</td>
+                                <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
+                                <td className="p-2">{e.status ?? "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t("admin.loading")}</p>
+                )}
+              </DialogContent>
+            </Dialog>
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <Card>
@@ -846,6 +945,9 @@ export default function Admin() {
                                 <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : b.status === "cancelled" ? "text-red-600" : "text-muted-foreground"}>
                                   {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
                                 </span>
+                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
                                 {(b.status === "pending" || b.status === "request") && (
                                   <Button size="sm" variant="outline" disabled={acceptingId !== null} onClick={() => handleAccept(b.id)}>
                                     {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
@@ -900,17 +1002,22 @@ export default function Admin() {
                               {b.specialRequests?.trim() || "—"}
                             </td>
                             <td className="p-3">
-                              {(b.status === "pending" || b.status === "request") && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  disabled={acceptingId !== null}
-                                  onClick={() => handleAccept(b.id)}
-                                >
-                                  {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                  {t("admin.accept")}
+                              <div className="flex items-center gap-1">
+                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")}>
+                                  <Eye className="w-4 h-4" />
                                 </Button>
-                              )}
+                                {(b.status === "pending" || b.status === "request") && (
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    disabled={acceptingId !== null}
+                                    onClick={() => handleAccept(b.id)}
+                                  >
+                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
+                                    {t("admin.accept")}
+                                  </Button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
