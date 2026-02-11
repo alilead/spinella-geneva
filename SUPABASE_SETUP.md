@@ -89,7 +89,7 @@ Redeploy after the latest push (vercel.json includes `api/_lib` for API routes).
 
 1. In the Supabase dashboard, go to **Authentication** → **Users** in the left menu.
 2. Click **Add user** → **Create new user**.
-3. Enter an **email** (e.g. `admin@spinella.ch`) and set **Password** to **`spinellaadmin*1`** (or your chosen admin password).
+3. Enter an **email** (e.g. `info@spinella.ch`) and set **Password** to **`spinellaadmin*1`** (or your chosen admin password).
 4. Click **Create user**.
 
 This user is the only one who can log in to the **Admin** page (`/admin`). Optionally set **ADMIN_EMAIL** in Vercel to this email so the API only accepts that user.

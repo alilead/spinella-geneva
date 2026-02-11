@@ -52,6 +52,7 @@ export type ClientRecord = {
   phone: string | null;
   source: string;
   createdAt?: string;
+  lastBookingDate?: string | null;
 };
 
 function getAuthHeaders(token: string): HeadersInit {
@@ -93,6 +94,7 @@ export default function Admin() {
   const [addFromListText, setAddFromListText] = useState("");
   const [addFromListSaving, setAddFromListSaving] = useState(false);
   const [syncingReservationsToClients, setSyncingReservationsToClients] = useState(false);
+  const [syncingFromResend, setSyncingFromResend] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -170,7 +172,9 @@ export default function Admin() {
     list.sort((a, b) => {
       if (clientSort === "name") return a.name.localeCompare(b.name);
       if (clientSort === "email") return a.email.localeCompare(b.email);
-      return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
+      const aDate = a.lastBookingDate ?? a.createdAt ?? "";
+      const bDate = b.lastBookingDate ?? b.createdAt ?? "";
+      return bDate.localeCompare(aDate);
     });
     return list;
   }, [clients, clientSearch, clientSort]);
@@ -375,26 +379,28 @@ export default function Admin() {
         setClientsError("No valid contacts with email found in CSV. Use columns: Name (or Prénom, Nom de famille), Email (or E-mail 1), Phone (or Téléphone).");
         return;
       }
-      // Use smaller batches for large CSVs to avoid timeouts and payload limits (e.g. 6000 rows = 60 requests of 100).
-      const BATCH = 100;
-      let imported = 0;
-      for (let i = 0; i < toImport.length; i += BATCH) {
-        const batch = toImport.slice(i, i + BATCH);
-        const res = await fetch("/api/clients", {
-          method: "POST",
-          headers: getAuthHeaders(token),
-          body: JSON.stringify({ clients: batch }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) {
-          const serverMsg = typeof data?.details === "string" ? data.details : typeof data?.error === "string" ? data.error : "Import failed";
-          throw new Error(serverMsg);
-        }
-        imported += batch.length;
+      // Send full list in one request so the server can detect duplicates (existing clients are skipped; list is prioritized).
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ clients: toImport }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        const serverMsg = typeof data?.details === "string" ? data.details : typeof data?.error === "string" ? data.error : "Import failed";
+        throw new Error(serverMsg);
       }
       await fetchClients(token);
       setClientsError("");
-      setClientsMessage(t("admin.clientsImportSuccess").replace("{count}", String(imported)));
+      const imported = data.imported ?? 0;
+      const skipped = data.skipped ?? 0;
+      const msg =
+        skipped > 0
+          ? t("admin.clientsImportWithSkipped")
+            .replace("{imported}", String(imported))
+            .replace("{skipped}", String(skipped))
+          : t("admin.clientsImportSuccess").replace("{count}", String(imported));
+      setClientsMessage(msg);
     } catch (err) {
       const message = err instanceof Error ? err.message : t("admin.clientsImportError");
       setClientsError(message);
@@ -424,6 +430,34 @@ export default function Admin() {
       setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));
     } finally {
       setSyncingReservationsToClients(false);
+    }
+  };
+
+  const handleSyncFromResend = async () => {
+    if (!token) return;
+    setSyncingFromResend(true);
+    setClientsError("");
+    setClientsMessage(null);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ syncFromResend: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data?.details === "string" ? data.details : data?.error ?? "Sync failed");
+      await fetchClients(token);
+      const imported = data.imported ?? 0;
+      const skipped = data.skipped ?? 0;
+      const msg =
+        skipped > 0
+          ? t("admin.syncFromResendWithSkipped").replace("{imported}", String(imported)).replace("{skipped}", String(skipped))
+          : t("admin.syncFromResendSuccess").replace("{count}", String(imported));
+      setClientsMessage(msg);
+    } catch (err) {
+      setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));
+    } finally {
+      setSyncingFromResend(false);
     }
   };
 
@@ -915,6 +949,16 @@ export default function Admin() {
                       {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
                       {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSyncFromResend}
+                      disabled={syncingFromResend}
+                    >
+                      {syncingFromResend ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                      {syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}
+                    </Button>
                     <label>
                       <input
                         type="file"
@@ -945,13 +989,13 @@ export default function Admin() {
                     className="max-w-xs"
                   />
                   <Select value={clientSort} onValueChange={(v) => setClientSort(v as "name" | "email" | "date")}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[200px]">
                       <SelectValue placeholder={t("admin.sortBy")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="date">{t("admin.sortByDate")}</SelectItem>
                       <SelectItem value="name">{t("admin.sortByName")}</SelectItem>
-                      <SelectItem value="email">{t("admin.sortByEmail")}</SelectItem>
+                      <SelectItem value="email">{t("admin.sortByAlphabet")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -968,19 +1012,31 @@ export default function Admin() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
+                          <th className="text-left p-3 w-14">{t("admin.rank")}</th>
                           <th className="text-left p-3">{t("admin.name")}</th>
                           <th className="text-left p-3">{t("admin.email")}</th>
                           <th className="text-left p-3">{t("admin.phone")}</th>
+                          <th className="text-left p-3">{t("admin.lastBooked")}</th>
                           <th className="text-left p-3">{t("admin.source")}</th>
                           <th className="text-left p-3 w-20">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredAndSortedClients.map((c) => (
+                        {filteredAndSortedClients.map((c, index) => (
                           <tr key={c.id} className="border-b">
+                            <td className="p-3 text-muted-foreground tabular-nums">{index + 1}</td>
                             <td className="p-3">{c.name}</td>
                             <td className="p-3">{c.email}</td>
                             <td className="p-3">{c.phone ?? "—"}</td>
+                            <td className="p-3 text-muted-foreground">
+                              {c.lastBookingDate
+                                ? new Date(c.lastBookingDate + "T12:00:00").toLocaleDateString(undefined, {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                                : "—"}
+                            </td>
                             <td className="p-3 text-muted-foreground">{c.source}</td>
                             <td className="p-3">
                               <Button
