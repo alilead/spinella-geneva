@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Check, Download, Eye, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ChevronLeft, ChevronRight, Download, Eye, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -101,6 +101,10 @@ export default function Admin() {
     emailStatuses: Array<{ id: string; type: string; sentAt: string; status?: string }>;
   } | null>(null);
   const [bookingDetailLoading, setBookingDetailLoading] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -652,6 +656,30 @@ export default function Admin() {
     return map;
   }, [bookings]);
 
+  const calendarGrid = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const first = new Date(year, month, 1);
+    const dayOfWeek = first.getDay();
+    const mondayOffset = (dayOfWeek + 6) % 7;
+    const start = new Date(year, month, 1 - mondayOffset);
+    const days: { date: Date; dateStr: string; isCurrentMonth: boolean }[] = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const y = d.getFullYear();
+      const m = d.getMonth();
+      const day = d.getDate();
+      const dateStr = `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      days.push({
+        date: d,
+        dateStr,
+        isCurrentMonth: m === month,
+      });
+    }
+    return days;
+  }, [calendarMonth]);
+
   const sortedBookings = useMemo(() => {
     return [...bookings].sort((a, b) => {
       const d = a.date.localeCompare(b.date);
@@ -927,40 +955,85 @@ export default function Admin() {
           <TabsContent value="calendar" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                {Object.keys(byDate).length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">{t("admin.emptyCalendar")}</div>
-                ) : (
-                  <div className="space-y-6">
-                    {Object.entries(byDate)
-                      .sort(([a], [b]) => a.localeCompare(b))
-                      .map(([date, list]) => (
-                        <div key={date}>
-                          <h3 className="font-semibold text-lg mb-2">{date}</h3>
-                          <ul className="space-y-1">
-                            {list.map((b) => (
-                              <li key={b.id} className="flex flex-wrap gap-2 text-sm items-center">
-                                <span className="font-medium">{b.time}</span>
-                                <span>{b.name}</span>
-                                <span className="text-muted-foreground">({b.partySize} {t("admin.guests").toLowerCase()})</span>
-                                <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : b.status === "cancelled" ? "text-red-600" : "text-muted-foreground"}>
-                                  {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
-                                </span>
-                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")}>
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                {(b.status === "pending" || b.status === "request") && (
-                                  <Button size="sm" variant="outline" disabled={acceptingId !== null} onClick={() => handleAccept(b.id)}>
-                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                                  </Button>
-                                )}
-                                {b.phone && <span className="text-muted-foreground">{b.phone}</span>}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                <div className="flex items-center justify-between mb-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <h2 className="text-lg font-semibold capitalize">
+                    {calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm table-fixed">
+                    <thead>
+                      <tr className="border-b bg-muted/50">
+                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((wd) => (
+                          <th key={wd} className="p-2 text-center font-medium text-muted-foreground">
+                            {wd}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: 6 }, (_, row) => (
+                        <tr key={row} className="border-b last:border-b-0">
+                          {calendarGrid.slice(row * 7, row * 7 + 7).map(({ date, dateStr, isCurrentMonth }) => {
+                            const dayBookings = byDate[dateStr] ?? [];
+                            return (
+                              <td
+                                key={dateStr}
+                                className="align-top p-1 min-h-[80px] border-r last:border-r-0 bg-background"
+                              >
+                                <div
+                                  className={`text-center text-xs font-medium p-1 rounded ${
+                                    isCurrentMonth ? "text-foreground" : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {date.getDate()}
+                                </div>
+                                <div className="space-y-0.5 px-1 pb-1">
+                                  {dayBookings.map((b) => (
+                                    <button
+                                      key={b.id}
+                                      type="button"
+                                      onClick={() => setBookingDetailId(b.id)}
+                                      className={`w-full text-left rounded px-1.5 py-0.5 hover:bg-muted text-xs truncate block border-l-2 hover:border-primary ${
+                                        b.status === "confirmed"
+                                          ? "border-l-green-600"
+                                          : b.status === "request" || b.status === "pending"
+                                            ? "border-l-amber-600"
+                                            : b.status === "cancelled"
+                                              ? "border-l-red-600"
+                                              : "border-l-transparent"
+                                      }`}
+                                      title={`${b.time} ${b.name} (${b.partySize})`}
+                                    >
+                                      <span className="font-medium">{b.time}</span> {b.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
                       ))}
-                  </div>
-                )}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {t("admin.calendarHint")}
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1038,30 +1111,14 @@ export default function Admin() {
                       : `${filteredAndSortedClients.length} / ${clients.length} ${t("admin.clients").toLowerCase()}`}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setAddClientOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t("admin.addClient")}
-                    </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setAddFromListOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t("admin.addFromList")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSyncReservationsToClients}
-                      disabled={syncingReservationsToClients}
-                    >
-                      {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
-                      {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
-                    </Button>
+                    <span className="text-xs font-medium text-muted-foreground mr-1 self-center">{t("admin.importFromResendOrCsv")}</span>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={handleSyncFromResend}
                       disabled={syncingFromResend}
+                      title={t("admin.syncFromResend")}
                     >
                       {syncingFromResend ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                       {syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}
@@ -1081,6 +1138,25 @@ export default function Admin() {
                         </span>
                       </Button>
                     </label>
+                    <span className="text-xs text-muted-foreground self-center">|</span>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setAddClientOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t("admin.addClient")}
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setAddFromListOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t("admin.addFromList")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSyncReservationsToClients}
+                      disabled={syncingReservationsToClients}
+                    >
+                      {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
+                      {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
+                    </Button>
                     <Button type="button" variant="outline" size="sm" onClick={handleExportCsv} disabled={clients.length === 0}>
                       <Download className="w-4 h-4 mr-2" />
                       {t("admin.exportCsv")}

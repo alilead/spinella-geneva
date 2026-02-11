@@ -104,7 +104,7 @@ alter table public.bookings
 
 1. In the Supabase dashboard, go to **Authentication** → **Users** in the left menu.
 2. Click **Add user** → **Create new user**.
-3. Enter an **email** (e.g. `info@spinella.ch`) and set **Password** to **`spinellaadmin*1`** (or your chosen admin password).
+3. Enter an **email** (e.g. `info@spinella.ch`) and set **Password** to **`spinellaadmin*3`** (or your chosen admin password).
 4. Click **Create user**.
 
 This user is the only one who can log in to the **Admin** page (`/admin`). Optionally set **ADMIN_EMAIL** in Vercel to this email so the API only accepts that user.
@@ -185,9 +185,16 @@ If you see **"Failed to import clients"**, the message below it now shows the se
 
 **Option B: Via Node script (for large files, e.g. ~6000 contacts)**
 
-1. Ensure `npm install` (or `pnpm install`) has been run in the project root.
-2. Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to `.env`.
-3. Run:
+There is no `.env` file in the repo (it is git-ignored). Create it and add your Supabase keys:
+
+1. In the project root, create a file named **`.env`** (or copy **`.env.example`** and rename the copy to `.env`).
+2. Add these two lines with your real values (from Supabase → **Project Settings** → **API**):
+   ```env
+   SUPABASE_URL=https://xxxxx.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   ```
+3. Run `pnpm install` (or `npm install`) in the project root if you haven't already.
+4. Run the import script (use your actual CSV path):
    ```bash
    node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
    ```
@@ -196,9 +203,10 @@ If you see **"Failed to import clients"**, the message below it now shows the se
 
 To add all recipients of emails you’ve sent via Resend (e.g. booking confirmations) into the clients list:
 
-1. Log in to `/admin` → open the **Clients** tab.
-2. Click **Sync from Resend**. The app will fetch sent emails from Resend and add any new recipients as clients (existing clients are skipped).
-3. After it finishes, the message shows how many were added and how many were already in the list.
+1. Log in to `/admin`.
+2. Open the **Clients** tab — it's the **fourth tab** (icon: people/users), after List, Calendar, and Special requests.
+3. At the top of that tab you'll see several buttons. Click **Sync from Resend** (between "Sync reservations to clients" and "Import CSV"). The app will fetch sent emails from Resend and add any new recipients as clients (existing clients are skipped).
+4. After it finishes, the message shows how many were added and how many were already in the list.
 
 Run this whenever you want to refresh the client list from Resend. New bookings are already added to clients when they’re created.
 
