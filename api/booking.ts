@@ -122,9 +122,39 @@ export default async function handler(
   const requestOnly = isValentines || partySize >= 8;
   const status = requestOnly ? "request" : "confirmed";
 
+  // Require Supabase so every booking that sends an email also appears on the dashboard.
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error("[booking] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set");
+    res.status(503).json({ error: "Booking service not configured" });
+    return;
+  }
+
   try {
+    // Save to Supabase FIRST so the dashboard always has the booking when the guest gets the email.
+    const supabase = getSupabase();
+    const { error: insertErr } = await supabase.from(BOOKINGS_TABLE).insert({
+      name,
+      email,
+      phone,
+      date,
+      time,
+      party_size: partySize,
+      special_requests: specialRequests ?? null,
+      status,
+    });
+    if (insertErr) {
+      console.error("[booking] Supabase insert failed:", insertErr);
+      res.status(500).json({ error: "Failed to save reservation" });
+      return;
+    }
+    const { error: clientErr } = await supabase.from(CLIENTS_TABLE).upsert(
+      { name, email, phone: phone || null, source: "booking" },
+      { onConflict: "email", doUpdate: { name, phone: phone || null, updated_at: new Date().toISOString() } }
+    );
+    if (clientErr) console.error("[booking] Clients upsert failed:", clientErr);
+
+    // Then send email(s).
     if (requestOnly) {
-      // Guest: request-received (or Valentine's flyer email); BCC restaurant so they see it.
       const { error: err1 } = await resend.emails.send({
         from: FROM,
         to: [email],
@@ -138,7 +168,6 @@ export default async function handler(
         return;
       }
     } else {
-      // Auto-confirm: send confirmation email to guest only (no BCC).
       const { error: err1 } = await resend.emails.send({
         from: FROM,
         to: [email],
@@ -150,7 +179,6 @@ export default async function handler(
         res.status(500).json({ error: "Failed to send confirmation email" });
         return;
       }
-      // Notify restaurant of new auto-confirmed booking (separate email).
       if (restaurantEmail) {
         const { error: err2 } = await resend.emails.send({
           from: FROM,
@@ -162,7 +190,6 @@ export default async function handler(
       }
     }
 
-    // For request-only we don't send a separate restaurant email (BCC on guest email); optional extra to RESTAURANT_EMAIL if you want.
     if (requestOnly && restaurantEmail) {
       const { error: err2 } = await resend.emails.send({
         from: FROM,
@@ -171,28 +198,6 @@ export default async function handler(
         html: restaurantEmailHtml(data),
       });
       if (err2) console.error("[booking] Restaurant email failed:", err2);
-    }
-
-    if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      try {
-        const supabase = getSupabase();
-        await supabase.from(BOOKINGS_TABLE).insert({
-          name,
-          email,
-          phone,
-          date,
-          time,
-          party_size: partySize,
-          special_requests: specialRequests ?? null,
-          status,
-        });
-        await supabase.from(CLIENTS_TABLE).upsert(
-          { name, email, phone: phone || null, source: "booking" },
-          { onConflict: "email", doUpdate: { name, phone: phone || null, updated_at: new Date().toISOString() } }
-        );
-      } catch (dbErr) {
-        console.error("[booking] Supabase save failed:", dbErr);
-      }
     }
 
     res.status(200).json({ success: true, confirmed: !requestOnly });

@@ -1,4 +1,4 @@
-import { getSupabase, CLIENTS_TABLE, type ClientRow } from "./_lib/supabase.js";
+import { getSupabase, CLIENTS_TABLE, BOOKINGS_TABLE, type ClientRow } from "./_lib/supabase.js";
 import { verifySupabaseToken, isAllowedAdmin } from "./_lib/supabaseAuth.js";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
@@ -80,13 +80,60 @@ export default async function handler(
       name?: string;
       email?: string;
       phone?: string | null;
+      syncFromBookings?: boolean;
+    };
+
+    // Sync all reservation contacts into clients (by email, source "booking").
+    if (o.syncFromBookings === true) {
+      try {
+        const supabase = getSupabase();
+        const { data: rows, error: fetchErr } = await supabase
+          .from(BOOKINGS_TABLE)
+          .select("name, email, phone");
+        if (fetchErr) throw fetchErr;
+        const byEmail = new Map<string, { name: string; email: string; phone: string | null }>();
+        for (const r of rows ?? []) {
+          const email = String((r as { email: string }).email ?? "").trim().toLowerCase();
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) continue;
+          const name = String((r as { name: string }).name ?? email).trim().slice(0, 200);
+          const phone = (r as { phone?: string }).phone != null && String((r as { phone: string }).phone).trim()
+            ? String((r as { phone: string }).phone).trim().slice(0, 50)
+            : null;
+          if (!byEmail.has(email)) byEmail.set(email, { name, email, phone });
+        }
+        const toUpsert = Array.from(byEmail.values()).map((c) => ({
+          ...c,
+          source: "booking",
+          updated_at: new Date().toISOString(),
+        }));
+        let synced = 0;
+        const BATCH = 200;
+        for (let i = 0; i < toUpsert.length; i += BATCH) {
+          const batch = toUpsert.slice(i, i + BATCH);
+          const { error: upsertErr } = await supabase.from(CLIENTS_TABLE).upsert(batch, { onConflict: "email" });
+          if (upsertErr) throw upsertErr;
+          synced += batch.length;
+        }
+        res.status(200).json({ ok: true, synced, total: toUpsert.length });
+      } catch (err) {
+        console.error("[clients] syncFromBookings error:", err);
+        res.status(500).json({ error: "Failed to sync reservations to clients" });
+      }
+      return;
+    }
+
+    const o2 = o as {
+      clients?: Array<{ name: string; email: string; phone?: string | null }>;
+      name?: string;
+      email?: string;
+      phone?: string | null;
     };
     // Single client add: { name, email, phone }
-    const single = o.name != null && o.email != null && !Array.isArray(o.clients);
+    const single = o2.name != null && o2.email != null && !Array.isArray(o2.clients);
     const list = single
-      ? [{ name: String(o.name), email: String(o.email), phone: o.phone ?? null }]
-      : Array.isArray(o.clients)
-        ? o.clients
+      ? [{ name: String(o2.name), email: String(o2.email), phone: o2.phone ?? null }]
+      : Array.isArray(o2.clients)
+        ? o2.clients
         : [];
     if (list.length === 0) {
       res.status(400).json({ error: "No clients to import" });

@@ -94,6 +94,12 @@ Redeploy after the latest push (vercel.json includes `api/_lib` for API routes).
 
 This user is the only one who can log in to the **Admin** page (`/admin`). Optionally set **ADMIN_EMAIL** in Vercel to this email so the API only accepts that user.
 
+### Admin login credentials
+
+- **Credentials** are the Supabase Auth user you created above. There are no separate credentials stored in the code.
+- **Example:** email **`admin@spinella.ch`**, password **`spinellaadmin*1`** (or whatever you set in Step 3).
+- **Why the admin page sometimes opens without asking for credentials:** The app uses Supabase Auth, which keeps the session in the browser (localStorage). If you already logged in before, reopening `/admin` restores that session and shows the dashboard directly. To see the login form again, click **Log out** on the admin page.
+
 ---
 
 ## Step 4: Get your project URL and keys

@@ -92,16 +92,22 @@ export default function Admin() {
   const [addFromListOpen, setAddFromListOpen] = useState(false);
   const [addFromListText, setAddFromListText] = useState("");
   const [addFromListSaving, setAddFromListSaving] = useState(false);
+  const [syncingReservationsToClients, setSyncingReservationsToClients] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.access_token) setToken(session.access_token);
+      if (session?.access_token) {
+        setToken(session.access_token);
+        setUserEmail(session.user?.email ?? null);
+      }
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setToken(session?.access_token ?? null);
+      setUserEmail(session?.user?.email ?? null);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -338,26 +344,35 @@ export default function Admin() {
         result.push(cur.trim());
         return result;
       };
-      const headers = parseLine(lines[0]);
-      let emailIdx = headers.findIndex((h) => /e-mail 1|e-mail/i.test(h));
+      const headers = parseLine(lines[0]).map((h) => h.trim());
+      // Email: E-mail 1, E-mail, email, etc.
+      let emailIdx = headers.findIndex((h) => /e-mail 1|e-mail|^email$/i.test(h));
       if (emailIdx < 0) emailIdx = 2;
-      const prenomIdx = headers.findIndex((h) => /prénom/i.test(h));
-      const nomIdx = headers.findIndex((h) => /nom de famille/i.test(h));
-      let phoneIdx = headers.findIndex((h) => /téléphone 1|téléphone/i.test(h));
+      // Name: single "name" or "Name", or Prénom + Nom de famille
+      const nameIdx = headers.findIndex((h) => /^name$|^nom$|^nombre$/i.test(h));
+      const prenomIdx = headers.findIndex((h) => /prénom|prenom/i.test(h));
+      const nomIdx = headers.findIndex((h) => /nom de famille|nom$/i.test(h));
+      // Phone: Téléphone 1, Téléphone, phone, etc.
+      let phoneIdx = headers.findIndex((h) => /téléphone 1|téléphone|phone|tel/i.test(h));
       if (phoneIdx < 0) phoneIdx = 3;
       const toImport: { name: string; email: string; phone: string | null }[] = [];
       for (let i = 1; i < lines.length; i++) {
         const cols = parseLine(lines[i]);
         const email = String(cols[emailIdx] ?? cols[2] ?? "").trim().toLowerCase();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) continue;
-        const prenom = (cols[prenomIdx] ?? "").trim();
-        const nom = (cols[nomIdx] ?? "").trim();
-        const name = [prenom, nom].filter(Boolean).join(" ") || email;
+        let name: string;
+        if (nameIdx >= 0 && cols[nameIdx]?.trim()) {
+          name = String(cols[nameIdx]).trim().slice(0, 200);
+        } else {
+          const prenom = (cols[prenomIdx] ?? "").trim();
+          const nom = (cols[nomIdx] ?? "").trim();
+          name = [prenom, nom].filter(Boolean).join(" ") || email;
+        }
         const phone = (cols[phoneIdx] ?? cols[3] ?? "").trim().replace(/^['"]|['"]$/g, "").slice(0, 50) || null;
         toImport.push({ name: name.slice(0, 200), email, phone });
       }
       if (toImport.length === 0) {
-        setClientsError("No valid contacts with email found in CSV. Check column headers (e.g. E-mail 1, Prénom, Nom de famille).");
+        setClientsError("No valid contacts with email found in CSV. Use columns: Name (or Prénom, Nom de famille), Email (or E-mail 1), Phone (or Téléphone).");
         return;
       }
       const BATCH = 200;
@@ -382,6 +397,29 @@ export default function Admin() {
     } finally {
       setImportingClients(false);
       e.target.value = "";
+    }
+  };
+
+  const handleSyncReservationsToClients = async () => {
+    if (!token) return;
+    setSyncingReservationsToClients(true);
+    setClientsError("");
+    setClientsMessage(null);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ syncFromBookings: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data?.error === "string" ? data.error : "Sync failed");
+      await fetchClients(token);
+      const count = data.synced ?? data.total ?? 0;
+      setClientsMessage(t("admin.syncReservationsSuccess").replace("{count}", String(count)));
+    } catch (err) {
+      setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));
+    } finally {
+      setSyncingReservationsToClients(false);
     }
   };
 
@@ -656,6 +694,11 @@ export default function Admin() {
               {valentinesSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               {valentinesSending ? t("admin.valentinesSending") : t("admin.valentinesSend")}
             </Button>
+            {userEmail && (
+              <span className="text-sm text-muted-foreground mr-2 hidden sm:inline">
+                {t("admin.loggedInAs").replace("{email}", userEmail)}
+              </span>
+            )}
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               {t("admin.logOut")}
@@ -857,6 +900,16 @@ export default function Admin() {
                     <Button type="button" variant="outline" size="sm" onClick={() => setAddFromListOpen(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       {t("admin.addFromList")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSyncReservationsToClients}
+                      disabled={syncingReservationsToClients}
+                    >
+                      {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
+                      {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
                     </Button>
                     <label>
                       <input
