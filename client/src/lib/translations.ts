@@ -274,7 +274,16 @@ export const translations = {
       clientsImportSuccess: "{count} clients imported.",
       clientsImportError: "Failed to import clients.",
       clientsFetchError: "Failed to load clients.",
-      source: "Source"
+      source: "Source",
+      addClient: "Add client",
+      exportCsv: "Export CSV",
+      deleteClient: "Delete",
+      confirmDeleteClient: "Remove this client from the list?",
+      searchClients: "Search name, email, phone...",
+      sortBy: "Sort by",
+      sortByName: "Name",
+      sortByEmail: "Email",
+      sortByDate: "Date added"
     },
     footer: {
       stayConnected: "Stay Connected",
@@ -589,7 +598,16 @@ export const translations = {
       clientsImportSuccess: "{count} clients importés.",
       clientsImportError: "Échec de l'import des clients.",
       clientsFetchError: "Échec du chargement des clients.",
-      source: "Source"
+      source: "Source",
+      addClient: "Ajouter un client",
+      exportCsv: "Exporter CSV",
+      deleteClient: "Supprimer",
+      confirmDeleteClient: "Retirer ce client de la liste ?",
+      searchClients: "Rechercher nom, email, téléphone...",
+      sortBy: "Trier par",
+      sortByName: "Nom",
+      sortByEmail: "Email",
+      sortByDate: "Date d'ajout"
     },
     footer: {
       stayConnected: "Restez connectés",
@@ -904,7 +922,16 @@ export const translations = {
       clientsImportSuccess: "{count} clienti importati.",
       clientsImportError: "Importazione clienti non riuscita.",
       clientsFetchError: "Impossibile caricare i clienti.",
-      source: "Fonte"
+      source: "Fonte",
+      addClient: "Aggiungi cliente",
+      exportCsv: "Esporta CSV",
+      deleteClient: "Elimina",
+      confirmDeleteClient: "Rimuovere questo cliente dalla lista?",
+      searchClients: "Cerca nome, email, telefono...",
+      sortBy: "Ordina per",
+      sortByName: "Nome",
+      sortByEmail: "Email",
+      sortByDate: "Data aggiunta"
     },
     footer: {
       stayConnected: "Restate connessi",

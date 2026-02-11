@@ -4,7 +4,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck, Users } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar as CalendarIcon, Check, Download, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -55,6 +79,15 @@ export default function Admin() {
   const [clientsError, setClientsError] = useState("");
   const [clientsMessage, setClientsMessage] = useState<string | null>(null);
   const [importingClients, setImportingClients] = useState(false);
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientSort, setClientSort] = useState<"name" | "email" | "date">("date");
+  const [addClientOpen, setAddClientOpen] = useState(false);
+  const [addClientName, setAddClientName] = useState("");
+  const [addClientEmail, setAddClientEmail] = useState("");
+  const [addClientPhone, setAddClientPhone] = useState("");
+  const [savingClient, setSavingClient] = useState(false);
+  const [deleteClientId, setDeleteClientId] = useState<string | null>(null);
+  const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -112,6 +145,93 @@ export default function Admin() {
       setClientsError(t("admin.clientsFetchError"));
     }
   }, [t]);
+
+  const filteredAndSortedClients = useMemo(() => {
+    let list = [...clients];
+    const q = clientSearch.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q) ||
+          (c.phone ?? "").toLowerCase().includes(q)
+      );
+    }
+    list.sort((a, b) => {
+      if (clientSort === "name") return a.name.localeCompare(b.name);
+      if (clientSort === "email") return a.email.localeCompare(b.email);
+      return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
+    });
+    return list;
+  }, [clients, clientSearch, clientSort]);
+
+  const handleAddClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !addClientEmail.trim()) return;
+    setSavingClient(true);
+    setClientsError("");
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({
+          name: addClientName.trim() || addClientEmail.trim(),
+          email: addClientEmail.trim(),
+          phone: addClientPhone.trim() || null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(typeof data?.error === "string" ? data.error : "Failed");
+      setAddClientOpen(false);
+      setAddClientName("");
+      setAddClientEmail("");
+      setAddClientPhone("");
+      await fetchClients(token);
+      setClientsMessage(t("admin.clientsImportSuccess").replace("{count}", "1"));
+    } catch (err) {
+      setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
+  const handleDeleteClient = async (id: string) => {
+    if (!token) return;
+    setDeletingClientId(id);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "DELETE",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data?.error === "string" ? data.error : "Failed");
+      setDeleteClientId(null);
+      await fetchClients(token);
+    } catch (err) {
+      setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));
+    } finally {
+      setDeletingClientId(null);
+    }
+  };
+
+  const handleExportCsv = () => {
+    const headers = ["Name", "Email", "Phone", "Source", "Added"];
+    const rows = filteredAndSortedClients.map((c) => [
+      `"${(c.name ?? "").replace(/"/g, '""')}"`,
+      `"${(c.email ?? "").replace(/"/g, '""')}"`,
+      `"${(c.phone ?? "").replace(/"/g, '""')}"`,
+      `"${(c.source ?? "").replace(/"/g, '""')}"`,
+      c.createdAt ?? "",
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `spinella-clients-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
   const handleImportCsvClients = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -644,32 +764,61 @@ export default function Admin() {
                   <p className="text-sm text-muted-foreground">
                     {clients.length === 0
                       ? t("admin.emptyClients")
-                      : `${clients.length} ${t("admin.clients").toLowerCase()}`}
+                      : `${filteredAndSortedClients.length} / ${clients.length} ${t("admin.clients").toLowerCase()}`}
                   </p>
-                  <label>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      className="hidden"
-                      onChange={handleImportCsvClients}
-                      disabled={importingClients}
-                    />
-                    <Button type="button" variant="outline" asChild disabled={importingClients}>
-                      <span>
-                        {importingClients ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4 mr-2" />
-                        )}
-                        {importingClients ? t("admin.importingClients") : t("admin.importCsvClients")}
-                      </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setAddClientOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t("admin.addClient")}
                     </Button>
-                  </label>
+                    <label>
+                      <input
+                        type="file"
+                        accept=".csv"
+                        className="hidden"
+                        onChange={handleImportCsvClients}
+                        disabled={importingClients}
+                      />
+                      <Button type="button" variant="outline" size="sm" asChild disabled={importingClients}>
+                        <span>
+                          {importingClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                          {importingClients ? t("admin.importingClients") : t("admin.importCsvClients")}
+                        </span>
+                      </Button>
+                    </label>
+                    <Button type="button" variant="outline" size="sm" onClick={handleExportCsv} disabled={clients.length === 0}>
+                      <Download className="w-4 h-4 mr-2" />
+                      {t("admin.exportCsv")}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <Input
+                    type="search"
+                    placeholder={t("admin.searchClients")}
+                    value={clientSearch}
+                    onChange={(e) => setClientSearch(e.target.value)}
+                    className="max-w-xs"
+                  />
+                  <Select value={clientSort} onValueChange={(v) => setClientSort(v as "name" | "email" | "date")}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder={t("admin.sortBy")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date">{t("admin.sortByDate")}</SelectItem>
+                      <SelectItem value="name">{t("admin.sortByName")}</SelectItem>
+                      <SelectItem value="email">{t("admin.sortByEmail")}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 {clientsMessage && <p className="text-sm text-green-600 mb-4">{clientsMessage}</p>}
                 {clientsError && <p className="text-sm text-destructive mb-4">{clientsError}</p>}
                 {clients.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground">{t("admin.emptyClients")}</div>
+                ) : filteredAndSortedClients.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    {clientSearch.trim() ? "No clients match your search." : t("admin.emptyClients")}
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -679,15 +828,29 @@ export default function Admin() {
                           <th className="text-left p-3">{t("admin.email")}</th>
                           <th className="text-left p-3">{t("admin.phone")}</th>
                           <th className="text-left p-3">{t("admin.source")}</th>
+                          <th className="text-left p-3 w-20">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {clients.map((c) => (
+                        {filteredAndSortedClients.map((c) => (
                           <tr key={c.id} className="border-b">
                             <td className="p-3">{c.name}</td>
                             <td className="p-3">{c.email}</td>
                             <td className="p-3">{c.phone ?? "—"}</td>
                             <td className="p-3 text-muted-foreground">{c.source}</td>
+                            <td className="p-3">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive"
+                                disabled={deletingClientId !== null}
+                                onClick={() => setDeleteClientId(c.id)}
+                              >
+                                {deletingClientId === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                <span className="sr-only">{t("admin.deleteClient")}</span>
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -696,6 +859,73 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+            <Dialog open={addClientOpen} onOpenChange={setAddClientOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t("admin.addClient")}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddClient} className="space-y-4">
+                  <div>
+                    <Label htmlFor="add-client-name">{t("admin.name")}</Label>
+                    <Input
+                      id="add-client-name"
+                      value={addClientName}
+                      onChange={(e) => setAddClientName(e.target.value)}
+                      placeholder={t("admin.name")}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="add-client-email">{t("admin.email")} *</Label>
+                    <Input
+                      id="add-client-email"
+                      type="email"
+                      value={addClientEmail}
+                      onChange={(e) => setAddClientEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="add-client-phone">{t("admin.phone")}</Label>
+                    <Input
+                      id="add-client-phone"
+                      value={addClientPhone}
+                      onChange={(e) => setAddClientPhone(e.target.value)}
+                      placeholder={t("admin.phone")}
+                      className="mt-1"
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setAddClientOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={savingClient}>
+                      {savingClient ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      {savingClient ? "..." : t("admin.addClient")}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <AlertDialog open={deleteClientId !== null} onOpenChange={(open) => !open && setDeleteClientId(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("admin.deleteClient")}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("admin.confirmDeleteClient")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => deleteClientId && handleDeleteClient(deleteClientId)}
+                  >
+                    {t("admin.deleteClient")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </TabsContent>
         </Tabs>
       </div>

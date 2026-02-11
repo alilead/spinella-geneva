@@ -75,8 +75,19 @@ export default async function handler(
       res.status(400).json({ error: "Invalid JSON" });
       return;
     }
-    const o = body as { clients?: Array<{ name: string; email: string; phone?: string | null }> };
-    const list = Array.isArray(o.clients) ? o.clients : [];
+    const o = body as {
+      clients?: Array<{ name: string; email: string; phone?: string | null }>;
+      name?: string;
+      email?: string;
+      phone?: string | null;
+    };
+    // Single client add: { name, email, phone }
+    const single = o.name != null && o.email != null && !Array.isArray(o.clients);
+    const list = single
+      ? [{ name: String(o.name), email: String(o.email), phone: o.phone ?? null }]
+      : Array.isArray(o.clients)
+        ? o.clients
+        : [];
     if (list.length === 0) {
       res.status(400).json({ error: "No clients to import" });
       return;
@@ -88,8 +99,12 @@ export default async function handler(
         name: String(c.name || c.email).trim().slice(0, 200) || c.email,
         email: String(c.email).trim().toLowerCase(),
         phone: c.phone != null && String(c.phone).trim() ? String(c.phone).trim().slice(0, 50) : null,
-        source: "csv_import",
+        source: single ? "manual" : "csv_import",
       }));
+    if (toUpsert.length === 0) {
+      res.status(400).json({ error: "Invalid email" });
+      return;
+    }
     try {
       const supabase = getSupabase();
       let imported = 0;
@@ -106,6 +121,33 @@ export default async function handler(
     } catch (err) {
       console.error("[clients] POST import error:", err);
       res.status(500).json({ error: "Failed to import clients" });
+    }
+    return;
+  }
+
+  if (req.method === "DELETE") {
+    if (!(await requireAuth(req, res))) return;
+    let body: unknown;
+    try {
+      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
+    } catch {
+      res.status(400).json({ error: "Invalid JSON" });
+      return;
+    }
+    const o = body as { id?: string };
+    const id = typeof o?.id === "string" ? o.id.trim() : "";
+    if (!id) {
+      res.status(400).json({ error: "Missing id" });
+      return;
+    }
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase.from(CLIENTS_TABLE).delete().eq("id", id);
+      if (error) throw error;
+      res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error("[clients] DELETE error:", err);
+      res.status(500).json({ error: "Failed to delete client" });
     }
     return;
   }
