@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { getSupabase, BOOKINGS_TABLE } from "./lib/supabase.js";
+import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./lib/supabase.js";
 
 import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./lib/valentinesEmail.js";
 import { confirmedEmailHtml } from "./lib/confirmedEmail.js";
@@ -33,7 +33,7 @@ function guestEmailHtml(data: {
 <tr><td style="padding:32px 24px;text-align:center;"><p style="margin:0;font-size:11px;letter-spacing:4px;color:#8a7a5c;">Restaurant &amp; Bar</p>
 <h1 style="margin:8px 0 0;font-size:32px;letter-spacing:4px;color:#d4af37;">SPINELLA</h1><p style="margin:4px 0 0;font-size:12px;color:#b8a574;">GENEVA</p></td></tr>
 <tr><td style="padding:0 24px 24px;"><p style="margin:0;font-size:16px;color:#e8e4dc;">Dear ${data.name},</p>
-<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">Thank you for your reservation request. We have received it and our team will confirm your table within <strong style="color:#d4af37;">10–20 minutes</strong> by email.</p></td></tr>
+<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">Thank you for your reservation request. We have received it. Request pending, we will give you an answer as soon as possible. We have sent an email to your address.</p></td></tr>
 <tr><td style="padding:0 24px 24px;"><table width="100%" cellpadding="12" cellspacing="0" style="background:#1a1814;border:1px solid #2a2520;">
 <tr><td style="font-size:13px;color:#8a7a5c;">Date</td><td style="text-align:right;font-size:14px;color:#e8e4dc;">${displayDate}</td></tr>
 <tr><td style="font-size:13px;color:#8a7a5c;">Time</td><td style="text-align:right;font-size:14px;color:#e8e4dc;">${data.time}</td></tr>
@@ -187,6 +187,10 @@ export default async function handler(
           special_requests: specialRequests ?? null,
           status,
         });
+        await supabase.from(CLIENTS_TABLE).upsert(
+          { name, email, phone: phone || null, source: "booking" },
+          { onConflict: "email", doUpdate: { name, phone: phone || null, updated_at: new Date().toISOString() } }
+        );
       } catch (dbErr) {
         console.error("[booking] Supabase save failed:", dbErr);
       }

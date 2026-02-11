@@ -58,6 +58,30 @@ create policy "Service role only"
 
 ---
 
+## Step 2b: Create the `clients` table
+
+Everyone who books is added as a client. You can also import contacts from a CSV.
+
+1. In the Supabase dashboard, go to **SQL Editor**.
+2. Paste and run:
+
+```sql
+create table if not exists public.clients (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null unique,
+  phone text,
+  source text not null default 'booking',
+  created_at timestamptz default now() not null,
+  updated_at timestamptz
+);
+
+alter table public.clients enable row level security;
+create policy "Service role only" on public.clients for all using (false) with check (false);
+```
+
+---
+
 ## Step 3: Create the admin user (Supabase Authentication)
 
 1. In the Supabase dashboard, go to **Authentication** → **Users** in the left menu.
@@ -121,6 +145,26 @@ To test booking and admin with Supabase on your machine:
 3. Run your dev server. Ensure it loads `.env` for the API.
 
 Never commit `.env` or share the service role key.
+
+---
+
+## Import contacts from CSV (clients table)
+
+**Option A: Via Admin dashboard (easiest)**
+
+1. Log in to `/admin`.
+2. Open the **Clients** tab.
+3. Click **Import CSV** and select your contacts file.
+4. CSV columns expected: `Prénom`, `Nom de famille`, `E-mail 1`, `Téléphone 1` (other names work if similar).
+
+**Option B: Via Node script (for large files, e.g. ~6000 contacts)**
+
+1. Ensure `npm install` (or `pnpm install`) has been run in the project root.
+2. Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to `.env`.
+3. Run:
+   ```bash
+   node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
+   ```
 
 ---
 

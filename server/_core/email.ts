@@ -132,7 +132,7 @@ function generateBookingEmailHTML(data: BookingEmailData): string {
             <td style="padding: 0 40px 24px;">
               <p style="margin:0; font-size: 18px; line-height: 1.7; color: #e8e4dc;">Dear ${data.name},</p>
               <p style="margin: 20px 0 0 0; font-size: 16px; line-height: 1.7; color: #c4bfb5;">
-                Thank you for your reservation request. We have received it and our team will confirm your table within <strong style="color: #d4af37;">10–20 minutes</strong> by email.
+                Thank you for your reservation request. We have received it. Request pending, we will give you an answer as soon as possible. We have sent an email to your address.
               </p>
             </td>
           </tr>

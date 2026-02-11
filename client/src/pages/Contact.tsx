@@ -95,13 +95,10 @@ export default function Contact() {
                       <div>
                         <h3 className="text-xl font-bold mb-2">{t("contact.hours")}</h3>
                         <div className="text-muted-foreground space-y-1">
-                          <p><strong>{t("contact.monWed")}:</strong> 10am-3pm, 5pm-12am</p>
-                          <p><strong>{t("contact.thuFri")}:</strong> 10am-3pm, 5pm-2am</p>
-                          <p><strong>{t("contact.saturday")}:</strong> 5pm-2am</p>
-                          <p className="mt-3 text-sm"><strong>{t("contact.kitchenHours")}:</strong></p>
-                          <p className="text-sm">{t("contact.monWedKitchen")}</p>
-                          <p className="text-sm">{t("contact.thuFriKitchen")}</p>
-                          <p className="text-sm">{t("contact.satKitchen")}</p>
+                          <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedHours")}</p>
+                          <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriHours")}</p>
+                          <p><strong>{t("contact.saturday")}:</strong> {t("contact.satHours")}</p>
+                          <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayHours")}</p>
                         </div>
                       </div>
                     </div>

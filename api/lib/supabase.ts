@@ -14,6 +14,16 @@ export function getSupabase(): SupabaseClient {
 }
 
 export const BOOKINGS_TABLE = "bookings";
+export const CLIENTS_TABLE = "clients";
+
+export type ClientRow = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  source: string;
+  created_at?: string;
+};
 
 export type BookingRow = {
   id: string;

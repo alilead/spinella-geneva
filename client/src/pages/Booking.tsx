@@ -121,6 +121,14 @@ export default function Booking() {
     return getTimeSlotsForDate(selectedDate);
   }, [selectedDate]);
 
+  // When date changes, clear time if it's no longer in the available slots (e.g. switch to Saturday = evening only).
+  // Prevents Radix Select removeChild error when the selected value disappears from the list.
+  useEffect(() => {
+    if (selectedTime && timeSlots.length > 0 && !timeSlots.includes(selectedTime)) {
+      setValue("time", "");
+    }
+  }, [selectedDate, selectedTime, timeSlots, setValue]);
+
   const partySizes = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
   const partySizeRaw = watch("partySize");
   const selectedPartySizeNum = partySizeRaw
@@ -137,7 +145,9 @@ export default function Booking() {
             <div className="w-20 h-20 gold-bg rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-black" />
             </div>
-            <h1 className="text-4xl font-bold mb-4">{t("booking.bookingConfirmed")}</h1>
+            <h1 className="text-4xl font-bold mb-4">
+              {wasAutoConfirmed ? t("booking.bookingConfirmed") : t("booking.bookingRequestTitle")}
+            </h1>
             <div className="gold-divider"></div>
             <p className="text-lg mb-6">
               {wasAutoConfirmed
@@ -276,7 +286,10 @@ export default function Booking() {
                       <Clock className="w-4 h-4 mr-2" />
                       {t("booking.time")} *
                     </Label>
-                    <Select onValueChange={(value) => setValue("time", value)}>
+                    <Select
+                      value={selectedTime || undefined}
+                      onValueChange={(value) => setValue("time", value)}
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder={t("booking.selectTime")} />
                       </SelectTrigger>

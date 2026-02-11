@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck } from "lucide-react";
+import { Calendar as CalendarIcon, Check, List, LogOut, Loader2, Upload, UserCheck, Users } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -18,6 +18,15 @@ export type BookingRecord = {
   partySize: number;
   specialRequests?: string | null;
   status: string;
+};
+
+export type ClientRecord = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  source: string;
+  createdAt?: string;
 };
 
 function getAuthHeaders(token: string): HeadersInit {
@@ -42,6 +51,10 @@ export default function Admin() {
   const [importing, setImporting] = useState(false);
   const [valentinesSending, setValentinesSending] = useState(false);
   const [valentinesMessage, setValentinesMessage] = useState<string | null>(null);
+  const [clients, setClients] = useState<ClientRecord[]>([]);
+  const [clientsError, setClientsError] = useState("");
+  const [clientsMessage, setClientsMessage] = useState<string | null>(null);
+  const [importingClients, setImportingClients] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -84,6 +97,89 @@ export default function Admin() {
       setFetchError(t("admin.fetchError"));
     }
   }, [t]);
+
+  const fetchClients = useCallback(async (authToken: string) => {
+    setClientsError("");
+    try {
+      const res = await fetch("/api/clients", { headers: getAuthHeaders(authToken) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && Array.isArray(data.clients)) {
+        setClients(data.clients);
+      } else {
+        setClientsError(t("admin.clientsFetchError"));
+      }
+    } catch {
+      setClientsError(t("admin.clientsFetchError"));
+    }
+  }, [t]);
+
+  const handleImportCsvClients = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setImportingClients(true);
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) {
+        setClientsError("CSV file is empty or has no data rows");
+        return;
+      }
+      const parseLine = (line: string) => {
+        const result: string[] = [];
+        let cur = "";
+        let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') inQ = !inQ;
+          else if (c === "," && !inQ) {
+            result.push(cur.trim());
+            cur = "";
+          } else cur += c;
+        }
+        result.push(cur.trim());
+        return result;
+      };
+      const headers = parseLine(lines[0]);
+      let emailIdx = headers.findIndex((h) => /e-mail 1|e-mail/i.test(h));
+      if (emailIdx < 0) emailIdx = 2;
+      const prenomIdx = headers.findIndex((h) => /prénom/i.test(h));
+      const nomIdx = headers.findIndex((h) => /nom de famille/i.test(h));
+      let phoneIdx = headers.findIndex((h) => /téléphone 1|téléphone/i.test(h));
+      if (phoneIdx < 0) phoneIdx = 3;
+      const toImport: { name: string; email: string; phone: string | null }[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseLine(lines[i]);
+        const email = String(cols[emailIdx] ?? cols[2] ?? "").trim().toLowerCase();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) continue;
+        const prenom = (cols[prenomIdx] ?? "").trim();
+        const nom = (cols[nomIdx] ?? "").trim();
+        const name = [prenom, nom].filter(Boolean).join(" ") || email;
+        const phone = (cols[phoneIdx] ?? cols[3] ?? "").trim().replace(/^['"]|['"]$/g, "").slice(0, 50) || null;
+        toImport.push({ name: name.slice(0, 200), email, phone });
+      }
+      const BATCH = 200;
+      let imported = 0;
+      for (let i = 0; i < toImport.length; i += BATCH) {
+        const batch = toImport.slice(i, i + BATCH);
+        const res = await fetch("/api/clients", {
+          method: "POST",
+          headers: getAuthHeaders(token),
+          body: JSON.stringify({ clients: batch }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || "Import failed");
+        imported += batch.length;
+      }
+      await fetchClients(token);
+      setClientsError("");
+      setClientsMessage(t("admin.clientsImportSuccess").replace("{count}", String(imported)));
+    } catch (err) {
+      setClientsError(t("admin.clientsImportError"));
+    } finally {
+      setImportingClients(false);
+      e.target.value = "";
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,6 +328,10 @@ export default function Admin() {
   }, [token, verified, fetchBookings]);
 
   useEffect(() => {
+    if (token && verified) fetchClients(token);
+  }, [token, verified, fetchClients]);
+
+  useEffect(() => {
     if (!token || !verified) return;
     const interval = setInterval(() => fetchBookings(token), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
@@ -374,6 +474,10 @@ export default function Admin() {
             <TabsTrigger value="special">
               <UserCheck className="w-4 h-4 mr-2" />
               {t("admin.specialRequests")}
+            </TabsTrigger>
+            <TabsTrigger value="clients">
+              <Users className="w-4 h-4 mr-2" />
+              {t("admin.clients")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-6">
@@ -519,6 +623,66 @@ export default function Admin() {
                                 </Button>
                               )}
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="clients" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    {clients.length === 0
+                      ? t("admin.emptyClients")
+                      : `${clients.length} ${t("admin.clients").toLowerCase()}`}
+                  </p>
+                  <label>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={handleImportCsvClients}
+                      disabled={importingClients}
+                    />
+                    <Button type="button" variant="outline" asChild disabled={importingClients}>
+                      <span>
+                        {importingClients ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4 mr-2" />
+                        )}
+                        {importingClients ? t("admin.importingClients") : t("admin.importCsvClients")}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+                {clientsMessage && <p className="text-sm text-green-600 mb-4">{clientsMessage}</p>}
+                {clientsError && <p className="text-sm text-destructive mb-4">{clientsError}</p>}
+                {clients.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">{t("admin.emptyClients")}</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-muted/50">
+                          <th className="text-left p-3">{t("admin.name")}</th>
+                          <th className="text-left p-3">{t("admin.email")}</th>
+                          <th className="text-left p-3">{t("admin.phone")}</th>
+                          <th className="text-left p-3">{t("admin.source")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {clients.map((c) => (
+                          <tr key={c.id} className="border-b">
+                            <td className="p-3">{c.name}</td>
+                            <td className="p-3">{c.email}</td>
+                            <td className="p-3">{c.phone ?? "—"}</td>
+                            <td className="p-3 text-muted-foreground">{c.source}</td>
                           </tr>
                         ))}
                       </tbody>
