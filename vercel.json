@@ -5,12 +5,7 @@
   "framework": null,
   "functions": {
     "api/**/*.ts": {
-      "includeFiles": [
-        "api-lib/supabase.ts",
-        "api-lib/supabaseAuth.ts",
-        "api-lib/valentinesEmail.ts",
-        "api-lib/confirmedEmail.ts"
-      ]
+      "includeFiles": "api-lib/**"
     }
   },
   "rewrites": [
