@@ -157,6 +157,10 @@ export default function Admin() {
         const phone = (cols[phoneIdx] ?? cols[3] ?? "").trim().replace(/^['"]|['"]$/g, "").slice(0, 50) || null;
         toImport.push({ name: name.slice(0, 200), email, phone });
       }
+      if (toImport.length === 0) {
+        setClientsError("No valid contacts with email found in CSV. Check column headers (e.g. E-mail 1, Prénom, Nom de famille).");
+        return;
+      }
       const BATCH = 200;
       let imported = 0;
       for (let i = 0; i < toImport.length; i += BATCH) {
@@ -167,14 +171,15 @@ export default function Admin() {
           body: JSON.stringify({ clients: batch }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || "Import failed");
+        if (!res.ok || !data.ok) throw new Error(typeof data?.error === "string" ? data.error : "Import failed");
         imported += batch.length;
       }
       await fetchClients(token);
       setClientsError("");
       setClientsMessage(t("admin.clientsImportSuccess").replace("{count}", String(imported)));
     } catch (err) {
-      setClientsError(t("admin.clientsImportError"));
+      const message = err instanceof Error ? err.message : t("admin.clientsImportError");
+      setClientsError(message);
     } finally {
       setImportingClients(false);
       e.target.value = "";
