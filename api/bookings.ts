@@ -1,7 +1,7 @@
 import { Resend } from "resend";
-import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./lib/supabase.js";
-import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth.js";
-import { confirmedEmailHtml } from "./lib/confirmedEmail.js";
+import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "../api-lib/supabase.js";
+import { verifySupabaseToken, isAllowedAdmin } from "../api-lib/supabaseAuth.js";
+import { confirmedEmailHtml } from "../api-lib/confirmedEmail.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 

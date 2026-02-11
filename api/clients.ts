@@ -1,5 +1,5 @@
-import { getSupabase, CLIENTS_TABLE, type ClientRow } from "./lib/supabase.js";
-import { verifySupabaseToken, isAllowedAdmin } from "./lib/supabaseAuth.js";
+import { getSupabase, CLIENTS_TABLE, type ClientRow } from "../api-lib/supabase.js";
+import { verifySupabaseToken, isAllowedAdmin } from "../api-lib/supabaseAuth.js";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 

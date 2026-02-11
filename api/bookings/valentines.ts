@@ -1,7 +1,7 @@
 import { Resend } from "resend";
-import { getSupabase } from "../lib/supabase.js";
-import { verifySupabaseToken, isAllowedAdmin } from "../lib/supabaseAuth.js";
-import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "../lib/valentinesEmail.js";
+import { getSupabase } from "../../api-lib/supabase.js";
+import { verifySupabaseToken, isAllowedAdmin } from "../../api-lib/supabaseAuth.js";
+import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "../../api-lib/valentinesEmail.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BOOKINGS_TABLE = "bookings";

@@ -1,8 +1,8 @@
 import { Resend } from "resend";
-import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./lib/supabase.js";
+import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "../api-lib/supabase.js";
 
-import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./lib/valentinesEmail.js";
-import { confirmedEmailHtml } from "./lib/confirmedEmail.js";
+import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "../api-lib/valentinesEmail.js";
+import { confirmedEmailHtml } from "../api-lib/confirmedEmail.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
