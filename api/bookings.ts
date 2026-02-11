@@ -127,13 +127,24 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         res.status(200).json({ booking, emailStatuses });
         return;
       }
-      const { data: rows, error } = await supabase
-        .from(BOOKINGS_TABLE)
-        .select("*")
-        .order("date", { ascending: true })
-        .order("time", { ascending: true });
-      if (error) throw error;
-      const bookings = (rows ?? []).map((r: BookingRow) => rowToBooking(r));
+      // Fetch all bookings (Supabase default limit is 1000; paginate to get all)
+      const PAGE = 1000;
+      let rows: BookingRow[] = [];
+      let from = 0;
+      while (true) {
+        const { data: page, error } = await supabase
+          .from(BOOKINGS_TABLE)
+          .select("*")
+          .order("date", { ascending: true })
+          .order("time", { ascending: true })
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        const list = (page ?? []) as BookingRow[];
+        rows = rows.concat(list);
+        if (list.length < PAGE) break;
+        from += PAGE;
+      }
+      const bookings = rows.map((r: BookingRow) => rowToBooking(r));
       res.status(200).json({ bookings });
     } catch (err) {
       console.error("[bookings] GET error:", err);

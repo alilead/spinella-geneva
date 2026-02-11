@@ -55,20 +55,45 @@ export default async function handler(
     if (!(await requireAuth(req, res))) return;
     try {
       const supabase = getSupabase();
-      const [{ data: rows, error }, { data: bookingRows }] = await Promise.all([
-        supabase.from(CLIENTS_TABLE).select("*").order("created_at", { ascending: false }),
-        supabase.from(BOOKINGS_TABLE).select("email, date"),
-      ]);
-      if (error) throw error;
+      // Fetch all clients (Supabase default limit is 1000; paginate to get all)
+      const PAGE = 1000;
+      let rows: ClientRow[] = [];
+      let from = 0;
+      while (true) {
+        const { data: page, error } = await supabase
+          .from(CLIENTS_TABLE)
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        const list = (page ?? []) as ClientRow[];
+        rows = rows.concat(list);
+        if (list.length < PAGE) break;
+        from += PAGE;
+      }
+      // Fetch all bookings for lastBookedByEmail (paginate if needed)
+      let bookingRows: Array<{ email?: string; date?: string }> = [];
+      let bFrom = 0;
+      while (true) {
+        const { data: bPage, error: bErr } = await supabase
+          .from(BOOKINGS_TABLE)
+          .select("email, date")
+          .range(bFrom, bFrom + PAGE - 1);
+        if (bErr) throw bErr;
+        const list = (bPage ?? []) as Array<{ email?: string; date?: string }>;
+        bookingRows = bookingRows.concat(list);
+        if (list.length < PAGE) break;
+        bFrom += PAGE;
+      }
       const lastBookedByEmail = new Map<string, string>();
-      for (const b of bookingRows ?? []) {
-        const email = (b as { email: string }).email?.toLowerCase?.();
-        const date = (b as { date: string }).date;
+      for (const b of bookingRows) {
+        const email = b.email?.toLowerCase?.();
+        const date = b.date;
         if (!email || !date) continue;
         const current = lastBookedByEmail.get(email);
         if (!current || date > current) lastBookedByEmail.set(email, date);
       }
-      const clients = (rows ?? []).map((r: ClientRow) =>
+      const clients = rows.map((r: ClientRow) =>
         rowToClient(r, lastBookedByEmail.get(r.email?.toLowerCase?.()) ?? null)
       );
       res.status(200).json({ clients });
@@ -140,10 +165,22 @@ export default async function handler(
         } while (after);
         const supabase = getSupabase();
 
-        // 1) Sync clients: add new recipients as clients
-        const { data: existingRows, error: fetchErr } = await supabase.from(CLIENTS_TABLE).select("email");
-        if (fetchErr) throw fetchErr;
-        const existingEmails = new Set((existingRows ?? []).map((r: { email: string }) => r.email?.toLowerCase?.() ?? ""));
+        // 1) Sync clients: add new recipients as clients (fetch all existing emails; Supabase default limit 1000)
+        let existingClientEmails: Array<{ email: string }> = [];
+        let ecFrom = 0;
+        const CLIENT_PAGE = 1000;
+        while (true) {
+          const { data: page, error: fetchErr } = await supabase
+            .from(CLIENTS_TABLE)
+            .select("email")
+            .range(ecFrom, ecFrom + CLIENT_PAGE - 1);
+          if (fetchErr) throw fetchErr;
+          const list = (page ?? []) as Array<{ email: string }>;
+          existingClientEmails = existingClientEmails.concat(list);
+          if (list.length < CLIENT_PAGE) break;
+          ecFrom += CLIENT_PAGE;
+        }
+        const existingEmails = new Set(existingClientEmails.map((r) => r.email?.toLowerCase?.() ?? ""));
         const toInsert = Array.from(allEmails).filter((e) => !existingEmails.has(e));
         const BATCH = 100;
         let imported = 0;
@@ -170,12 +207,21 @@ export default async function handler(
           const g = groups.get(key)!;
           if (!g.entries.some((e) => e.id === r.resendId)) g.entries.push({ id: r.resendId, sentAt: r.sentAt });
         }
-        const { data: bookingRows, error: bookFetchErr } = await supabase
-          .from(BOOKINGS_TABLE)
-          .select("id, email, date, sent_emails");
-        if (bookFetchErr) throw bookFetchErr;
+        let bookingRows: Array<{ id: string; email: string; date: string; sent_emails?: unknown }> = [];
+        let bFrom = 0;
+        while (true) {
+          const { data: bPage, error: bookFetchErr } = await supabase
+            .from(BOOKINGS_TABLE)
+            .select("id, email, date, sent_emails")
+            .range(bFrom, bFrom + CLIENT_PAGE - 1);
+          if (bookFetchErr) throw bookFetchErr;
+          const list = (bPage ?? []) as Array<{ id: string; email: string; date: string; sent_emails?: unknown }>;
+          bookingRows = bookingRows.concat(list);
+          if (list.length < CLIENT_PAGE) break;
+          bFrom += CLIENT_PAGE;
+        }
         const bookingByKey = new Map<string, { id: string; email: string; date: string; sent_emails: Array<{ id: string; type: string; sentAt: string }> }>();
-        for (const row of bookingRows ?? []) {
+        for (const row of bookingRows) {
           const r = row as { id: string; email: string; date: string; sent_emails?: unknown };
           const email = String(r.email ?? "").toLowerCase();
           const date = String(r.date ?? "").slice(0, 10);
@@ -242,16 +288,26 @@ export default async function handler(
       return;
     }
 
-    // Sync all reservation contacts into clients (by email, source "booking").
+    // Sync all reservation contacts into clients (by email, source "booking"). Fetch all bookings (paginate past 1000).
     if (o.syncFromBookings === true) {
       try {
         const supabase = getSupabase();
-        const { data: rows, error: fetchErr } = await supabase
-          .from(BOOKINGS_TABLE)
-          .select("name, email, phone");
-        if (fetchErr) throw fetchErr;
+        let rows: Array<{ name: string; email: string; phone?: string }> = [];
+        let rFrom = 0;
+        const SYNC_PAGE = 1000;
+        while (true) {
+          const { data: page, error: fetchErr } = await supabase
+            .from(BOOKINGS_TABLE)
+            .select("name, email, phone")
+            .range(rFrom, rFrom + SYNC_PAGE - 1);
+          if (fetchErr) throw fetchErr;
+          const list = (page ?? []) as Array<{ name: string; email: string; phone?: string }>;
+          rows = rows.concat(list);
+          if (list.length < SYNC_PAGE) break;
+          rFrom += SYNC_PAGE;
+        }
         const byEmail = new Map<string, { name: string; email: string; phone: string | null }>();
-        for (const r of rows ?? []) {
+        for (const r of rows) {
           const email = String((r as { email: string }).email ?? "").trim().toLowerCase();
           if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) continue;
           const name = String((r as { name: string }).name ?? email).trim().slice(0, 200);
@@ -320,16 +376,28 @@ export default async function handler(
         res.status(200).json({ ok: true, imported: 1, skipped: 0, total: 1 });
         return;
       }
-      // CSV import: prioritize existing clients — only insert new emails, never overwrite.
+      // CSV import: prioritize existing clients — only insert new emails, never overwrite. Fetch all existing (paginate past 1000).
       const seen = new Set<string>();
       const toUpsert = normalized.filter((c) => {
         if (seen.has(c.email)) return false;
         seen.add(c.email);
         return true;
       });
-      const { data: existingRows, error: fetchErr } = await supabase.from(CLIENTS_TABLE).select("email");
-      if (fetchErr) throw fetchErr;
-      const existingEmails = new Set((existingRows ?? []).map((r: { email: string }) => r.email?.toLowerCase?.() ?? ""));
+      let existingRows: Array<{ email: string }> = [];
+      let erFrom = 0;
+      const IMPORT_PAGE = 1000;
+      while (true) {
+        const { data: page, error: fetchErr } = await supabase
+          .from(CLIENTS_TABLE)
+          .select("email")
+          .range(erFrom, erFrom + IMPORT_PAGE - 1);
+        if (fetchErr) throw fetchErr;
+        const list = (page ?? []) as Array<{ email: string }>;
+        existingRows = existingRows.concat(list);
+        if (list.length < IMPORT_PAGE) break;
+        erFrom += IMPORT_PAGE;
+      }
+      const existingEmails = new Set(existingRows.map((r) => r.email?.toLowerCase?.() ?? ""));
       const toInsert = toUpsert.filter((c) => !existingEmails.has(c.email));
       const BATCH = 100;
       let imported = 0;
