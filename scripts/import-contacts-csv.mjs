@@ -1,8 +1,8 @@
 /**
  * Import contacts from CSV into Supabase clients table.
- * Usage: node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
- *
- * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env or environment.
+ * From project root (after: pnpm install or npm install):
+ *   node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
+ * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env (or environment).
  */
 
 import "dotenv/config";
@@ -85,19 +85,23 @@ for (let i = 1; i < lines.length; i++) {
   clients.push({ name: name.slice(0, 200), email, phone });
 }
 
-console.log(`Parsed ${clients.length} valid contacts (with email)`);
+// Deduplicate by email (last occurrence wins) so upsert batches never have duplicate emails
+const byEmail = new Map();
+for (const c of clients) byEmail.set(c.email, c);
+const unique = [...byEmail.values()];
+console.log(`Parsed ${clients.length} valid contacts, ${unique.length} unique by email`);
 
 const BATCH = 200;
 let total = 0;
-for (let i = 0; i < clients.length; i += BATCH) {
-  const batch = clients.slice(i, i + BATCH);
+for (let i = 0; i < unique.length; i += BATCH) {
+  const batch = unique.slice(i, i + BATCH);
   const { error } = await supabase.from("clients").upsert(batch, { onConflict: "email" });
   if (error) {
     console.error(`Batch ${Math.floor(i / BATCH) + 1} error:`, error.message);
     process.exit(1);
   }
   total += batch.length;
-  console.log(`Imported ${total}/${clients.length}`);
+  console.log(`Imported ${total}/${unique.length}`);
 }
 
 console.log(`Done. Imported ${total} clients into the database.`);

@@ -193,8 +193,8 @@ There is no `.env` file in the repo (it is git-ignored). Create it and add your 
    SUPABASE_URL=https://xxxxx.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
    ```
-3. Run `pnpm install` (or `npm install`) in the project root if you haven't already.
-4. Run the import script (use your actual CSV path):
+3. From the **project root**, run `pnpm install` or `npm install` so dependencies (e.g. Supabase) are installed.
+4. Run the import script (use your actual CSV path; run from project root):
    ```bash
    node scripts/import-contacts-csv.mjs "C:\path\to\contacts.csv"
    ```
