@@ -283,7 +283,11 @@ export const translations = {
       sortBy: "Sort by",
       sortByName: "Name",
       sortByEmail: "Email",
-      sortByDate: "Date added"
+      sortByDate: "Date added",
+      exportBookingsCsv: "Export bookings CSV",
+      addFromList: "Add from list",
+      addFromListPlaceholder: "Paste one client per line: Name, Email, Phone (comma or tab separated). Email required.",
+      addFromListSubmit: "Add"
     },
     footer: {
       stayConnected: "Stay Connected",
@@ -607,7 +611,11 @@ export const translations = {
       sortBy: "Trier par",
       sortByName: "Nom",
       sortByEmail: "Email",
-      sortByDate: "Date d'ajout"
+      sortByDate: "Date d'ajout",
+      exportBookingsCsv: "Exporter réservations CSV",
+      addFromList: "Ajouter depuis la liste",
+      addFromListPlaceholder: "Collez un client par ligne : Nom, Email, Téléphone (virgule ou tabulation). Email obligatoire.",
+      addFromListSubmit: "Ajouter"
     },
     footer: {
       stayConnected: "Restez connectés",
@@ -931,7 +939,11 @@ export const translations = {
       sortBy: "Ordina per",
       sortByName: "Nome",
       sortByEmail: "Email",
-      sortByDate: "Data aggiunta"
+      sortByDate: "Data aggiunta",
+      exportBookingsCsv: "Esporta prenotazioni CSV",
+      addFromList: "Aggiungi da lista",
+      addFromListPlaceholder: "Incolla un cliente per riga: Nome, Email, Telefono (virgola o tab). Email obbligatoria.",
+      addFromListSubmit: "Aggiungi"
     },
     footer: {
       stayConnected: "Restate connessi",

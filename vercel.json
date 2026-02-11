@@ -3,11 +3,6 @@
   "outputDirectory": "dist/public",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "framework": null,
-  "functions": {
-    "api/**/*.ts": {
-      "includeFiles": "api-lib/**"
-    }
-  },
   "rewrites": [
     {"source": "/api/:path*", "destination": "/api/:path*"},
     {"source": "/admin", "destination": "/index.html"},

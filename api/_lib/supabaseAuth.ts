@@ -15,8 +15,6 @@ function getAuthClient() {
 
 /**
  * Verify a Supabase Auth JWT (access_token). Returns the user or null.
- * Uses a client with the JWT in the Authorization header and calls getUser().
- * Never throws — returns null on any failure.
  */
 export async function verifySupabaseToken(
   accessToken: string
@@ -40,9 +38,6 @@ export async function verifySupabaseToken(
   }
 }
 
-/**
- * If ADMIN_EMAIL is set, only that email is allowed. Otherwise any valid Supabase user is allowed.
- */
 export function isAllowedAdmin(user: { email?: string } | null): boolean {
   if (!user) return false;
   const allowed = process.env.ADMIN_EMAIL?.trim();
