@@ -457,12 +457,18 @@ export default function Admin() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data?.details === "string" ? data.details : data?.error ?? "Sync failed");
       await fetchClients(token);
+      if ((data.bookingsCreated ?? 0) > 0 || (data.bookingsUpdated ?? 0) > 0) await fetchBookings(token);
       const imported = data.imported ?? 0;
       const skipped = data.skipped ?? 0;
-      const msg =
+      const created = data.bookingsCreated ?? 0;
+      const updated = data.bookingsUpdated ?? 0;
+      let msg =
         skipped > 0
           ? t("admin.syncFromResendWithSkipped").replace("{imported}", String(imported)).replace("{skipped}", String(skipped))
           : t("admin.syncFromResendSuccess").replace("{count}", String(imported));
+      if (created > 0 || updated > 0) {
+        msg += " " + t("admin.syncFromResendBookings").replace("{created}", String(created)).replace("{updated}", String(updated));
+      }
       setClientsMessage(msg);
     } catch (err) {
       setClientsError(err instanceof Error ? err.message : t("admin.clientsImportError"));

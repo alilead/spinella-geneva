@@ -205,8 +205,8 @@ To add all recipients of emails you’ve sent via Resend (e.g. booking confirmat
 
 1. Log in to `/admin`.
 2. Open the **Clients** tab — it's the **fourth tab** (icon: people/users), after List, Calendar, and Special requests.
-3. At the top of that tab you'll see several buttons. Click **Sync from Resend** (between "Sync reservations to clients" and "Import CSV"). The app will fetch sent emails from Resend and add any new recipients as clients (existing clients are skipped).
-4. After it finishes, the message shows how many were added and how many were already in the list.
+3. At the top of that tab you'll see several buttons. Click **Sync from Resend** (between "Sync reservations to clients" and "Import CSV"). The app will fetch sent emails from Resend, add any new recipients as **clients** (existing clients are skipped), and **actualise the bookings list**: it creates a booking for each (recipient, send date) that doesn't exist yet, and adds Resend email IDs to existing bookings' "emails sent" when applicable.
+4. After it finishes, the message shows how many clients were added, how many were already in the list, and how many bookings were created or updated from Resend.
 
 Run this whenever you want to refresh the client list from Resend. New bookings are already added to clients when they’re created.
 

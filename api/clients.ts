@@ -97,7 +97,7 @@ export default async function handler(
       syncFromResend?: boolean;
     };
 
-    // Sync Resend sent-email recipients into clients (source "resend"). Skips existing.
+    // Sync Resend sent-email recipients into clients (source "resend") and actualise bookings from Resend.
     if (o.syncFromResend === true) {
       const key = process.env.RESEND_API_KEY;
       if (!key) {
@@ -107,25 +107,40 @@ export default async function handler(
       try {
         const resend = new Resend(key);
         const allEmails = new Set<string>();
+        type ResendItem = { email: string; resendId: string; sentAt: string };
+        const resendItems: ResendItem[] = [];
         let after: string | undefined;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         do {
           const list = await resend.emails.list({ limit: 100, ...(after ? { after } : {}) });
           const err = (list as { error?: unknown }).error;
           if (err) throw err;
-          const data = (list as { data?: { data?: Array<{ id: string; to?: string[] }>; has_more?: boolean } }).data;
+          const listData = list as {
+            data?: {
+              data?: Array<{ id: string; to?: string[]; created_at?: string }>;
+              has_more?: boolean;
+            };
+          };
+          const data = listData.data;
           const items = data?.data ?? [];
           for (const item of items) {
+            const sentAt = item.created_at ?? new Date().toISOString();
+            const dateOnly = sentAt.slice(0, 10);
             for (const addr of item.to ?? []) {
               const e = typeof addr === "string" ? addr : (addr as { email?: string })?.email;
               const normalized = String(e ?? "").trim().toLowerCase();
-              if (normalized && emailRegex.test(normalized)) allEmails.add(normalized);
+              if (normalized && emailRegex.test(normalized)) {
+                allEmails.add(normalized);
+                resendItems.push({ email: normalized, resendId: item.id, sentAt });
+              }
             }
           }
           after = items.length > 0 ? items[items.length - 1].id : undefined;
-          if (!(data as { has_more?: boolean }).has_more) break;
+          if (!data?.has_more) break;
         } while (after);
         const supabase = getSupabase();
+
+        // 1) Sync clients: add new recipients as clients
         const { data: existingRows, error: fetchErr } = await supabase.from(CLIENTS_TABLE).select("email");
         if (fetchErr) throw fetchErr;
         const existingEmails = new Set((existingRows ?? []).map((r: { email: string }) => r.email?.toLowerCase?.() ?? ""));
@@ -144,7 +159,81 @@ export default async function handler(
           if (insertErr) throw insertErr;
           imported += batch.length;
         }
-        res.status(200).json({ ok: true, imported, skipped: allEmails.size - imported, total: allEmails.size });
+
+        // 2) Actualise bookings from Resend: group by (email, date), then create or update booking
+        const groupKey = (email: string, date: string) => `${email}\t${date}`;
+        const groups = new Map<string, { email: string; date: string; entries: Array<{ id: string; sentAt: string }> }>();
+        for (const r of resendItems) {
+          const date = r.sentAt.slice(0, 10);
+          const key = groupKey(r.email, date);
+          if (!groups.has(key)) groups.set(key, { email: r.email, date, entries: [] });
+          const g = groups.get(key)!;
+          if (!g.entries.some((e) => e.id === r.resendId)) g.entries.push({ id: r.resendId, sentAt: r.sentAt });
+        }
+        const { data: bookingRows, error: bookFetchErr } = await supabase
+          .from(BOOKINGS_TABLE)
+          .select("id, email, date, sent_emails");
+        if (bookFetchErr) throw bookFetchErr;
+        const bookingByKey = new Map<string, { id: string; email: string; date: string; sent_emails: Array<{ id: string; type: string; sentAt: string }> }>();
+        for (const row of bookingRows ?? []) {
+          const r = row as { id: string; email: string; date: string; sent_emails?: unknown };
+          const email = String(r.email ?? "").toLowerCase();
+          const date = String(r.date ?? "").slice(0, 10);
+          if (!email || !date) continue;
+          const key = groupKey(email, date);
+          const prev = (r.sent_emails as Array<{ id: string; type?: string; sentAt?: string }> | null) ?? [];
+          bookingByKey.set(key, {
+            id: r.id,
+            email,
+            date,
+            sent_emails: prev.map((e) => ({ id: e.id, type: e.type ?? "resend", sentAt: e.sentAt ?? "" })),
+          });
+        }
+        let bookingsCreated = 0;
+        let bookingsUpdated = 0;
+        const now = new Date().toISOString();
+        for (const [, g] of groups) {
+          const key = groupKey(g.email, g.date);
+          const existing = bookingByKey.get(key);
+          const newEntries = g.entries.map((e) => ({ id: e.id, type: "resend" as const, sentAt: e.sentAt }));
+          if (existing) {
+            const existingIds = new Set(existing.sent_emails.map((x) => x.id));
+            const toAdd = newEntries.filter((e) => !existingIds.has(e.id));
+            if (toAdd.length === 0) continue;
+            const nextSent = [...existing.sent_emails, ...toAdd];
+            const { error: upErr } = await supabase
+              .from(BOOKINGS_TABLE)
+              .update({ sent_emails: nextSent, updated_at: now })
+              .eq("id", existing.id);
+            if (upErr) throw upErr;
+            bookingsUpdated++;
+          } else {
+            const timePart = g.entries[0]?.sentAt?.match?.(/T(\d{2}:\d{2})/);
+            const time = timePart ? timePart[1] : "—";
+            const { error: insErr } = await supabase.from(BOOKINGS_TABLE).insert({
+              name: g.email,
+              email: g.email,
+              phone: "",
+              date: g.date,
+              time,
+              party_size: 1,
+              special_requests: null,
+              status: "from_resend",
+              sent_emails: newEntries,
+              updated_at: now,
+            });
+            if (insErr) throw insErr;
+            bookingsCreated++;
+          }
+        }
+        res.status(200).json({
+          ok: true,
+          imported,
+          skipped: allEmails.size - imported,
+          total: allEmails.size,
+          bookingsCreated,
+          bookingsUpdated,
+        });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.error("[clients] syncFromResend error:", err);
