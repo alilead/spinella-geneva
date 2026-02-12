@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./_lib/supabase.js";
 import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml, valentinesRequestReceivedEmailHtml } from "./_lib/valentinesEmail.js";
 import { confirmedEmailHtml } from "./_lib/confirmedEmail.js";
+import { isDateBlocked, getBlockedDateReason } from "./_lib/blockedDates.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
@@ -109,6 +110,17 @@ export default async function handler(
   const dateObj = new Date(date + "T12:00:00");
   if (dateObj.getDay() === 0) {
     res.status(400).json({ error: "We are closed on Sundays" });
+    return;
+  }
+
+  // Check if date is blocked
+  if (isDateBlocked(date)) {
+    const reason = getBlockedDateReason(date);
+    res.status(400).json({ 
+      error: reason 
+        ? `Cette date est indisponible (${reason})` 
+        : "Cette date est indisponible pour les réservations"
+    });
     return;
   }
 

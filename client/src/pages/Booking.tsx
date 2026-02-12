@@ -17,13 +17,24 @@ import {
 import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getTimeSlotsForDate, isSunday, isRequestOnlySlot, isRequestOnlyPartySize } from "@/lib/blockedSlots";
+import { isDateBlocked, getBlockedDateReason } from "@/lib/blockedDates";
 
 function buildBookingSchema(t: (key: string) => string) {
   return z.object({
     name: z.string().min(2, t("booking.validation.nameMin")),
     email: z.string().email(t("booking.validation.emailInvalid")),
     phone: z.string().min(10, t("booking.validation.phoneMin")),
-    date: z.string().min(1, t("booking.validation.dateRequired")),
+    date: z.string().min(1, t("booking.validation.dateRequired")).refine(
+      (date) => !isDateBlocked(date),
+      (date) => {
+        const reason = getBlockedDateReason(date);
+        return { 
+          message: reason 
+            ? `Cette date est indisponible (${reason})` 
+            : "Cette date est indisponible pour les réservations"
+        };
+      }
+    ),
     time: z.string().min(1, t("booking.validation.timeRequired")),
     partySize: z.string().min(1, t("booking.validation.partySizeRequired")),
     specialRequests: z.string().optional(),
