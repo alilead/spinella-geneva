@@ -1066,87 +1066,111 @@ export default function Admin() {
                   </table>
                 </div>
 
-                {/* Booking List for Selected Date */}
-                {selectedCalendarDate && (() => {
-                  const dayBookings = calendarView === "confirmed"
-                    ? (byDate[selectedCalendarDate] ?? []).filter(b => b.status === "confirmed")
-                    : (byDate[selectedCalendarDate] ?? []).filter(b => b.status === "request" || b.status === "pending");
-                  const totalGuests = dayBookings.reduce((sum, b) => sum + b.partySize, 0);
-                  const selectedDate = new Date(selectedCalendarDate);
-                  return (
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between mb-3 px-2">
-                        <div className="flex items-center gap-3 text-sm">
-                          <span className="font-medium">
-                            {selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
-                          </span>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <CalendarIcon className="w-4 h-4" />
-                              {dayBookings.length}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              {totalGuests}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      {dayBookings.length === 0 ? (
+                {/* Booking List - All Dates Grouped (Wix Style) */}
+                <div className="mt-4 space-y-4 max-h-[500px] overflow-y-auto">
+                  {(() => {
+                    // Get all dates with bookings for current view
+                    const allDates = Object.keys(byDate).sort();
+                    const filteredDates = allDates.filter(dateStr => {
+                      const dayBookings = calendarView === "confirmed"
+                        ? (byDate[dateStr] ?? []).filter(b => b.status === "confirmed")
+                        : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
+                      return dayBookings.length > 0;
+                    });
+
+                    if (filteredDates.length === 0) {
+                      return (
                         <div className="text-center text-sm text-muted-foreground py-8">
                           {calendarView === "confirmed" ? t("admin.emptyList") : t("admin.emptySpecial")}
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {dayBookings.map((b) => (
-                            <div
-                              key={b.id}
-                              className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium">{b.time}</span>
-                                  <span className="text-sm">{b.name}</span>
-                                  {b.partySize >= 8 && (
-                                    <span className="text-blue-400 text-xs">👥 {b.partySize}</span>
-                                  )}
-                                </div>
-                                {b.specialRequests && (
-                                  <p className="text-xs text-muted-foreground truncate">{b.specialRequests}</p>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => setBookingDetailId(b.id)}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                {calendarView === "requests" && (
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    onClick={() => handleAccept(b.id)}
-                                    disabled={acceptingId !== null}
-                                    className="h-8 px-2"
-                                  >
-                                    {acceptingId === b.id ? (
-                                      <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                      <Check className="w-4 h-4" />
-                                    )}
-                                  </Button>
-                                )}
+                      );
+                    }
+
+                    return filteredDates.map(dateStr => {
+                      const dayBookings = calendarView === "confirmed"
+                        ? (byDate[dateStr] ?? []).filter(b => b.status === "confirmed")
+                        : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
+                      const totalGuests = dayBookings.reduce((sum, b) => sum + b.partySize, 0);
+                      const date = new Date(dateStr);
+                      const isSelected = selectedCalendarDate === dateStr;
+
+                      return (
+                        <div key={dateStr} className={`border rounded-lg ${isSelected ? "ring-2 ring-primary" : ""}`}>
+                          {/* Date Header */}
+                          <div className="flex items-center justify-between p-3 bg-muted/30 border-b">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setSelectedCalendarDate(dateStr)}
+                                className="font-medium text-sm hover:text-primary"
+                              >
+                                {date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                              </button>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <CalendarIcon className="w-3 h-3" />
+                                  {dayBookings.length}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {totalGuests}
+                                </span>
                               </div>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* Bookings for this date */}
+                          <div className="divide-y">
+                            {dayBookings.map((b) => (
+                              <div
+                                key={b.id}
+                                className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span className="font-medium text-sm whitespace-nowrap">{b.time}</span>
+                                    <span className="text-sm truncate">{b.name}</span>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1 whitespace-nowrap">
+                                    <Users className="w-3 h-3" />
+                                    {b.partySize}
+                                  </span>
+                                  {b.partySize >= 8 && (
+                                    <span className="text-blue-400 text-xs">👥</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setBookingDetailId(b.id)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  {calendarView === "requests" && (
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      onClick={() => handleAccept(b.id)}
+                                      disabled={acceptingId !== null}
+                                      className="h-8 px-3"
+                                    >
+                                      {acceptingId === b.id ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                      ) : (
+                                        <Check className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                      );
+                    });
+                  })()}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
