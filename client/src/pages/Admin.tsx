@@ -820,6 +820,23 @@ export default function Admin() {
     return map;
   }, [bookings]);
 
+  // Sync selected date with calendar month
+  useEffect(() => {
+    const currentYear = calendarMonth.getFullYear();
+    const currentMonth = calendarMonth.getMonth();
+    const today = new Date();
+    
+    // If viewing current month, select today's date
+    if (currentYear === today.getFullYear() && currentMonth === today.getMonth()) {
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      setSelectedCalendarDate(todayStr);
+    } else {
+      // Otherwise select the 1st of the month
+      const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-01`;
+      setSelectedCalendarDate(firstDay);
+    }
+  }, [calendarMonth]);
+
   const calendarGrid = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -1445,9 +1462,19 @@ export default function Admin() {
                 {/* Scrollable Booking List - All Dates */}
                 <div className="max-h-[600px] overflow-y-auto">
                   {(() => {
-                    // Get all dates with bookings
+                    // Get all dates with bookings, filtered by the current calendar month
+                    const currentYear = calendarMonth.getFullYear();
+                    const currentMonth = calendarMonth.getMonth();
+                    
                     const allDates = Object.keys(byDate).sort();
                     const filteredDates = allDates.filter(dateStr => {
+                      // Filter by month/year first
+                      const [year, month] = dateStr.split('-').map(Number);
+                      if (year !== currentYear || (month - 1) !== currentMonth) {
+                        return false;
+                      }
+                      
+                      // Then filter by booking status
                       const dayBookings = calendarView === "all"
                         ? (byDate[dateStr] ?? [])
                         : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
