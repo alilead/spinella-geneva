@@ -1,8 +1,8 @@
 {
-  "name": "Spinella Restaurant & Bar",
-  "short_name": "Spinella",
-  "description": "Restaurant & Bar sicilien à Genève. Cuisine authentique, cocktails et accueil familial. Réservez votre table.",
-  "start_url": "/",
+  "name": "Spinella Admin",
+  "short_name": "Spinella Admin",
+  "description": "Admin dashboard for Spinella Restaurant - Manage reservations and clients",
+  "start_url": "/admin",
   "display": "standalone",
   "background_color": "#0c0c0c",
   "theme_color": "#d4af37",

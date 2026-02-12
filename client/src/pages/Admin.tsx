@@ -683,12 +683,18 @@ export default function Admin() {
   // Subscribe to push notifications when admin logs in
   useEffect(() => {
     if (!token || !verified) return;
-    subscribeUserToPush().then((subscription) => {
+    
+    console.log('[Admin] Attempting to subscribe to push notifications...');
+    
+    subscribeUserToPush(token).then((subscription) => {
       if (subscription) {
-        console.log('[Admin] Successfully subscribed to push notifications');
+        console.log('[Admin] ✅ Successfully subscribed to push notifications');
+        console.log('[Admin] Subscription endpoint:', subscription.endpoint.substring(0, 50) + '...');
+      } else {
+        console.warn('[Admin] ⚠️ Push subscription returned null - check permissions');
       }
     }).catch((err) => {
-      console.error('[Admin] Failed to subscribe to push:', err);
+      console.error('[Admin] ❌ Failed to subscribe to push:', err);
     });
   }, [token, verified]);
 
@@ -817,36 +823,36 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-12">
+    <div className="min-h-screen pt-16 sm:pt-20 pb-12 px-2 sm:px-4">
       <div className="container max-w-6xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <h1 className="text-3xl font-bold">{t("admin.reservations")}</h1>
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" onClick={handleExportBookingsCsv} disabled={bookings.length === 0}>
-              <Download className="w-4 h-4 mr-2" />
-              {t("admin.exportBookingsCsv")}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">{t("admin.reservations")}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={handleExportBookingsCsv} disabled={bookings.length === 0} className="flex-1 sm:flex-initial">
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.exportBookingsCsv")}</span>
             </Button>
-            <label>
+            <label className="flex-1 sm:flex-initial">
               <input type="file" accept=".json" className="hidden" onChange={handleImport} disabled={importing} />
-              <Button type="button" variant="outline" asChild disabled={importing}>
+              <Button type="button" variant="outline" size="sm" asChild disabled={importing} className="w-full">
                 <span>
-                  {importing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                  {t("admin.importJson")}
+                  {importing ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Upload className="w-4 h-4 sm:mr-2" />}
+                  <span className="hidden sm:inline">{t("admin.importJson")}</span>
                 </span>
               </Button>
             </label>
-            <Button variant="outline" onClick={handleSendValentines} disabled={valentinesSending}>
+            <Button variant="outline" size="sm" onClick={handleSendValentines} disabled={valentinesSending} className="hidden sm:flex">
               {valentinesSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               {valentinesSending ? t("admin.valentinesSending") : t("admin.valentinesSend")}
             </Button>
             {userEmail && (
-              <span className="text-sm text-muted-foreground mr-2 hidden sm:inline">
+              <span className="text-xs sm:text-sm text-muted-foreground mr-2 hidden lg:inline">
                 {t("admin.loggedInAs").replace("{email}", userEmail)}
               </span>
             )}
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              {t("admin.logOut")}
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.logOut")}</span>
             </Button>
           </div>
         </div>
@@ -858,29 +864,33 @@ export default function Admin() {
         </p>
 
         <Tabs defaultValue="list">
-          <TabsList>
-            <TabsTrigger value="list">
-              <List className="w-4 h-4 mr-2" />
-              {t("admin.list")}
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto">
+            <TabsTrigger value="list" className="text-xs sm:text-sm">
+              <List className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.list")}</span>
+              <span className="sm:hidden">List</span>
             </TabsTrigger>
-            <TabsTrigger value="calendar">
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              {t("admin.calendar")}
+            <TabsTrigger value="calendar" className="text-xs sm:text-sm">
+              <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.calendar")}</span>
+              <span className="sm:hidden">Cal</span>
             </TabsTrigger>
-            <TabsTrigger value="special">
-              <UserCheck className="w-4 h-4 mr-2" />
-              {t("admin.specialRequests")}
+            <TabsTrigger value="special" className="text-xs sm:text-sm">
+              <UserCheck className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.specialRequests")}</span>
+              <span className="sm:hidden">Special</span>
             </TabsTrigger>
-            <TabsTrigger value="clients">
-              <Users className="w-4 h-4 mr-2" />
-              {t("admin.clients")}
+            <TabsTrigger value="clients" className="text-xs sm:text-sm">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("admin.clients")}</span>
+              <span className="sm:hidden">Clients</span>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="list" className="mt-6">
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
+          <TabsContent value="list" className="mt-4 sm:mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
+              <span className="text-xs sm:text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
               <Select value={bookingSort} onValueChange={(v) => setBookingSort(v as "created" | "date" | "name")}>
-                <SelectTrigger className="w-[220px]">
+                <SelectTrigger className="w-full sm:w-[220px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -893,39 +903,39 @@ export default function Admin() {
             <Card>
               <CardContent className="p-0">
                 {sortedBookings.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">{t("admin.emptyList")}</div>
+                  <div className="p-4 sm:p-8 text-center text-sm text-muted-foreground">{t("admin.emptyList")}</div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <div className="overflow-x-auto -mx-2 sm:mx-0">
+                    <table className="w-full text-xs sm:text-sm min-w-[640px]">
                       <thead>
                         <tr className="border-b bg-muted/50">
-                          <th className="text-left p-3">{t("admin.date")}</th>
-                          <th className="text-left p-3">{t("admin.time")}</th>
-                          <th className="text-left p-3">{t("admin.name")}</th>
-                          <th className="text-left p-3">{t("admin.guests")}</th>
-                          <th className="text-left p-3">{t("admin.status")}</th>
-                          <th className="text-left p-3">{t("admin.phone")}</th>
-                          <th className="text-left p-3">{t("admin.email")}</th>
-                          <th className="text-left p-3 w-24">{t("admin.action")}</th>
+                          <th className="text-left p-2 sm:p-3">{t("admin.date")}</th>
+                          <th className="text-left p-2 sm:p-3">{t("admin.time")}</th>
+                          <th className="text-left p-2 sm:p-3">{t("admin.name")}</th>
+                          <th className="text-left p-2 sm:p-3 hidden sm:table-cell">{t("admin.guests")}</th>
+                          <th className="text-left p-2 sm:p-3">{t("admin.status")}</th>
+                          <th className="text-left p-2 sm:p-3 hidden md:table-cell">{t("admin.phone")}</th>
+                          <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.email")}</th>
+                          <th className="text-left p-2 sm:p-3">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {sortedBookings.map((b) => (
                           <tr key={b.id} className="border-b">
-                            <td className="p-3">{b.date}</td>
-                            <td className="p-3">{b.time}</td>
-                            <td className="p-3">{b.name}</td>
-                            <td className="p-3">{b.partySize}</td>
-                            <td className="p-3">
+                            <td className="p-2 sm:p-3 whitespace-nowrap">{b.date}</td>
+                            <td className="p-2 sm:p-3 whitespace-nowrap">{b.time}</td>
+                            <td className="p-2 sm:p-3">{b.name}</td>
+                            <td className="p-2 sm:p-3 hidden sm:table-cell">{b.partySize}</td>
+                            <td className="p-2 sm:p-3">
                               <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
                                 {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
                               </span>
                             </td>
-                            <td className="p-3">{b.phone}</td>
-                            <td className="p-3">{b.email}</td>
-                            <td className="p-3">
+                            <td className="p-2 sm:p-3 hidden md:table-cell">{b.phone}</td>
+                            <td className="p-2 sm:p-3 hidden lg:table-cell">{b.email}</td>
+                            <td className="p-2 sm:p-3">
                               <div className="flex items-center gap-1">
-                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")}>
+                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")} className="p-1 h-auto">
                                   <Eye className="w-4 h-4" />
                                 </Button>
                                 {(b.status === "pending" || b.status === "request") && (
@@ -934,9 +944,11 @@ export default function Admin() {
                                     variant="default"
                                     disabled={acceptingId !== null}
                                     onClick={() => handleAccept(b.id)}
+                                    className="p-1 sm:px-3 sm:py-2 h-auto"
+                                    title={t("admin.accept")}
                                   >
-                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                                    {t("admin.accept")}
+                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 sm:mr-1" />}
+                                    <span className="hidden sm:inline">{t("admin.accept")}</span>
                                   </Button>
                                 )}
                               </div>

@@ -69,19 +69,33 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('[SW] Service Worker registered successfully:', registration.scope);
+        console.log('[SW] ✅ Service Worker registered:', registration.scope);
         
-        // Request notification permission
-        if ('Notification' in window && Notification.permission === 'default') {
-          Notification.requestPermission().then((permission) => {
-            console.log('[Notification] Permission:', permission);
-          });
+        // Check service worker status
+        registration.addEventListener('updatefound', () => {
+          console.log('[SW] Update found, installing new version...');
+        });
+        
+        if (registration.active) {
+          console.log('[SW] ✅ Service worker is active');
+        }
+        
+        // Request notification permission (will be requested again when admin logs in)
+        if ('Notification' in window) {
+          console.log('[Notification] Current permission:', Notification.permission);
+          if (Notification.permission === 'default') {
+            console.log('[Notification] Permission not yet requested, will request on admin login');
+          }
+        } else {
+          console.warn('[Notification] ❌ Not supported in this browser');
         }
       })
       .catch((error) => {
-        console.error('[SW] Service Worker registration failed:', error);
+        console.error('[SW] ❌ Registration failed:', error);
       });
   });
+} else {
+  console.warn('[SW] ❌ Service Workers not supported in this browser');
 }
 
 // Handle install prompt
