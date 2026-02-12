@@ -100,6 +100,8 @@ export default function Admin() {
   const [addFromListSaving, setAddFromListSaving] = useState(false);
   const [syncingReservationsToClients, setSyncingReservationsToClients] = useState(false);
   const [syncingFromResend, setSyncingFromResend] = useState(false);
+  const [selectedBookingIds, setSelectedBookingIds] = useState<Set<string>>(new Set());
+  const [selectedClientIds, setSelectedClientIds] = useState<Set<string>>(new Set());
   const [bookingDetailId, setBookingDetailId] = useState<string | null>(null);
   const [bookingDetail, setBookingDetail] = useState<{
     booking: BookingRecord;
@@ -275,9 +277,13 @@ export default function Admin() {
     }
   };
 
-  const handleExportCsv = () => {
+  const handleExportCsv = (selectedOnly = false) => {
+    const toExport = selectedOnly && selectedClientIds.size > 0
+      ? filteredAndSortedClients.filter(c => selectedClientIds.has(c.id))
+      : filteredAndSortedClients;
+    
     const headers = ["Name", "Email", "Phone", "Source", "Added"];
-    const rows = filteredAndSortedClients.map((c) => [
+    const rows = toExport.map((c) => [
       `"${(c.name ?? "").replace(/"/g, '""')}"`,
       `"${(c.email ?? "").replace(/"/g, '""')}"`,
       `"${(c.phone ?? "").replace(/"/g, '""')}"`,
@@ -293,9 +299,13 @@ export default function Admin() {
     URL.revokeObjectURL(a.href);
   };
 
-  const handleExportBookingsCsv = () => {
-    const headers = ["Date", "Time", "Name", "Email", "Phone", "Guests", "Status", "Special requests"];
-    const rows = sortedBookings.map((b) => [
+  const handleExportBookingsCsv = (selectedOnly = false) => {
+    const toExport = selectedOnly && selectedBookingIds.size > 0
+      ? bookings.filter(b => selectedBookingIds.has(b.id))
+      : bookings;
+    
+    const headers = ["Date", "Time", "Name", "Email", "Phone", "Guests", "Status", "Special requests", "Created At"];
+    const rows = toExport.map((b) => [
       b.date,
       b.time,
       `"${(b.name ?? "").replace(/"/g, '""')}"`,
@@ -304,12 +314,106 @@ export default function Admin() {
       b.partySize,
       b.status,
       `"${(b.specialRequests ?? "").replace(/"/g, '""')}"`,
+      b.createdAt || "",
     ]);
     const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `spinella-bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const handleImportBookingsCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    e.target.value = ""; // Reset input
+    
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) {
+        toast.error("CSV file is empty");
+        return;
+      }
+      
+      const parseLine = (line: string) => {
+        const result: string[] = [];
+        let cur = "";
+        let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') inQ = !inQ;
+          else if (c === "," && !inQ) {
+            result.push(cur.trim());
+            cur = "";
+          } else cur += c;
+        }
+        result.push(cur.trim());
+        return result;
+      };
+      
+      const headers = parseLine(lines[0]);
+      const bookingsToImport = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseLine(lines[i]);
+        if (values.length < 6) continue;
+        
+        const [date, time, name, email, phone, guests, status, specialRequests] = values;
+        if (!date || !time || !name || !email) continue;
+        
+        bookingsToImport.push({
+          date: date.trim(),
+          time: time.trim(),
+          name: name.replace(/^"|"$/g, "").trim(),
+          email: email.trim(),
+          phone: phone.replace(/^"|"$/g, "").trim(),
+          partySize: parseInt(guests) || 1,
+          status: status || "request",
+          specialRequests: specialRequests?.replace(/^"|"$/g, "").trim() || null,
+        });
+      }
+      
+      if (bookingsToImport.length === 0) {
+        toast.error("No valid bookings found in CSV");
+        return;
+      }
+      
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: "import", bookings: bookingsToImport }),
+      });
+      
+      if (!res.ok) throw new Error("Import failed");
+      
+      await fetchBookings(token);
+      toast.success(`Imported ${bookingsToImport.length} bookings`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Import failed");
+    }
+  };
+
+  const handleExportClientsCsv = (selectedOnly = false) => {
+    const toExport = selectedOnly && selectedClientIds.size > 0
+      ? clients.filter(c => selectedClientIds.has(c.id))
+      : clients;
+    
+    const headers = ["Name", "Email", "Phone", "Source", "Created At"];
+    const rows = toExport.map((c) => [
+      `"${(c.name ?? "").replace(/"/g, '""')}"`,
+      `"${(c.email ?? "").replace(/"/g, '""')}"`,
+      `"${(c.phone ?? "").replace(/"/g, '""')}"`,
+      `"${(c.source ?? "").replace(/"/g, '""')}"`,
+      c.createdAt ?? "",
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `spinella-clients-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -899,10 +1003,71 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="all" className="mt-4 sm:mt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-              <p className="text-sm text-muted-foreground">
-                {bookings.length === 0 ? t("admin.emptyList") : `${bookings.length} réservations`}
-              </p>
+            <div className="flex flex-col gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  {selectedBookingIds.size > 0 && (
+                    <>
+                      <span className="text-sm text-muted-foreground">
+                        {selectedBookingIds.size} sélectionnés
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedBookingIds(new Set())}
+                        className="h-7 text-xs"
+                      >
+                        Désélectionner
+                      </Button>
+                    </>
+                  )}
+                  {selectedBookingIds.size === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      {bookings.length} réservations
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedBookingIds.size === bookings.length) {
+                        setSelectedBookingIds(new Set());
+                      } else {
+                        setSelectedBookingIds(new Set(bookings.map(b => b.id)));
+                      }
+                    }}
+                    className="h-8"
+                  >
+                    {selectedBookingIds.size === bookings.length ? "Désélectionner tout" : "Sélectionner tout"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleExportBookingsCsv(selectedBookingIds.size > 0)}
+                    disabled={bookings.length === 0}
+                    className="h-8"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Exporter {selectedBookingIds.size > 0 && `(${selectedBookingIds.size})`}
+                  </Button>
+                  <label>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={handleImportBookingsCsv}
+                    />
+                    <Button type="button" variant="outline" size="sm" asChild className="h-8">
+                      <span>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Importer CSV
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs sm:text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
                 <Select 
@@ -910,11 +1075,11 @@ export default function Admin() {
                   onValueChange={(v: any) => {
                     setAllReservationsSort(v);
                     if (v === "created") {
-                      setAllReservationsSortOrder("desc"); // Plus récent en premier
+                      setAllReservationsSortOrder("desc");
                     } else if (v === "name") {
-                      setAllReservationsSortOrder("asc"); // A-Z
+                      setAllReservationsSortOrder("asc");
                     } else {
-                      setAllReservationsSortOrder("desc"); // Plus récent en premier
+                      setAllReservationsSortOrder("desc");
                     }
                   }}
                 >
@@ -945,6 +1110,20 @@ export default function Admin() {
                 <table className="w-full text-xs sm:text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">
+                      <th className="p-2 sm:p-3 w-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedBookingIds.size === bookings.length && bookings.length > 0}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedBookingIds(new Set(bookings.map(b => b.id)));
+                            } else {
+                              setSelectedBookingIds(new Set());
+                            }
+                          }}
+                          className="cursor-pointer"
+                        />
+                      </th>
                       <th 
                         className="text-left p-2 sm:p-3 w-[80px] sm:w-auto cursor-pointer hover:bg-muted" 
                         onClick={() => {
@@ -1010,7 +1189,23 @@ export default function Admin() {
                       });
                       return sorted;
                     })().map((b) => (
-                      <tr key={b.id} className="border-b">
+                      <tr key={b.id} className="border-b hover:bg-muted/30">
+                        <td className="p-2 sm:p-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedBookingIds.has(b.id)}
+                            onChange={(e) => {
+                              const newSelected = new Set(selectedBookingIds);
+                              if (e.target.checked) {
+                                newSelected.add(b.id);
+                              } else {
+                                newSelected.delete(b.id);
+                              }
+                              setSelectedBookingIds(newSelected);
+                            }}
+                            className="cursor-pointer"
+                          />
+                        </td>
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.date}</td>
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.time}</td>
                         <td className="p-2 sm:p-3 max-w-[120px] sm:max-w-none truncate">{b.name}</td>
@@ -1432,41 +1627,76 @@ export default function Admin() {
           <TabsContent value="clients" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    {clients.length === 0
-                      ? t("admin.emptyClients")
-                      : `${filteredAndSortedClients.length} / ${clients.length} ${t("admin.clients").toLowerCase()}`}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-medium text-muted-foreground mr-1 self-center">{t("admin.importFromResendOrCsv")}</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSyncFromResend}
-                      disabled={syncingFromResend}
-                      title={t("admin.syncFromResend")}
-                    >
-                      {syncingFromResend ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                      {syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}
-                    </Button>
-                    <label>
-                      <input
-                        type="file"
-                        accept=".csv"
-                        className="hidden"
-                        onChange={handleImportCsvClients}
-                        disabled={importingClients}
-                      />
-                      <Button type="button" variant="outline" size="sm" asChild disabled={importingClients}>
-                        <span>
-                          {importingClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                          {importingClients ? t("admin.importingClients") : t("admin.importCsvClients")}
-                        </span>
+                <div className="flex flex-col gap-3 mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {selectedClientIds.size > 0 && (
+                        <>
+                          <span className="text-sm text-muted-foreground">
+                            {selectedClientIds.size} sélectionnés
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedClientIds(new Set())}
+                            className="h-7 text-xs"
+                          >
+                            Désélectionner
+                          </Button>
+                        </>
+                      )}
+                      {selectedClientIds.size === 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {clients.length === 0
+                            ? t("admin.emptyClients")
+                            : `${filteredAndSortedClients.length} / ${clients.length} ${t("admin.clients").toLowerCase()}`}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (selectedClientIds.size === filteredAndSortedClients.length) {
+                            setSelectedClientIds(new Set());
+                          } else {
+                            setSelectedClientIds(new Set(filteredAndSortedClients.map(c => c.id)));
+                          }
+                        }}
+                        className="h-8"
+                      >
+                        {selectedClientIds.size === filteredAndSortedClients.length ? "Désélectionner tout" : "Sélectionner tout"}
                       </Button>
-                    </label>
-                    <span className="text-xs text-muted-foreground self-center">|</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleExportCsv(selectedClientIds.size > 0)}
+                        disabled={clients.length === 0}
+                        className="h-8"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Exporter {selectedClientIds.size > 0 && `(${selectedClientIds.size})`}
+                      </Button>
+                      <label>
+                        <input
+                          type="file"
+                          accept=".csv"
+                          className="hidden"
+                          onChange={handleImportCsvClients}
+                          disabled={importingClients}
+                        />
+                        <Button type="button" variant="outline" size="sm" asChild disabled={importingClients}>
+                          <span>
+                            {importingClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                            Importer CSV
+                          </span>
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button type="button" variant="outline" size="sm" onClick={() => setAddClientOpen(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       {t("admin.addClient")}
@@ -1479,15 +1709,22 @@ export default function Admin() {
                       type="button"
                       variant="outline"
                       size="sm"
+                      onClick={handleSyncFromResend}
+                      disabled={syncingFromResend}
+                      title={t("admin.syncFromResend")}
+                    >
+                      {syncingFromResend ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                      {syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={handleSyncReservationsToClients}
                       disabled={syncingReservationsToClients}
                     >
                       {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
                       {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
-                    </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={handleExportCsv} disabled={clients.length === 0}>
-                      <Download className="w-4 h-4 mr-2" />
-                      {t("admin.exportCsv")}
                     </Button>
                   </div>
                 </div>
@@ -1523,6 +1760,20 @@ export default function Admin() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
+                          <th className="p-3 w-10">
+                            <input
+                              type="checkbox"
+                              checked={selectedClientIds.size === filteredAndSortedClients.length && filteredAndSortedClients.length > 0}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedClientIds(new Set(filteredAndSortedClients.map(c => c.id)));
+                                } else {
+                                  setSelectedClientIds(new Set());
+                                }
+                              }}
+                              className="cursor-pointer"
+                            />
+                          </th>
                           <th className="text-left p-3 w-14">{t("admin.rank")}</th>
                           <th className="text-left p-3">{t("admin.name")}</th>
                           <th className="text-left p-3">{t("admin.email")}</th>
@@ -1534,7 +1785,23 @@ export default function Admin() {
                       </thead>
                       <tbody>
                         {filteredAndSortedClients.map((c, index) => (
-                          <tr key={c.id} className="border-b">
+                          <tr key={c.id} className="border-b hover:bg-muted/30">
+                            <td className="p-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedClientIds.has(c.id)}
+                                onChange={(e) => {
+                                  const newSelected = new Set(selectedClientIds);
+                                  if (e.target.checked) {
+                                    newSelected.add(c.id);
+                                  } else {
+                                    newSelected.delete(c.id);
+                                  }
+                                  setSelectedClientIds(newSelected);
+                                }}
+                                className="cursor-pointer"
+                              />
+                            </td>
                             <td className="p-3 text-muted-foreground tabular-nums">{index + 1}</td>
                             <td className="p-3">{c.name}</td>
                             <td className="p-3">{c.email}</td>
