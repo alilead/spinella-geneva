@@ -905,34 +905,34 @@ export default function Admin() {
                 {sortedBookings.length === 0 ? (
                   <div className="p-4 sm:p-8 text-center text-sm text-muted-foreground">{t("admin.emptyList")}</div>
                 ) : (
-                  <div className="overflow-x-auto -mx-2 sm:mx-0">
-                    <table className="w-full text-xs sm:text-sm min-w-[640px]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs sm:text-sm">
                       <thead>
                         <tr className="border-b bg-muted/50">
-                          <th className="text-left p-2 sm:p-3">{t("admin.date")}</th>
-                          <th className="text-left p-2 sm:p-3">{t("admin.time")}</th>
-                          <th className="text-left p-2 sm:p-3">{t("admin.name")}</th>
-                          <th className="text-left p-2 sm:p-3 hidden sm:table-cell">{t("admin.guests")}</th>
-                          <th className="text-left p-2 sm:p-3">{t("admin.status")}</th>
+                          <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.date")}</th>
+                          <th className="text-left p-2 sm:p-3 w-[50px] sm:w-auto">{t("admin.time")}</th>
+                          <th className="text-left p-2 sm:p-3 min-w-[100px]">{t("admin.name")}</th>
+                          <th className="text-left p-2 sm:p-3 w-[40px] hidden sm:table-cell">{t("admin.guests")}</th>
+                          <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
                           <th className="text-left p-2 sm:p-3 hidden md:table-cell">{t("admin.phone")}</th>
                           <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.email")}</th>
-                          <th className="text-left p-2 sm:p-3">{t("admin.action")}</th>
+                          <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.action")}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {sortedBookings.map((b) => (
                           <tr key={b.id} className="border-b">
-                            <td className="p-2 sm:p-3 whitespace-nowrap">{b.date}</td>
-                            <td className="p-2 sm:p-3 whitespace-nowrap">{b.time}</td>
-                            <td className="p-2 sm:p-3">{b.name}</td>
+                            <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.date}</td>
+                            <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.time}</td>
+                            <td className="p-2 sm:p-3 max-w-[120px] sm:max-w-none truncate">{b.name}</td>
                             <td className="p-2 sm:p-3 hidden sm:table-cell">{b.partySize}</td>
                             <td className="p-2 sm:p-3">
-                              <span className={b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}>
-                                {b.status === "request" ? t("admin.statusRequest") : b.status === "pending" ? t("admin.statusPending") : b.status === "cancelled" ? t("admin.statusCancelled") : t("admin.statusConfirmed")}
+                              <span className={`text-[10px] sm:text-xs ${b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}`}>
+                                {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
                               </span>
                             </td>
-                            <td className="p-2 sm:p-3 hidden md:table-cell">{b.phone}</td>
-                            <td className="p-2 sm:p-3 hidden lg:table-cell">{b.email}</td>
+                            <td className="p-2 sm:p-3 hidden md:table-cell text-[10px] sm:text-xs">{b.phone}</td>
+                            <td className="p-2 sm:p-3 hidden lg:table-cell text-[10px] sm:text-xs">{b.email}</td>
                             <td className="p-2 sm:p-3">
                               <div className="flex items-center gap-1">
                                 <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")} className="p-1 h-auto">
@@ -1025,6 +1025,38 @@ export default function Admin() {
                         </table>
                       )}
                     </div>
+                    {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
+                      <DialogFooter className="flex gap-2 sm:gap-0">
+                        <Button
+                          variant="default"
+                          onClick={() => {
+                            handleAccept(bookingDetail.booking.id);
+                            setBookingDetailId(null);
+                          }}
+                          disabled={acceptingId !== null}
+                          className="flex-1 sm:flex-initial"
+                        >
+                          {acceptingId === bookingDetail.booking.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Check className="w-4 h-4 mr-2" />
+                          )}
+                          {t("admin.accept")}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => {
+                            handleDecline(bookingDetail.booking.id);
+                            setBookingDetailId(null);
+                          }}
+                          disabled={acceptingId !== null}
+                          className="flex-1 sm:flex-initial"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          {t("admin.decline")}
+                        </Button>
+                      </DialogFooter>
+                    )}
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">{t("admin.loading")}</p>
@@ -1034,32 +1066,32 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-2 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  <h2 className="text-lg font-semibold capitalize">
+                  <h2 className="text-base sm:text-lg font-semibold capitalize">
                     {calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
                   </h2>
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm table-fixed">
+                <div className="border rounded-lg overflow-x-auto">
+                  <table className="w-full text-sm table-fixed min-w-[600px]">
                     <thead>
                       <tr className="border-b bg-muted/50">
                         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((wd) => (
-                          <th key={wd} className="p-2 text-center font-medium text-muted-foreground">
+                          <th key={wd} className="p-1 sm:p-2 text-center font-medium text-muted-foreground text-xs sm:text-sm">
                             {wd}
                           </th>
                         ))}
@@ -1073,33 +1105,45 @@ export default function Admin() {
                             return (
                               <td
                                 key={dateStr}
-                                className="align-top p-1 min-h-[80px] border-r last:border-r-0 bg-background"
+                                className="align-top p-0.5 sm:p-1 min-h-[100px] sm:min-h-[80px] border-r last:border-r-0 bg-background"
                               >
                                 <div
-                                  className={`text-center text-xs font-medium p-1 rounded ${
+                                  className={`text-center text-xs sm:text-sm font-medium p-1 rounded ${
                                     isCurrentMonth ? "text-foreground" : "text-muted-foreground"
                                   }`}
                                 >
                                   {date.getDate()}
                                 </div>
-                                <div className="space-y-0.5 px-1 pb-1">
+                                <div className="space-y-0.5 px-0.5 sm:px-1 pb-1">
                                   {dayBookings.map((b) => (
                                     <button
                                       key={b.id}
                                       type="button"
                                       onClick={() => setBookingDetailId(b.id)}
-                                      className={`w-full text-left rounded px-1.5 py-0.5 hover:bg-muted text-xs truncate block border-l-2 hover:border-primary ${
+                                      className={`w-full text-left rounded px-1 sm:px-1.5 py-1 hover:bg-muted text-[10px] sm:text-xs block border-l-2 hover:border-primary leading-tight ${
                                         b.status === "confirmed"
-                                          ? "border-l-green-600"
+                                          ? "border-l-green-600 bg-green-950/20"
                                           : b.status === "request" || b.status === "pending"
-                                            ? "border-l-amber-600"
+                                            ? "border-l-amber-600 bg-amber-950/20"
                                             : b.status === "cancelled"
-                                              ? "border-l-red-600"
+                                              ? "border-l-red-600 bg-red-950/20"
                                               : "border-l-transparent"
                                       }`}
-                                      title={`${b.time} ${b.name} (${b.partySize})`}
+                                      title={`${b.time} ${b.name} (${b.partySize}) - ${b.status}`}
                                     >
-                                      <span className="font-medium">{b.time}</span> {b.name}
+                                      <div className="flex items-center justify-between gap-0.5">
+                                        <span className="font-semibold">{b.time}</span>
+                                        {(b.status === "request" || b.status === "pending") && (
+                                          <span className="text-amber-400">⚠</span>
+                                        )}
+                                        {b.partySize >= 8 && (
+                                          <span className="text-blue-400">👥</span>
+                                        )}
+                                      </div>
+                                      <div className="truncate">{b.name}</div>
+                                      {b.partySize >= 8 && (
+                                        <div className="text-[9px] sm:text-[10px] text-muted-foreground">{b.partySize} pers</div>
+                                      )}
                                     </button>
                                   ))}
                                 </div>
