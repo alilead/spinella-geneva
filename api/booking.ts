@@ -171,7 +171,7 @@ export default async function handler(
         from: FROM,
         to: [email],
         bcc: [BCC],
-        subject: isValentines ? `Saint-Valentin à Spinella – Demande reçue` : `Booking Request - ${name}`,
+        subject: isValentines ? `Demande en attente – Spinella Geneva` : `Booking Request - ${name}`,
         html: isValentines ? valentinesRequestReceivedEmailHtml(name) : guestEmailHtml(data),
       });
       if (err1) {
