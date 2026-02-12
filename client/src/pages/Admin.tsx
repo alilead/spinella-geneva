@@ -86,7 +86,8 @@ export default function Admin() {
   const [clientSearch, setClientSearch] = useState("");
   const [clientSort, setClientSort] = useState<"name" | "email" | "date">("date");
   const [bookingSort, setBookingSort] = useState<"created" | "date" | "name">("date");
-  const [allReservationsSort, setAllReservationsSort] = useState<"date" | "name" | "created">("date");
+  const [allReservationsSort, setAllReservationsSort] = useState<"date" | "name" | "created">("created");
+  const [allReservationsSortOrder, setAllReservationsSortOrder] = useState<"asc" | "desc">("desc");
   const [addClientOpen, setAddClientOpen] = useState(false);
   const [addClientName, setAddClientName] = useState("");
   const [addClientEmail, setAddClientEmail] = useState("");
@@ -902,18 +903,39 @@ export default function Admin() {
               <p className="text-sm text-muted-foreground">
                 {bookings.length === 0 ? t("admin.emptyList") : `${bookings.length} réservations`}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs sm:text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
-                <Select value={allReservationsSort} onValueChange={(v: any) => setAllReservationsSort(v)}>
+                <Select 
+                  value={allReservationsSort} 
+                  onValueChange={(v: any) => {
+                    setAllReservationsSort(v);
+                    if (v === "created") {
+                      setAllReservationsSortOrder("desc"); // Plus récent en premier
+                    } else if (v === "name") {
+                      setAllReservationsSortOrder("asc"); // A-Z
+                    } else {
+                      setAllReservationsSortOrder("desc"); // Plus récent en premier
+                    }
+                  }}
+                >
                   <SelectTrigger className="w-[180px] h-8 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="date">Date de réservation</SelectItem>
-                    <SelectItem value="created">Date de création</SelectItem>
-                    <SelectItem value="name">Nom</SelectItem>
+                    <SelectItem value="created">Date de création (plus récent)</SelectItem>
+                    <SelectItem value="date">Date de réservation (plus récent)</SelectItem>
+                    <SelectItem value="name">Nom (A-Z)</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAllReservationsSortOrder(allReservationsSortOrder === "desc" ? "asc" : "desc")}
+                  className="h-8 px-2"
+                  title={allReservationsSortOrder === "desc" ? "Plus récent → Plus ancien" : "Plus ancien → Plus récent"}
+                >
+                  {allReservationsSortOrder === "desc" ? "↓" : "↑"}
+                </Button>
               </div>
             </div>
             {bookings.length === 0 ? (
@@ -923,31 +945,68 @@ export default function Admin() {
                 <table className="w-full text-xs sm:text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">
-                      <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto cursor-pointer hover:bg-muted" onClick={() => setAllReservationsSort("date")}>
-                        {t("admin.date")} {allReservationsSort === "date" && "↓"}
+                      <th 
+                        className="text-left p-2 sm:p-3 w-[80px] sm:w-auto cursor-pointer hover:bg-muted" 
+                        onClick={() => {
+                          if (allReservationsSort === "date") {
+                            setAllReservationsSortOrder(allReservationsSortOrder === "desc" ? "asc" : "desc");
+                          } else {
+                            setAllReservationsSort("date");
+                            setAllReservationsSortOrder("desc");
+                          }
+                        }}
+                      >
+                        {t("admin.date")} {allReservationsSort === "date" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
                       </th>
                       <th className="text-left p-2 sm:p-3 w-[50px] sm:w-auto">{t("admin.time")}</th>
-                      <th className="text-left p-2 sm:p-3 min-w-[100px] cursor-pointer hover:bg-muted" onClick={() => setAllReservationsSort("name")}>
-                        {t("admin.name")} {allReservationsSort === "name" && "↓"}
+                      <th 
+                        className="text-left p-2 sm:p-3 min-w-[100px] cursor-pointer hover:bg-muted" 
+                        onClick={() => {
+                          if (allReservationsSort === "name") {
+                            setAllReservationsSortOrder(allReservationsSortOrder === "desc" ? "asc" : "desc");
+                          } else {
+                            setAllReservationsSort("name");
+                            setAllReservationsSortOrder("asc");
+                          }
+                        }}
+                      >
+                        {t("admin.name")} {allReservationsSort === "name" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
                       </th>
                       <th className="text-left p-2 sm:p-3 w-[40px] hidden sm:table-cell">{t("admin.guests")}</th>
                       <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
-                      <th className="text-left p-2 sm:p-3 hidden md:table-cell">{t("admin.phone")}</th>
-                      <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.email")}</th>
+                      <th 
+                        className="text-left p-2 sm:p-3 hidden md:table-cell cursor-pointer hover:bg-muted" 
+                        onClick={() => {
+                          if (allReservationsSort === "created") {
+                            setAllReservationsSortOrder(allReservationsSortOrder === "desc" ? "asc" : "desc");
+                          } else {
+                            setAllReservationsSort("created");
+                            setAllReservationsSortOrder("desc");
+                          }
+                        }}
+                      >
+                        Date de création {allReservationsSort === "created" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
+                      </th>
+                      <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.phone")}</th>
+                      <th className="text-left p-2 sm:p-3 hidden xl:table-cell">{t("admin.email")}</th>
                       <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(() => {
                       const sorted = [...bookings].sort((a, b) => {
+                        let comparison = 0;
+                        
                         if (allReservationsSort === "name") {
-                          return a.name.localeCompare(b.name);
+                          comparison = a.name.localeCompare(b.name);
                         } else if (allReservationsSort === "created") {
-                          return (b.createdAt || "").localeCompare(a.createdAt || "");
+                          comparison = (b.createdAt || "").localeCompare(a.createdAt || "");
                         } else {
                           // date
-                          return b.date.localeCompare(a.date) || b.time.localeCompare(a.time);
+                          comparison = b.date.localeCompare(a.date) || b.time.localeCompare(a.time);
                         }
+                        
+                        return allReservationsSortOrder === "asc" ? -comparison : comparison;
                       });
                       return sorted;
                     })().map((b) => (
@@ -963,8 +1022,11 @@ export default function Admin() {
                             {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
                           </span>
                         </td>
-                        <td className="p-2 sm:p-3 hidden md:table-cell text-[10px] sm:text-xs">{b.phone}</td>
-                        <td className="p-2 sm:p-3 hidden lg:table-cell text-[10px] sm:text-xs">{b.email}</td>
+                        <td className="p-2 sm:p-3 hidden md:table-cell text-[10px] sm:text-xs">
+                          {b.createdAt ? new Date(b.createdAt).toLocaleDateString() : "—"}
+                        </td>
+                        <td className="p-2 sm:p-3 hidden lg:table-cell text-[10px] sm:text-xs">{b.phone}</td>
+                        <td className="p-2 sm:p-3 hidden xl:table-cell text-[10px] sm:text-xs">{b.email}</td>
                         <td className="p-2 sm:p-3">
                           <div className="flex items-center gap-1">
                             <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")} className="p-1 h-auto">
