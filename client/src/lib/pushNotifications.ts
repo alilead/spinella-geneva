@@ -86,14 +86,18 @@ export async function subscribeUserToPush(): Promise<PushSubscription | null> {
     let subscription = await registration.pushManager.getSubscription();
     
     if (!subscription) {
-      // Subscribe to push notifications
-      // You'll need to generate VAPID keys for your server
-      // For now, this is a placeholder - you'll need to add your public VAPID key
-      const vapidPublicKey = 'YOUR_VAPID_PUBLIC_KEY_HERE';
+      // Get VAPID public key from server
+      const response = await fetch('/api/push/vapid-public-key');
+      const { publicKey } = await response.json();
+      
+      if (!publicKey) {
+        console.error('[Push] No VAPID public key available');
+        return null;
+      }
       
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
       });
       
       // Send subscription to your server to store it

@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { sendLocalNotification } from "@/lib/pushNotifications";
+import { sendLocalNotification, subscribeUserToPush } from "@/lib/pushNotifications";
 import {
   Dialog,
   DialogContent,
@@ -679,6 +679,18 @@ export default function Admin() {
     const interval = setInterval(() => fetchBookings(token), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [token, verified, fetchBookings]);
+
+  // Subscribe to push notifications when admin logs in
+  useEffect(() => {
+    if (!token || !verified) return;
+    subscribeUserToPush().then((subscription) => {
+      if (subscription) {
+        console.log('[Admin] Successfully subscribed to push notifications');
+      }
+    }).catch((err) => {
+      console.error('[Admin] Failed to subscribe to push:', err);
+    });
+  }, [token, verified]);
 
   const byDate = useMemo(() => {
     const map: Record<string, BookingRecord[]> = {};

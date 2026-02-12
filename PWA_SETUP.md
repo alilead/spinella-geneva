@@ -132,14 +132,44 @@ Your website is now a **Progressive Web App**, which means users can:
 
 ---
 
-## Future Enhancements (Optional)
+## Server Push Notifications (Configured)
 
-### Server Push (Advanced)
-For real-time push notifications without polling:
-1. Generate VAPID keys for push service
-2. Update `client/src/lib/pushNotifications.ts` with your VAPID public key
-3. Create `/api/push/subscribe` endpoint to store subscriptions
-4. Send push from server when booking is created
+### ✅ VAPID Keys Setup
+The app now has server-side push capabilities using Web Push API:
+
+1. **VAPID keys generated** and stored in `.env`:
+   - `VAPID_PUBLIC_KEY` - For client subscriptions
+   - `VAPID_PRIVATE_KEY` - For server sending (keep secret!)
+
+2. **API endpoints created**:
+   - `GET /api/push/vapid-public-key` - Returns public key for subscriptions
+   - `POST /api/push/subscribe` - Stores push subscriptions (admin only)
+   - `POST /api/push/send` - Sends push notifications to all subscribed clients (admin only)
+
+3. **Auto-subscribe**: Admin users are automatically subscribed to push when they log in
+
+### Send Push Notification from Server
+
+You can send push notifications using the API:
+
+```bash
+curl -X POST https://www.spinella.ch/api/push/send \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -d '{
+    "title": "Nouvelle réservation",
+    "body": "Client - 14 Feb à 19:30",
+    "url": "/admin"
+  }'
+```
+
+### Production Setup
+
+For Vercel/Netlify, add these environment variables:
+- `VAPID_PUBLIC_KEY` - The public key from `.env`
+- `VAPID_PRIVATE_KEY` - The private key from `.env`
+
+**⚠️ Important**: Never commit `.env` to git - it contains your private key!
 
 ### Better Icons
 - Create custom 192x192 and 512x512 icons (currently using logo.png)
