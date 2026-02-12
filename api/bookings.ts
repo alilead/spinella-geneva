@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE, type BookingRow } from "./_lib/supabase.js";
 import { verifySupabaseToken, isAllowedAdmin } from "./_lib/supabaseAuth.js";
 import { confirmedEmailHtml } from "./_lib/confirmedEmail.js";
+import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./_lib/valentinesEmail.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 
@@ -191,18 +192,22 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         const resendKey = process.env.RESEND_API_KEY;
         if (resendKey) {
           const resend = new Resend(resendKey);
+          const isValentines = row.date === VALENTINES_DATE;
+          const flyerUrl = `${getBaseUrl()}/valentines-menu.jpeg`;
           const { data: sendData, error: sendErr } = await resend.emails.send({
             from: FROM,
             to: [row.email],
-            subject: `Spinella – Votre réservation est confirmée`,
-            html: confirmedEmailHtml({
-              name: row.name ?? "Client",
-              date: row.date ?? "",
-              time: row.time ?? "",
-              partySize: row.party_size ?? 0,
-              phone: row.phone ?? "",
-              specialRequests: row.special_requests ?? null,
-            }),
+            subject: isValentines ? `Saint-Valentin à Spinella – Votre table est réservée` : `Spinella – Votre réservation est confirmée`,
+            html: isValentines
+              ? valentinesGuestEmailHtml(row.name ?? "Client", flyerUrl)
+              : confirmedEmailHtml({
+                  name: row.name ?? "Client",
+                  date: row.date ?? "",
+                  time: row.time ?? "",
+                  partySize: row.party_size ?? 0,
+                  phone: row.phone ?? "",
+                  specialRequests: row.special_requests ?? null,
+                }),
           });
           if (sendErr) console.error("[bookings] Confirmation email failed:", sendErr);
           else {

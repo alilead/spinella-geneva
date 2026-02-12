@@ -305,7 +305,10 @@ export const translations = {
       sortByEmail: "Email",
       sortByAlphabet: "Email (A–Z)",
       sortByDate: "Date (last booked)",
+      sortByCreatedDate: "Date of booking (newest first)",
+      sortByRequestedDate: "Date requested",
       exportBookingsCsv: "Export bookings CSV",
+      newReservationNotification: "🔔 {count} new reservation(s) received!",
       addFromList: "Add from list",
       addFromListPlaceholder: "Paste one client per line: Name, Email, Phone (comma or tab separated). Email required.",
       addFromListSubmit: "Add"
@@ -654,7 +657,10 @@ export const translations = {
       sortByEmail: "Email",
       sortByAlphabet: "Email (A–Z)",
       sortByDate: "Date (dernière résa)",
+      sortByCreatedDate: "Date de réservation (plus récent)",
+      sortByRequestedDate: "Date demandée",
       exportBookingsCsv: "Exporter réservations CSV",
+      newReservationNotification: "🔔 {count} nouvelle(s) réservation(s) reçue(s) !",
       addFromList: "Ajouter depuis la liste",
       addFromListPlaceholder: "Collez un client par ligne : Nom, Email, Téléphone (virgule ou tabulation). Email obligatoire.",
       addFromListSubmit: "Ajouter"
@@ -1003,7 +1009,10 @@ export const translations = {
       sortByEmail: "Email",
       sortByAlphabet: "Email (A–Z)",
       sortByDate: "Data (ultima prenotazione)",
+      sortByCreatedDate: "Data di prenotazione (più recente)",
+      sortByRequestedDate: "Data richiesta",
       exportBookingsCsv: "Esporta prenotazioni CSV",
+      newReservationNotification: "🔔 {count} nuova/e prenotazione/i ricevuta/e!",
       addFromList: "Aggiungi da lista",
       addFromListPlaceholder: "Incolla un cliente per riga: Nome, Email, Telefono (virgola o tab). Email obbligatoria.",
       addFromListSubmit: "Aggiungi"

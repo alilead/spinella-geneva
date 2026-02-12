@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -83,6 +84,7 @@ export default function Admin() {
   const [importingClients, setImportingClients] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [clientSort, setClientSort] = useState<"name" | "email" | "date">("date");
+  const [bookingSort, setBookingSort] = useState<"created" | "date" | "name">("date");
   const [addClientOpen, setAddClientOpen] = useState(false);
   const [addClientName, setAddClientName] = useState("");
   const [addClientEmail, setAddClientEmail] = useState("");
@@ -138,13 +140,24 @@ export default function Admin() {
     return false;
   };
 
+  const previousBookingIds = useRef<Set<string>>(new Set());
+
   const fetchBookings = useCallback(async (authToken: string) => {
     setFetchError("");
     try {
       const res = await fetch("/api/bookings", { headers: getAuthHeaders(authToken) });
       const data = await res.json().catch(() => ({}));
       if (res.ok && Array.isArray(data.bookings)) {
-        setBookings(data.bookings);
+        const newBookings = data.bookings as BookingRecord[];
+        const newIds = new Set(newBookings.map((b) => b.id));
+        const added = newBookings.filter((b) => !previousBookingIds.current.has(b.id));
+        if (previousBookingIds.current.size > 0 && added.length > 0) {
+          toast.success(t("admin.newReservationNotification").replace("{count}", String(added.length)), {
+            duration: 10000,
+          });
+        }
+        previousBookingIds.current = newIds;
+        setBookings(newBookings);
       } else {
         setFetchError(t("admin.fetchError"));
       }
@@ -687,11 +700,19 @@ export default function Admin() {
   }, [calendarMonth]);
 
   const sortedBookings = useMemo(() => {
-    return [...bookings].sort((a, b) => {
-      const d = a.date.localeCompare(b.date);
-      return d !== 0 ? d : a.time.localeCompare(b.time);
-    });
-  }, [bookings]);
+    const list = [...bookings];
+    if (bookingSort === "created") {
+      list.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+    } else if (bookingSort === "date") {
+      list.sort((a, b) => {
+        const d = a.date.localeCompare(b.date);
+        return d !== 0 ? d : a.time.localeCompare(b.time);
+      });
+    } else {
+      list.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return list;
+  }, [bookings, bookingSort]);
 
   const specialRequestsBookings = useMemo(() => {
     return sortedBookings.filter(
@@ -828,6 +849,19 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-6">
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
+              <Select value={bookingSort} onValueChange={(v) => setBookingSort(v as "created" | "date" | "name")}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created">{t("admin.sortByCreatedDate")}</SelectItem>
+                  <SelectItem value="date">{t("admin.sortByRequestedDate")}</SelectItem>
+                  <SelectItem value="name">{t("admin.sortByName")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Card>
               <CardContent className="p-0">
                 {sortedBookings.length === 0 ? (

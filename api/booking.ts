@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./_lib/supabase.js";
-import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./_lib/valentinesEmail.js";
+import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml, valentinesRequestReceivedEmailHtml } from "./_lib/valentinesEmail.js";
 import { confirmedEmailHtml } from "./_lib/confirmedEmail.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
@@ -171,16 +171,16 @@ export default async function handler(
         from: FROM,
         to: [email],
         bcc: [BCC],
-        subject: isValentines ? `Saint-Valentin à Spinella – Votre table est réservée` : `Booking Confirmation - ${name}`,
-        html: isValentines ? valentinesGuestEmailHtml(name, flyerUrl) : guestEmailHtml(data),
+        subject: isValentines ? `Saint-Valentin à Spinella – Demande reçue` : `Booking Request - ${name}`,
+        html: isValentines ? valentinesRequestReceivedEmailHtml(name) : guestEmailHtml(data),
       });
       if (err1) {
         console.error("[booking] Guest email failed:", err1);
-        res.status(500).json({ error: "Failed to send confirmation email" });
+        res.status(500).json({ error: "Failed to send request email" });
         return;
       }
       const resendId = (sendData as { id?: string })?.id;
-      if (resendId) await appendSentEmail(resendId, isValentines ? "valentines" : "request");
+      if (resendId) await appendSentEmail(resendId, "request");
     } else {
       const { data: sendData, error: err1 } = await resend.emails.send({
         from: FROM,
