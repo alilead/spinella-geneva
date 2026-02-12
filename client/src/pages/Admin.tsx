@@ -119,6 +119,21 @@ export default function Admin() {
   });
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
+  // Sync selected date with calendar month
+  useEffect(() => {
+    const selectedDate = new Date(selectedCalendarDate);
+    const selectedYear = selectedDate.getFullYear();
+    const selectedMonth = selectedDate.getMonth();
+    
+    const calendarYear = calendarMonth.getFullYear();
+    const calendarMonthNum = calendarMonth.getMonth();
+    
+    // If selected date is not in the current calendar month, update calendar month
+    if (selectedYear !== calendarYear || selectedMonth !== calendarMonthNum) {
+      setCalendarMonth(new Date(selectedYear, selectedMonth, 1));
+    }
+  }, [selectedCalendarDate, calendarMonth]);
+
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -820,23 +835,6 @@ export default function Admin() {
     return map;
   }, [bookings]);
 
-  // Sync selected date with calendar month
-  useEffect(() => {
-    const currentYear = calendarMonth.getFullYear();
-    const currentMonth = calendarMonth.getMonth();
-    const today = new Date();
-    
-    // If viewing current month, select today's date
-    if (currentYear === today.getFullYear() && currentMonth === today.getMonth()) {
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-      setSelectedCalendarDate(todayStr);
-    } else {
-      // Otherwise select the 1st of the month
-      const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-01`;
-      setSelectedCalendarDate(firstDay);
-    }
-  }, [calendarMonth]);
-
   const calendarGrid = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -1393,7 +1391,13 @@ export default function Admin() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+                      onClick={() => {
+                        const newMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
+                        setCalendarMonth(newMonth);
+                        // Update selected date to first day of new month
+                        const newDate = `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, "0")}-01`;
+                        setSelectedCalendarDate(newDate);
+                      }}
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
@@ -1403,7 +1407,13 @@ export default function Admin() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+                      onClick={() => {
+                        const newMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1);
+                        setCalendarMonth(newMonth);
+                        // Update selected date to first day of new month
+                        const newDate = `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, "0")}-01`;
+                        setSelectedCalendarDate(newDate);
+                      }}
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -1462,19 +1472,17 @@ export default function Admin() {
                 {/* Scrollable Booking List - All Dates */}
                 <div className="max-h-[600px] overflow-y-auto">
                   {(() => {
-                    // Get all dates with bookings, filtered by the current calendar month
-                    const currentYear = calendarMonth.getFullYear();
-                    const currentMonth = calendarMonth.getMonth();
+                    // Get all dates with bookings for the current calendar month
+                    const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+                    const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+                    const monthStartStr = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}-${String(monthStart.getDate()).padStart(2, "0")}`;
+                    const monthEndStr = `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
                     
                     const allDates = Object.keys(byDate).sort();
                     const filteredDates = allDates.filter(dateStr => {
-                      // Filter by month/year first
-                      const [year, month] = dateStr.split('-').map(Number);
-                      if (year !== currentYear || (month - 1) !== currentMonth) {
-                        return false;
-                      }
+                      // Filter by current month
+                      if (dateStr < monthStartStr || dateStr > monthEndStr) return false;
                       
-                      // Then filter by booking status
                       const dayBookings = calendarView === "all"
                         ? (byDate[dateStr] ?? [])
                         : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
