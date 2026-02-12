@@ -961,108 +961,6 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
-            <Dialog open={!!bookingDetailId} onOpenChange={(open) => !open && setBookingDetailId(null)}>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>{t("admin.reservationDetails")}</DialogTitle>
-                </DialogHeader>
-                {bookingDetailLoading ? (
-                  <div className="py-8 flex justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : bookingDetail ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <span className="text-muted-foreground">{t("admin.date")}</span>
-                      <span>{bookingDetail.booking.date}</span>
-                      <span className="text-muted-foreground">{t("admin.time")}</span>
-                      <span>{bookingDetail.booking.time}</span>
-                      <span className="text-muted-foreground">{t("admin.name")}</span>
-                      <span>{bookingDetail.booking.name}</span>
-                      <span className="text-muted-foreground">{t("admin.email")}</span>
-                      <span>{bookingDetail.booking.email}</span>
-                      <span className="text-muted-foreground">{t("admin.phone")}</span>
-                      <span>{bookingDetail.booking.phone}</span>
-                      <span className="text-muted-foreground">{t("admin.status")}</span>
-                      <span>
-                        {bookingDetail.booking.status === "request"
-                          ? t("admin.statusRequest")
-                          : bookingDetail.booking.status === "confirmed"
-                            ? t("admin.statusConfirmed")
-                            : bookingDetail.booking.status === "cancelled"
-                              ? t("admin.statusCancelled")
-                              : t("admin.statusPending")}
-                      </span>
-                    </div>
-                    {bookingDetail.booking.specialRequests && (
-                      <>
-                        <span className="text-sm text-muted-foreground">{t("admin.specialRequests")}</span>
-                        <p className="text-sm">{bookingDetail.booking.specialRequests}</p>
-                      </>
-                    )}
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">{t("admin.emailsSent")}</h4>
-                      {bookingDetail.emailStatuses.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">{t("admin.noEmailsSent")}</p>
-                      ) : (
-                        <table className="w-full text-sm border rounded">
-                          <thead>
-                            <tr className="border-b bg-muted/50">
-                              <th className="text-left p-2">{t("admin.emailType")}</th>
-                              <th className="text-left p-2">{t("admin.date")}</th>
-                              <th className="text-left p-2">{t("admin.emailStatus")}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {bookingDetail.emailStatuses.map((e) => (
-                              <tr key={e.id} className="border-b">
-                                <td className="p-2">{e.type}</td>
-                                <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
-                                <td className="p-2">{e.status ?? "—"}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                    {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
-                      <DialogFooter className="flex gap-2 sm:gap-0">
-                        <Button
-                          variant="default"
-                          onClick={() => {
-                            handleAccept(bookingDetail.booking.id);
-                            setBookingDetailId(null);
-                          }}
-                          disabled={acceptingId !== null}
-                          className="flex-1 sm:flex-initial"
-                        >
-                          {acceptingId === bookingDetail.booking.id ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Check className="w-4 h-4 mr-2" />
-                          )}
-                          {t("admin.accept")}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => {
-                            handleDecline(bookingDetail.booking.id);
-                            setBookingDetailId(null);
-                          }}
-                          disabled={acceptingId !== null}
-                          className="flex-1 sm:flex-initial"
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          {t("admin.decline")}
-                        </Button>
-                      </DialogFooter>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">{t("admin.loading")}</p>
-                )}
-              </DialogContent>
-            </Dialog>
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <Card>
@@ -1464,6 +1362,120 @@ export default function Admin() {
             </AlertDialog>
           </TabsContent>
         </Tabs>
+
+        {/* Booking Detail Dialog - accessible from all tabs */}
+        <Dialog open={!!bookingDetailId} onOpenChange={(open) => !open && setBookingDetailId(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{t("admin.reservationDetails")}</DialogTitle>
+            </DialogHeader>
+            {bookingDetailLoading ? (
+              <div className="py-8 flex justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : bookingDetail ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-muted-foreground">{t("admin.date")}</span>
+                  <span>{bookingDetail.booking.date}</span>
+                  <span className="text-muted-foreground">{t("admin.time")}</span>
+                  <span>{bookingDetail.booking.time}</span>
+                  <span className="text-muted-foreground">{t("admin.name")}</span>
+                  <span>{bookingDetail.booking.name}</span>
+                  <span className="text-muted-foreground">{t("admin.email")}</span>
+                  <span>{bookingDetail.booking.email}</span>
+                  <span className="text-muted-foreground">{t("admin.phone")}</span>
+                  <span>{bookingDetail.booking.phone}</span>
+                  <span className="text-muted-foreground">{t("admin.guests")}</span>
+                  <span>{bookingDetail.booking.partySize}</span>
+                  <span className="text-muted-foreground">{t("admin.status")}</span>
+                  <span className={`font-semibold ${
+                    bookingDetail.booking.status === "confirmed" 
+                      ? "text-green-600" 
+                      : bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending"
+                        ? "text-amber-600"
+                        : bookingDetail.booking.status === "cancelled"
+                          ? "text-red-600"
+                          : ""
+                  }`}>
+                    {bookingDetail.booking.status === "request"
+                      ? t("admin.statusRequest")
+                      : bookingDetail.booking.status === "confirmed"
+                        ? t("admin.statusConfirmed")
+                        : bookingDetail.booking.status === "cancelled"
+                          ? t("admin.statusCancelled")
+                          : t("admin.statusPending")}
+                  </span>
+                </div>
+                {bookingDetail.booking.specialRequests && (
+                  <>
+                    <span className="text-sm text-muted-foreground">{t("admin.specialRequests")}</span>
+                    <p className="text-sm">{bookingDetail.booking.specialRequests}</p>
+                  </>
+                )}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">{t("admin.emailsSent")}</h4>
+                  {bookingDetail.emailStatuses.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t("admin.noEmailsSent")}</p>
+                  ) : (
+                    <table className="w-full text-sm border rounded">
+                      <thead>
+                        <tr className="border-b bg-muted/50">
+                          <th className="text-left p-2">{t("admin.emailType")}</th>
+                          <th className="text-left p-2">{t("admin.date")}</th>
+                          <th className="text-left p-2">{t("admin.emailStatus")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bookingDetail.emailStatuses.map((e) => (
+                          <tr key={e.id} className="border-b">
+                            <td className="p-2">{e.type}</td>
+                            <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
+                            <td className="p-2">{e.status ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+                {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
+                  <DialogFooter className="flex gap-2 sm:gap-0">
+                    <Button
+                      variant="default"
+                      onClick={() => {
+                        handleAccept(bookingDetail.booking.id);
+                        setBookingDetailId(null);
+                      }}
+                      disabled={acceptingId !== null}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      {acceptingId === bookingDetail.booking.id ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Check className="w-4 h-4 mr-2" />
+                      )}
+                      {t("admin.accept")}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        handleDecline(bookingDetail.booking.id);
+                        setBookingDetailId(null);
+                      }}
+                      disabled={acceptingId !== null}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      {t("admin.decline")}
+                    </Button>
+                  </DialogFooter>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t("admin.loading")}</p>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
