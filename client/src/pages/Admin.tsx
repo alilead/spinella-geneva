@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { sendLocalNotification } from "@/lib/pushNotifications";
 import {
   Dialog,
   DialogContent,
@@ -152,9 +153,24 @@ export default function Admin() {
         const newIds = new Set(newBookings.map((b) => b.id));
         const added = newBookings.filter((b) => !previousBookingIds.current.has(b.id));
         if (previousBookingIds.current.size > 0 && added.length > 0) {
-          toast.success(t("admin.newReservationNotification").replace("{count}", String(added.length)), {
+          const message = t("admin.newReservationNotification").replace("{count}", String(added.length));
+          toast.success(message, {
             duration: 10000,
           });
+          
+          // Send push notification
+          sendLocalNotification({
+            title: 'Spinella - Nouvelle réservation',
+            body: added.length === 1 
+              ? `${added[0].name} - ${added[0].date} à ${added[0].time}`
+              : `${added.length} nouvelles réservations reçues`,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            tag: 'new-reservation',
+            requireInteraction: true,
+            data: { url: '/admin', bookings: added },
+            vibrate: [200, 100, 200, 100, 200],
+          }).catch((err) => console.error('[Push] Failed to send notification:', err));
         }
         previousBookingIds.current = newIds;
         setBookings(newBookings);
