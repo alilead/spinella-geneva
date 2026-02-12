@@ -86,6 +86,7 @@ export default function Admin() {
   const [clientSearch, setClientSearch] = useState("");
   const [clientSort, setClientSort] = useState<"name" | "email" | "date">("date");
   const [bookingSort, setBookingSort] = useState<"created" | "date" | "name">("date");
+  const [allReservationsSort, setAllReservationsSort] = useState<"date" | "name" | "created">("date");
   const [addClientOpen, setAddClientOpen] = useState(false);
   const [addClientName, setAddClientName] = useState("");
   const [addClientEmail, setAddClientEmail] = useState("");
@@ -899,8 +900,21 @@ export default function Admin() {
           <TabsContent value="all" className="mt-4 sm:mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
               <p className="text-sm text-muted-foreground">
-                {bookings.length === 0 ? t("admin.emptyList") : `${sortedBookings.length} / ${bookings.length} réservations`}
+                {bookings.length === 0 ? t("admin.emptyList") : `${bookings.length} réservations`}
               </p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
+                <Select value={allReservationsSort} onValueChange={(v: any) => setAllReservationsSort(v)}>
+                  <SelectTrigger className="w-[180px] h-8 text-xs sm:text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">Date de réservation</SelectItem>
+                    <SelectItem value="created">Date de création</SelectItem>
+                    <SelectItem value="name">Nom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             {bookings.length === 0 ? (
               <div className="p-4 sm:p-8 text-center text-sm text-muted-foreground">{t("admin.emptyList")}</div>
@@ -909,9 +923,13 @@ export default function Admin() {
                 <table className="w-full text-xs sm:text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">
-                      <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.date")}</th>
+                      <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto cursor-pointer hover:bg-muted" onClick={() => setAllReservationsSort("date")}>
+                        {t("admin.date")} {allReservationsSort === "date" && "↓"}
+                      </th>
                       <th className="text-left p-2 sm:p-3 w-[50px] sm:w-auto">{t("admin.time")}</th>
-                      <th className="text-left p-2 sm:p-3 min-w-[100px]">{t("admin.name")}</th>
+                      <th className="text-left p-2 sm:p-3 min-w-[100px] cursor-pointer hover:bg-muted" onClick={() => setAllReservationsSort("name")}>
+                        {t("admin.name")} {allReservationsSort === "name" && "↓"}
+                      </th>
                       <th className="text-left p-2 sm:p-3 w-[40px] hidden sm:table-cell">{t("admin.guests")}</th>
                       <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
                       <th className="text-left p-2 sm:p-3 hidden md:table-cell">{t("admin.phone")}</th>
@@ -920,7 +938,19 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time)).map((b) => (
+                    {(() => {
+                      const sorted = [...bookings].sort((a, b) => {
+                        if (allReservationsSort === "name") {
+                          return a.name.localeCompare(b.name);
+                        } else if (allReservationsSort === "created") {
+                          return (b.createdAt || "").localeCompare(a.createdAt || "");
+                        } else {
+                          // date
+                          return b.date.localeCompare(a.date) || b.time.localeCompare(a.time);
+                        }
+                      });
+                      return sorted;
+                    })().map((b) => (
                       <tr key={b.id} className="border-b">
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.date}</td>
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.time}</td>
@@ -1125,7 +1155,16 @@ export default function Admin() {
                         return (
                           <button
                             key={dateStr}
-                            onClick={() => setSelectedCalendarDate(dateStr)}
+                            onClick={() => {
+                              setSelectedCalendarDate(dateStr);
+                              // Scroll to date in the list
+                              setTimeout(() => {
+                                const element = document.getElementById(`date-${dateStr}`);
+                                if (element) {
+                                  element.scrollIntoView({ behavior: "smooth", block: "start" });
+                                }
+                              }, 100);
+                            }}
                             className={`flex flex-col items-center justify-center min-w-[60px] py-2 px-3 rounded-lg transition-colors ${
                               isSelected 
                                 ? "bg-primary text-primary-foreground" 
