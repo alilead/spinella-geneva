@@ -31,9 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Check, ChevronLeft, ChevronRight, Download, Eye, List, Loader2, LogOut, Plus, Trash2, Upload, UserCheck, Users, X } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ChevronLeft, ChevronRight, Download, Eye, List, Loader2, LogOut, Pencil, Plus, Trash2, Upload, UserCheck, Users, X } from "lucide-react";
 import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getTimeSlotsForDate } from "@/lib/blockedSlots";
 
 export type BookingRecord = {
   id: string;
@@ -108,6 +109,12 @@ export default function Admin() {
     emailStatuses: Array<{ id: string; type: string; sentAt: string; status?: string }>;
   } | null>(null);
   const [bookingDetailLoading, setBookingDetailLoading] = useState(false);
+  const [bookingDetailEditOpen, setBookingDetailEditOpen] = useState(false);
+  const [editDate, setEditDate] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editPartySize, setEditPartySize] = useState(2);
+  const [editStatus, setEditStatus] = useState<"confirmed" | "request" | "pending" | "cancelled">("confirmed");
+  const [savingBooking, setSavingBooking] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -720,13 +727,33 @@ export default function Admin() {
     }
   };
 
+  const handleDecline = async (id: string) => {
+    if (!token) return;
+    setAcceptingId(id);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ id, status: "cancelled" }),
+      });
+      if (res.ok) {
+        await fetchBookings(token);
+        setBookingDetailId(null);
+      }
+    } finally {
+      setAcceptingId(null);
+    }
+  };
+
   useEffect(() => {
     if (!bookingDetailId || !token) {
       setBookingDetail(null);
+      setBookingDetailEditOpen(false);
       return;
     }
     setBookingDetailLoading(true);
     setBookingDetail(null);
+    setBookingDetailEditOpen(false);
     fetch(`/api/bookings?id=${encodeURIComponent(bookingDetailId)}`, { headers: getAuthHeaders(token) })
       .then((r) => r.json())
       .then((data) => {
@@ -737,6 +764,48 @@ export default function Admin() {
       .catch(() => setBookingDetail(null))
       .finally(() => setBookingDetailLoading(false));
   }, [bookingDetailId, token]);
+
+  const openEditForm = () => {
+    if (!bookingDetail) return;
+    setEditDate(bookingDetail.booking.date);
+    setEditTime(bookingDetail.booking.time);
+    setEditPartySize(bookingDetail.booking.partySize || 2);
+    setEditStatus((bookingDetail.booking.status as "confirmed" | "request" | "pending" | "cancelled") || "confirmed");
+    setBookingDetailEditOpen(true);
+  };
+
+  const handleSaveBookingEdit = async () => {
+    if (!token || !bookingDetailId) return;
+    setSavingBooking(true);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({
+          id: bookingDetailId,
+          status: editStatus,
+          date: editDate,
+          time: editTime,
+          party_size: editPartySize,
+        }),
+      });
+      if (res.ok) {
+        await fetchBookings(token);
+        setBookingDetailEditOpen(false);
+        const detailRes = await fetch(`/api/bookings?id=${encodeURIComponent(bookingDetailId)}`, { headers: getAuthHeaders(token) });
+        const data = await detailRes.json().catch(() => ({}));
+        if (data.booking && Array.isArray(data.emailStatuses)) {
+          setBookingDetail({ booking: data.booking, emailStatuses: data.emailStatuses });
+        }
+        toast.success("Réservation mise à jour");
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err?.error ?? "Erreur");
+      }
+    } finally {
+      setSavingBooking(false);
+    }
+  };
 
   const VALENTINES_BATCH_DELAY_MS = 2 * 60 * 1000; // 2 minutes between batches
 
@@ -834,6 +903,12 @@ export default function Admin() {
     Object.keys(map).forEach((d) => map[d].sort((a, b) => a.time.localeCompare(b.time)));
     return map;
   }, [bookings]);
+
+  /** Pending (request/pending status) count for the selected calendar date — used for Richieste badge. */
+  const pendingCountForSelectedDate = useMemo(() => {
+    const list = byDate[selectedCalendarDate] ?? [];
+    return list.filter((b) => b.status === "request" || b.status === "pending").length;
+  }, [byDate, selectedCalendarDate]);
 
   const calendarGrid = useMemo(() => {
     const year = calendarMonth.getFullYear();
@@ -1377,9 +1452,9 @@ export default function Admin() {
                     }`}
                   >
                     Richieste
-                    {specialRequestsBookings.length > 0 && (
+                    {pendingCountForSelectedDate > 0 && (
                       <span className="bg-primary text-primary-foreground text-xs rounded-full h-5 min-w-[20px] px-1.5 flex items-center justify-center">
-                        {specialRequestsBookings.length}
+                        {pendingCountForSelectedDate}
                       </span>
                     )}
                   </button>
@@ -1971,114 +2046,205 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
 
-        {/* Booking Detail Dialog - accessible from all tabs */}
-        <Dialog open={!!bookingDetailId} onOpenChange={(open) => !open && setBookingDetailId(null)}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{t("admin.reservationDetails")}</DialogTitle>
+        {/* Booking Detail Dialog - accessible from all tabs. Key avoids NotFoundError removeChild when switching bookings. */}
+        <Dialog
+          key={bookingDetailId ?? "closed"}
+          open={!!bookingDetailId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setBookingDetailId(null);
+              setBookingDetailEditOpen(false);
+            }
+          }}
+        >
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0">
+              <DialogTitle>
+                {bookingDetailEditOpen ? t("admin.modifyReservation") : t("admin.reservationDetails")}
+              </DialogTitle>
+              {bookingDetail && !bookingDetailEditOpen && (
+                <Button variant="outline" size="sm" onClick={openEditForm} className="shrink-0">
+                  <Pencil className="w-4 h-4 mr-2" />
+                  {t("admin.modifyReservation")}
+                </Button>
+              )}
             </DialogHeader>
             {bookingDetailLoading ? (
               <div className="py-8 flex justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             ) : bookingDetail ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span className="text-muted-foreground">{t("admin.date")}</span>
-                  <span>{bookingDetail.booking.date}</span>
-                  <span className="text-muted-foreground">{t("admin.time")}</span>
-                  <span>{bookingDetail.booking.time}</span>
-                  <span className="text-muted-foreground">{t("admin.name")}</span>
-                  <span>{bookingDetail.booking.name}</span>
-                  <span className="text-muted-foreground">{t("admin.email")}</span>
-                  <span>{bookingDetail.booking.email}</span>
-                  <span className="text-muted-foreground">{t("admin.phone")}</span>
-                  <span>{bookingDetail.booking.phone}</span>
-                  <span className="text-muted-foreground">{t("admin.guests")}</span>
-                  <span>{bookingDetail.booking.partySize}</span>
-                  <span className="text-muted-foreground">{t("admin.status")}</span>
-                  <span className={`font-semibold ${
-                    bookingDetail.booking.status === "confirmed" 
-                      ? "text-green-600" 
-                      : bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending"
-                        ? "text-amber-600"
-                        : bookingDetail.booking.status === "cancelled"
-                          ? "text-red-600"
-                          : ""
-                  }`}>
-                    {bookingDetail.booking.status === "request"
-                      ? t("admin.statusRequest")
-                      : bookingDetail.booking.status === "confirmed"
-                        ? t("admin.statusConfirmed")
-                        : bookingDetail.booking.status === "cancelled"
-                          ? t("admin.statusCancelled")
-                          : t("admin.statusPending")}
-                  </span>
-                </div>
-                {bookingDetail.booking.specialRequests && (
-                  <>
-                    <span className="text-sm text-muted-foreground">{t("admin.specialRequests")}</span>
-                    <p className="text-sm">{bookingDetail.booking.specialRequests}</p>
-                  </>
-                )}
-                <div>
-                  <h4 className="text-sm font-medium mb-2">{t("admin.emailsSent")}</h4>
-                  {bookingDetail.emailStatuses.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t("admin.noEmailsSent")}</p>
-                  ) : (
-                    <table className="w-full text-sm border rounded">
-                      <thead>
-                        <tr className="border-b bg-muted/50">
-                          <th className="text-left p-2">{t("admin.emailType")}</th>
-                          <th className="text-left p-2">{t("admin.date")}</th>
-                          <th className="text-left p-2">{t("admin.emailStatus")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookingDetail.emailStatuses.map((e) => (
-                          <tr key={e.id} className="border-b">
-                            <td className="p-2">{e.type}</td>
-                            <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
-                            <td className="p-2">{e.status ?? "—"}</td>
-                          </tr>
+              bookingDetailEditOpen ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>{t("admin.guests")}</Label>
+                    <Select
+                      value={String(editPartySize)}
+                      onValueChange={(v) => setEditPartySize(parseInt(v, 10))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20].map((n) => (
+                          <SelectItem key={n} value={String(n)}>{n}</SelectItem>
                         ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-                {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
-                  <DialogFooter className="flex gap-2 sm:gap-0">
-                    <Button
-                      variant="default"
-                      onClick={() => {
-                        handleAccept(bookingDetail.booking.id);
-                        setBookingDetailId(null);
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t("admin.date")}</Label>
+                    <Input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => {
+                        setEditDate(e.target.value);
+                        const slots = getTimeSlotsForDate(e.target.value);
+                        if (slots.length && !slots.includes(editTime)) setEditTime(slots[0]);
                       }}
-                      disabled={acceptingId !== null}
-                      className="flex-1 sm:flex-initial"
-                    >
-                      {acceptingId === bookingDetail.booking.id ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Check className="w-4 h-4 mr-2" />
-                      )}
-                      {t("admin.accept")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t("admin.time")}</Label>
+                    <Select value={editTime} onValueChange={setEditTime}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(() => {
+                          const slots = editDate ? getTimeSlotsForDate(editDate) : [];
+                          const options = slots.length ? (slots.includes(editTime) ? slots : [...slots, editTime].sort()) : (editTime ? [editTime] : []);
+                          return options.map((slot) => (
+                            <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                          ));
+                        })()}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t("admin.status")}</Label>
+                    <Select value={editStatus} onValueChange={(v) => setEditStatus(v as typeof editStatus)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="confirmed">{t("admin.statusConfirmed")}</SelectItem>
+                        <SelectItem value="request">{t("admin.statusRequest")}</SelectItem>
+                        <SelectItem value="pending">{t("admin.statusPending")}</SelectItem>
+                        <SelectItem value="cancelled">{t("admin.statusCancelled")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setBookingDetailEditOpen(false)} disabled={savingBooking}>
+                      {t("admin.cancelEdit")}
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => {
-                        handleDecline(bookingDetail.booking.id);
-                        setBookingDetailId(null);
-                      }}
-                      disabled={acceptingId !== null}
-                      className="flex-1 sm:flex-initial"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      {t("admin.decline")}
+                    <Button onClick={handleSaveBookingEdit} disabled={savingBooking}>
+                      {savingBooking ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      {t("admin.saveReservation")}
                     </Button>
                   </DialogFooter>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <span className="text-muted-foreground">{t("admin.date")}</span>
+                    <span>{bookingDetail.booking.date}</span>
+                    <span className="text-muted-foreground">{t("admin.time")}</span>
+                    <span>{bookingDetail.booking.time}</span>
+                    <span className="text-muted-foreground">{t("admin.name")}</span>
+                    <span>{bookingDetail.booking.name}</span>
+                    <span className="text-muted-foreground">{t("admin.email")}</span>
+                    <span>{bookingDetail.booking.email}</span>
+                    <span className="text-muted-foreground">{t("admin.phone")}</span>
+                    <span>{bookingDetail.booking.phone}</span>
+                    <span className="text-muted-foreground">{t("admin.guests")}</span>
+                    <span>{bookingDetail.booking.partySize}</span>
+                    <span className="text-muted-foreground">{t("admin.status")}</span>
+                    <span className={`font-semibold ${
+                      bookingDetail.booking.status === "confirmed" 
+                        ? "text-green-600" 
+                        : bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending"
+                          ? "text-amber-600"
+                          : bookingDetail.booking.status === "cancelled"
+                            ? "text-red-600"
+                            : ""
+                    }`}>
+                      {bookingDetail.booking.status === "request"
+                        ? t("admin.statusRequest")
+                        : bookingDetail.booking.status === "confirmed"
+                          ? t("admin.statusConfirmed")
+                          : bookingDetail.booking.status === "cancelled"
+                            ? t("admin.statusCancelled")
+                            : t("admin.statusPending")}
+                    </span>
+                  </div>
+                  {bookingDetail.booking.specialRequests && (
+                    <>
+                      <span className="text-sm text-muted-foreground">{t("admin.specialRequests")}</span>
+                      <p className="text-sm">{bookingDetail.booking.specialRequests}</p>
+                    </>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t("admin.emailsSent")}</h4>
+                    {bookingDetail.emailStatuses.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t("admin.noEmailsSent")}</p>
+                    ) : (
+                      <table className="w-full text-sm border rounded">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="text-left p-2">{t("admin.emailType")}</th>
+                            <th className="text-left p-2">{t("admin.date")}</th>
+                            <th className="text-left p-2">{t("admin.emailStatus")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bookingDetail.emailStatuses.map((e) => (
+                            <tr key={e.id} className="border-b">
+                              <td className="p-2">{e.type}</td>
+                              <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
+                              <td className="p-2">{e.status ?? "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                  <DialogFooter className="flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={openEditForm}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      {t("admin.modifyReservation")}
+                    </Button>
+                    {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
+                      <>
+                        <Button
+                          variant="default"
+                          onClick={() => {
+                            handleAccept(bookingDetail.booking.id);
+                            setBookingDetailId(null);
+                          }}
+                          disabled={acceptingId !== null}
+                        >
+                          {acceptingId === bookingDetail.booking.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Check className="w-4 h-4 mr-2" />
+                          )}
+                          {t("admin.accept")}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleDecline(bookingDetail.booking.id)}
+                          disabled={acceptingId !== null}
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          {t("admin.decline")}
+                        </Button>
+                      </>
+                    )}
+                  </DialogFooter>
+                </div>
+              )
             ) : (
               <p className="text-sm text-muted-foreground">{t("admin.loading")}</p>
             )}
