@@ -99,7 +99,7 @@ export default function Events() {
                 <li><span className="font-semibold text-foreground">{t("events.valentinesDessert")}</span></li>
               </ul>
               <p className="mt-6 text-xl font-bold gold-text">{t("events.valentinesPrice")}</p>
-              <Link href="/booking" className="inline-block mt-6">
+              <Link href="/reservations" className="inline-block mt-6">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
                   {t("events.valentinesCta")}
                 </Button>

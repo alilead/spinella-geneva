@@ -96,7 +96,7 @@ export default function FAQ() {
                   {t("faq.contactUs")}
                 </Button>
               </Link>
-              <Link href="/booking">
+              <Link href="/reservations">
                 <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-[oklch(0.62_0.15_85)] hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
                   {t("faq.bookTable")}
                 </Button>

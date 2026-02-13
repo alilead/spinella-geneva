@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { useEffect } from "react";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -17,6 +18,14 @@ import Contact from "./pages/Contact";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
 
+function RedirectToReservations() {
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    setLocation("/reservations");
+  }, [setLocation]);
+  return null;
+}
+
 function Router() {
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -29,7 +38,8 @@ function Router() {
         <Route path="/events" component={Events} />
         <Route path="/faq" component={FAQ} />
         <Route path="/contact" component={Contact} />
-        <Route path="/booking" component={Booking} />
+        <Route path="/booking" component={RedirectToReservations} />
+        <Route path="/reservations" component={Booking} />
         <Route path="/admin" component={Admin} />
         <Route path="/admin/" component={Admin} />
         <Route path="/404" component={NotFound} />

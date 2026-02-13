@@ -68,7 +68,13 @@ function getAuthHeaders(token: string): HeadersInit {
 const POLL_INTERVAL_MS = 45_000;
 
 export default function Admin() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  /** Resolve modal label with fallback so we never show raw key (e.g. admin.modifyReservation). */
+  const modalLabel = (key: string, fallbacks: { en: string; fr: string; it: string }) => {
+    const s = t(key);
+    return s && s !== key ? s : fallbacks[language] || fallbacks.en;
+  };
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -2058,16 +2064,12 @@ export default function Admin() {
           }}
         >
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader className="flex flex-row items-center justify-between space-y-0">
+            <DialogHeader>
               <DialogTitle>
-                {bookingDetailEditOpen ? t("admin.modifyReservation") : t("admin.reservationDetails")}
+                {bookingDetailEditOpen
+                  ? modalLabel("admin.modifyReservation", { en: "Modify reservation", fr: "Modifier la réservation", it: "Modifica prenotazione" })
+                  : t("admin.reservationDetails")}
               </DialogTitle>
-              {bookingDetail && !bookingDetailEditOpen && (
-                <Button variant="outline" size="sm" onClick={openEditForm} className="shrink-0">
-                  <Pencil className="w-4 h-4 mr-2" />
-                  {t("admin.modifyReservation")}
-                </Button>
-              )}
             </DialogHeader>
             {bookingDetailLoading ? (
               <div className="py-8 flex justify-center">
@@ -2137,11 +2139,11 @@ export default function Admin() {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setBookingDetailEditOpen(false)} disabled={savingBooking}>
-                      {t("admin.cancelEdit")}
+                      {modalLabel("admin.cancelEdit", { en: "Cancel", fr: "Annuler", it: "Annulla" })}
                     </Button>
                     <Button onClick={handleSaveBookingEdit} disabled={savingBooking}>
                       {savingBooking ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                      {t("admin.saveReservation")}
+                      {modalLabel("admin.saveReservation", { en: "Save", fr: "Enregistrer", it: "Salva" })}
                     </Button>
                   </DialogFooter>
                 </div>
@@ -2213,7 +2215,7 @@ export default function Admin() {
                   <DialogFooter className="flex flex-wrap gap-2">
                     <Button variant="outline" onClick={openEditForm}>
                       <Pencil className="w-4 h-4 mr-2" />
-                      {t("admin.modifyReservation")}
+                      {modalLabel("admin.modifyReservation", { en: "Modify", fr: "Modifier", it: "Modifica" })}
                     </Button>
                     {(bookingDetail.booking.status === "request" || bookingDetail.booking.status === "pending") && (
                       <>

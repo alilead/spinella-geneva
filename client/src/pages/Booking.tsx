@@ -198,6 +198,7 @@ export default function Booking() {
           <h1 className="text-5xl md:text-6xl font-bold mb-4">{t("booking.title")}</h1>
           <div className="gold-divider"></div>
           <p className="text-xl">{t("booking.subtitle")}</p>
+          <p className="text-sm mt-3 opacity-90">{t("booking.kitchenHoursShort")}</p>
         </div>
       </section>
 

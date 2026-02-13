@@ -89,7 +89,7 @@ export default function Home() {
             </p>
             <div className="gold-divider"></div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Link href="/booking">
+              <Link href="/reservations">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
                   {t("home.bookYourTable")}
                 </Button>
@@ -130,7 +130,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Link href="/booking">
+            <Link href="/reservations">
               <Card className="border-none shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full hover:ring-2 hover:ring-[oklch(0.62_0.15_85)] hover:ring-offset-2 hover:ring-offset-background">
                 <CardContent className="pt-8 text-center">
                   <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
@@ -201,7 +201,7 @@ export default function Home() {
                   {t("home.ourStory")}
                 </Button>
               </Link>
-              <Link href="/booking">
+              <Link href="/reservations">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
                   {t("home.bookYourTable")}
                 </Button>

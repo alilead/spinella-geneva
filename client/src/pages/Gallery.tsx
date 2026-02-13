@@ -109,7 +109,7 @@ export default function Gallery() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             {t("home.visitDesc1")} {t("home.visitDesc2")}
           </p>
-          <Link href="/booking">
+          <Link href="/reservations">
             <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
               {t("nav.bookTable")}
             </Button>

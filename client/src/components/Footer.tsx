@@ -55,22 +55,48 @@ export default function Footer() {
               <Clock className="w-5 h-5 gold-text mr-2" />
               {t("footer.openingHours")}
             </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>{t("contact.monWed")}:</span>
-                <span className="gold-text">{t("contact.monWedHours")}</span>
+            <div className="space-y-4 text-sm">
+              <div>
+                <h4 className="font-semibold mb-2">{t("contact.kitchenHoursTitle")}</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>{t("contact.monWed")}:</span>
+                    <span className="gold-text">{t("contact.monWedHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.thuFri")}:</span>
+                    <span className="gold-text">{t("contact.thuFriHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.saturday")}:</span>
+                    <span className="gold-text">{t("contact.satHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.sunday")}:</span>
+                    <span className="gold-text">{t("contact.sundayHours")}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>{t("contact.thuFri")}:</span>
-                <span className="gold-text">{t("contact.thuFriHours")}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t("contact.saturday")}:</span>
-                <span className="gold-text">{t("contact.satHours")}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t("contact.sunday")}:</span>
-                <span className="gold-text">{t("contact.sundayHours")}</span>
+              <div>
+                <h4 className="font-semibold mb-2">{t("contact.barHoursTitle")}</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>{t("contact.monWed")}:</span>
+                    <span className="gold-text">{t("contact.monWedBarHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.thuFri")}:</span>
+                    <span className="gold-text">{t("contact.thuFriBarHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.saturday")}:</span>
+                    <span className="gold-text">{t("contact.satBarHours")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("contact.sunday")}:</span>
+                    <span className="gold-text">{t("contact.sundayBarHours")}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

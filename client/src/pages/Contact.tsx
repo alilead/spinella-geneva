@@ -92,13 +92,25 @@ export default function Contact() {
                       <div className="w-12 h-12 gold-bg rounded-full flex items-center justify-center flex-shrink-0">
                         <Clock className="w-6 h-6 text-black" />
                       </div>
-                      <div>
+                      <div className="space-y-4">
                         <h3 className="text-xl font-bold mb-2">{t("contact.hours")}</h3>
-                        <div className="text-muted-foreground space-y-1">
-                          <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedHours")}</p>
-                          <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriHours")}</p>
-                          <p><strong>{t("contact.saturday")}:</strong> {t("contact.satHours")}</p>
-                          <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayHours")}</p>
+                        <div>
+                          <h4 className="font-semibold mb-2">{t("contact.kitchenHoursTitle")}</h4>
+                          <div className="text-muted-foreground space-y-1">
+                            <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedHours")}</p>
+                            <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriHours")}</p>
+                            <p><strong>{t("contact.saturday")}:</strong> {t("contact.satHours")}</p>
+                            <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayHours")}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">{t("contact.barHoursTitle")}</h4>
+                          <div className="text-muted-foreground space-y-1">
+                            <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedBarHours")}</p>
+                            <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriBarHours")}</p>
+                            <p><strong>{t("contact.saturday")}:</strong> {t("contact.satBarHours")}</p>
+                            <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayBarHours")}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -172,7 +184,7 @@ export default function Contact() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             {t("contact.readyToVisitDesc")}
           </p>
-          <Link href="/booking">
+          <Link href="/reservations">
             <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
               {t("nav.bookTable")}
             </Button>

@@ -174,6 +174,10 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       res.status(400).json({ error: "Invalid status" });
       return;
     }
+    const patchDate = typeof o.date === "string" ? String(o.date).slice(0, 10) : undefined;
+    const patchTime = typeof o.time === "string" ? String(o.time).trim() : undefined;
+    const patchPartySize = typeof o.party_size === "number" ? o.party_size : typeof o.partySize === "number" ? o.partySize : undefined;
+
     try {
       const supabase = getSupabase();
       const { data: row, error: fetchErr } = await supabase
@@ -188,11 +192,25 @@ export default async function handler(req: Req, res: Res): Promise<void> {
       const previousStatus = (row as { status?: string }).status ?? "";
       const prevSent = (row as { sent_emails?: SentEmailEntry[] }).sent_emails ?? [];
 
+      const updatePayload: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
+      if (patchDate) updatePayload.date = patchDate;
+      if (patchTime) updatePayload.time = patchTime;
+      if (patchPartySize !== undefined && patchPartySize >= 1) updatePayload.party_size = patchPartySize;
+
+      const rowAfter = {
+        ...row,
+        date: patchDate ?? row.date,
+        time: patchTime ?? row.time,
+        party_size: patchPartySize !== undefined && patchPartySize >= 1 ? patchPartySize : row.party_size,
+      };
+
+      let finalPayload: Record<string, unknown> = { ...updatePayload };
+
       if (status === "confirmed" && row.email) {
         const resendKey = process.env.RESEND_API_KEY;
         if (resendKey) {
           const resend = new Resend(resendKey);
-          const isValentines = row.date === VALENTINES_DATE;
+          const isValentines = rowAfter.date === VALENTINES_DATE;
           const flyerUrl = `${getBaseUrl()}/valentines-menu.jpeg`;
           const { data: sendData, error: sendErr } = await resend.emails.send({
             from: FROM,
@@ -202,9 +220,9 @@ export default async function handler(req: Req, res: Res): Promise<void> {
               ? valentinesGuestEmailHtml(row.name ?? "Client", flyerUrl)
               : confirmedEmailHtml({
                   name: row.name ?? "Client",
-                  date: row.date ?? "",
-                  time: row.time ?? "",
-                  partySize: row.party_size ?? 0,
+                  date: rowAfter.date ?? "",
+                  time: rowAfter.time ?? "",
+                  partySize: rowAfter.party_size ?? 0,
                   phone: row.phone ?? "",
                   specialRequests: row.special_requests ?? null,
                 }),
@@ -213,8 +231,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
           else {
             const resendId = (sendData as { id?: string })?.id;
             if (resendId) {
-              const nextSent = [...prevSent, { id: resendId, type: "confirmed", sentAt: new Date().toISOString() }];
-              await supabase.from(BOOKINGS_TABLE).update({ sent_emails: nextSent }).eq("id", id);
+              finalPayload = { ...finalPayload, sent_emails: [...prevSent, { id: resendId, type: "confirmed", sentAt: new Date().toISOString() }] };
             }
           }
         }
@@ -230,22 +247,21 @@ export default async function handler(req: Req, res: Res): Promise<void> {
             subject: `Spinella – Demande de réservation`,
             html: declineEmailHtml({
               name: row.name ?? "Client",
-              date: row.date ?? "",
-              time: row.time ?? "",
+              date: rowAfter.date ?? "",
+              time: rowAfter.time ?? "",
             }),
           });
           if (sendErr) console.error("[bookings] Decline email failed:", sendErr);
           else {
             const resendId = (sendData as { id?: string })?.id;
             if (resendId) {
-              const nextSent = [...prevSent, { id: resendId, type: "decline", sentAt: new Date().toISOString() }];
-              await supabase.from(BOOKINGS_TABLE).update({ sent_emails: nextSent }).eq("id", id);
+              finalPayload = { ...finalPayload, sent_emails: [...prevSent, { id: resendId, type: "decline", sentAt: new Date().toISOString() }] };
             }
           }
         }
       }
 
-      const { error } = await supabase.from(BOOKINGS_TABLE).update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await supabase.from(BOOKINGS_TABLE).update(finalPayload).eq("id", id);
       if (error) throw error;
       res.status(200).json({ ok: true });
     } catch (err) {

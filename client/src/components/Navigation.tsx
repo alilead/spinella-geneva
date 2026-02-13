@@ -63,7 +63,7 @@ export default function Navigation() {
               <Languages size={18} />
               <span className="font-semibold">{language === "en" ? "EN" : language === "fr" ? "FR" : "IT"}</span>
             </button>
-            <Link href="/booking">
+            <Link href="/reservations">
               <Button className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
                 {t("nav.bookTable")}
               </Button>
@@ -106,7 +106,7 @@ export default function Navigation() {
                 <Languages size={18} />
                 <span className="font-semibold">{language === "en" ? "FR" : language === "fr" ? "IT" : "EN"}</span>
               </button>
-              <Link href="/booking" className="mt-4">
+              <Link href="/reservations" className="mt-4">
                 <Button
                   className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold w-full min-h-[44px]"
                   onClick={() => setIsOpen(false)}
