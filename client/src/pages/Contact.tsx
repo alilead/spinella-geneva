@@ -96,20 +96,28 @@ export default function Contact() {
                         <h3 className="text-xl font-bold mb-2">{t("contact.hours")}</h3>
                         <div>
                           <h4 className="font-semibold mb-2">{t("contact.kitchenHoursTitle")}</h4>
-                          <div className="text-muted-foreground space-y-1">
-                            <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedHours")}</p>
-                            <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriHours")}</p>
-                            <p><strong>{t("contact.saturday")}:</strong> {t("contact.satHours")}</p>
-                            <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayHours")}</p>
+                          <div className="text-muted-foreground overflow-x-auto">
+                            <table className="w-full border border-border rounded-md overflow-hidden text-sm">
+                              <tbody>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.monWed")}</td><td className="p-2">{t("contact.monWedHours")}</td></tr>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.thuFri")}</td><td className="p-2">{t("contact.thuFriHours")}</td></tr>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.saturday")}</td><td className="p-2">{t("contact.satHours")}</td></tr>
+                                <tr><td className="p-2 font-medium">{t("contact.sunday")}</td><td className="p-2">{t("contact.sundayHours")}</td></tr>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                         <div>
                           <h4 className="font-semibold mb-2">{t("contact.barHoursTitle")}</h4>
-                          <div className="text-muted-foreground space-y-1">
-                            <p><strong>{t("contact.monWed")}:</strong> {t("contact.monWedBarHours")}</p>
-                            <p><strong>{t("contact.thuFri")}:</strong> {t("contact.thuFriBarHours")}</p>
-                            <p><strong>{t("contact.saturday")}:</strong> {t("contact.satBarHours")}</p>
-                            <p><strong>{t("contact.sunday")}:</strong> {t("contact.sundayBarHours")}</p>
+                          <div className="text-muted-foreground overflow-x-auto">
+                            <table className="w-full border border-border rounded-md overflow-hidden text-sm">
+                              <tbody>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.monWed")}</td><td className="p-2">{t("contact.monWedBarHours")}</td></tr>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.thuFri")}</td><td className="p-2">{t("contact.thuFriBarHours")}</td></tr>
+                                <tr className="border-b border-border"><td className="p-2 font-medium">{t("contact.saturday")}</td><td className="p-2">{t("contact.satBarHours")}</td></tr>
+                                <tr><td className="p-2 font-medium">{t("contact.sunday")}</td><td className="p-2">{t("contact.sundayBarHours")}</td></tr>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>

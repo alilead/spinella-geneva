@@ -1,4 +1,13 @@
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Instagram } from "lucide-react";
+
+/** Facebook icon with capital F */
+function FacebookIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M7 4h2v16H7V4zm0 0h10v2H7V4zm0 6h8v2H7v-2z" />
+    </svg>
+  );
+}
 
 /** TripAdvisor logo (owl) – inline SVG for footer link */
 function TripAdvisorIcon({ size = 20 }: { size?: number }) {
@@ -55,48 +64,28 @@ export default function Footer() {
               <Clock className="w-5 h-5 gold-text mr-2" />
               {t("footer.openingHours")}
             </h3>
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4 text-sm overflow-x-auto">
               <div>
                 <h4 className="font-semibold mb-2">{t("contact.kitchenHoursTitle")}</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>{t("contact.monWed")}:</span>
-                    <span className="gold-text">{t("contact.monWedHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.thuFri")}:</span>
-                    <span className="gold-text">{t("contact.thuFriHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.saturday")}:</span>
-                    <span className="gold-text">{t("contact.satHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.sunday")}:</span>
-                    <span className="gold-text">{t("contact.sundayHours")}</span>
-                  </div>
-                </div>
+                <table className="w-full border border-border rounded-md overflow-hidden">
+                  <tbody>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.monWed")}</td><td className="p-2 gold-text">{t("contact.monWedHours")}</td></tr>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.thuFri")}</td><td className="p-2 gold-text">{t("contact.thuFriHours")}</td></tr>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.saturday")}</td><td className="p-2 gold-text">{t("contact.satHours")}</td></tr>
+                    <tr><td className="p-2">{t("contact.sunday")}</td><td className="p-2 gold-text">{t("contact.sundayHours")}</td></tr>
+                  </tbody>
+                </table>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">{t("contact.barHoursTitle")}</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>{t("contact.monWed")}:</span>
-                    <span className="gold-text">{t("contact.monWedBarHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.thuFri")}:</span>
-                    <span className="gold-text">{t("contact.thuFriBarHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.saturday")}:</span>
-                    <span className="gold-text">{t("contact.satBarHours")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("contact.sunday")}:</span>
-                    <span className="gold-text">{t("contact.sundayBarHours")}</span>
-                  </div>
-                </div>
+                <table className="w-full border border-border rounded-md overflow-hidden">
+                  <tbody>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.monWed")}</td><td className="p-2 gold-text">{t("contact.monWedBarHours")}</td></tr>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.thuFri")}</td><td className="p-2 gold-text">{t("contact.thuFriBarHours")}</td></tr>
+                    <tr className="border-b border-border"><td className="p-2">{t("contact.saturday")}</td><td className="p-2 gold-text">{t("contact.satBarHours")}</td></tr>
+                    <tr><td className="p-2">{t("contact.sunday")}</td><td className="p-2 gold-text">{t("contact.sundayBarHours")}</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -124,7 +113,7 @@ export default function Footer() {
                 className="w-10 h-10 rounded-full gold-bg flex items-center justify-center text-black hover:bg-[oklch(0.52_0.15_85)] transition-colors"
                 aria-label="Facebook"
               >
-                <Facebook size={20} />
+                <FacebookIcon size={20} />
               </a>
               <a
                 href="https://www.tiktok.com/@spinellageneve"
