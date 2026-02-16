@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Users, Wine, Sparkles } from "lucide-react";
+import { Calendar, Users, Utensils, Wine } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -42,11 +42,6 @@ export default function Home() {
               <Link href="/reservations">
                 <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg px-8">
                   {t("home.bookYourTable")}
-                </Button>
-              </Link>
-              <Link href="/menu">
-                <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold text-lg px-8">
-                  {t("home.viewMenu")}
                 </Button>
               </Link>
               <Link href="/about">
@@ -94,22 +89,24 @@ export default function Home() {
               </Card>
             </Link>
 
-            <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="pt-8 text-center">
-                <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wine className="w-8 h-8 text-black" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">{t("home.authenticCuisine")}</h3>
-                <p className="text-muted-foreground">
-                  {t("home.authenticCuisineDesc")}
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/menu">
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full hover:ring-2 hover:ring-[oklch(0.62_0.15_85)] hover:ring-offset-2 hover:ring-offset-background">
+                <CardContent className="pt-8 text-center">
+                  <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Utensils className="w-8 h-8 text-black" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{t("home.authenticCuisine")}</h3>
+                  <p className="text-muted-foreground">
+                    {t("home.authenticCuisineDesc")}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
               <CardContent className="pt-8 text-center">
                 <div className="w-16 h-16 gold-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-black" />
+                  <Wine className="w-8 h-8 text-black" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{t("home.cocktailBar")}</h3>
                 <p className="text-muted-foreground">
@@ -149,11 +146,6 @@ export default function Home() {
               <Link href="/about">
                 <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
                   {t("home.ourStory")}
-                </Button>
-              </Link>
-              <Link href="/reservations">
-                <Button size="lg" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
-                  {t("home.bookYourTable")}
                 </Button>
               </Link>
             </div>

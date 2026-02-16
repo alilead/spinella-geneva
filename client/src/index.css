@@ -228,8 +228,9 @@
   border-color: oklch(0.62 0.15 85);
 }
 
+/* Golden yellow: hex so icon circles and buttons render consistently on all devices (avoids red tint on some phones) */
 .gold-bg {
-  background-color: oklch(0.62 0.15 85);
+  background-color: #d4af37;
 }
 
 .dark-bg {
