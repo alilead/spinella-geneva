@@ -44,6 +44,9 @@ export default function Menu() {
           <p className="text-lg leading-relaxed text-muted-foreground mb-8">
             {t("menu.introStory")}
           </p>
+          <p className="text-base font-medium text-foreground mb-4">
+            {t("menu.pistachioTiramisu")}
+          </p>
           <p className="text-base text-muted-foreground mb-8">
             {t("menu.fullMenuPdf")}
           </p>

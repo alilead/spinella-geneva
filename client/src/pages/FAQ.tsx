@@ -11,40 +11,18 @@ import { Link } from "wouter";
 export default function FAQ() {
   const { t } = useLanguage();
 
-  const faqs = [
-    {
-      question: t("faq.q1"),
-      answer: t("faq.a1"),
-    },
-    {
-      question: t("faq.q2"),
-      answer: t("faq.a2"),
-    },
-    {
-      question: t("faq.q3"),
-      answer: t("faq.a3"),
-    },
-    {
-      question: t("faq.q4"),
-      answer: t("faq.a4"),
-    },
-    {
-      question: t("faq.q5"),
-      answer: t("faq.a5"),
-    },
-    {
-      question: t("faq.q6"),
-      answer: t("faq.a6"),
-    },
-    {
-      question: t("faq.q7"),
-      answer: t("faq.a7"),
-    },
-    {
-      question: t("faq.q8"),
-      answer: t("faq.a8"),
-    },
+  const allFaqs = [
+    { question: t("faq.q1"), answer: t("faq.a1") },
+    { question: t("faq.q2"), answer: t("faq.a2") },
+    { question: t("faq.q3"), answer: t("faq.a3") },
+    { question: t("faq.q4"), answer: t("faq.a4") },
+    { question: t("faq.q5"), answer: t("faq.a5") },
+    { question: t("faq.q6"), answer: t("faq.a6") },
+    { question: t("faq.q7"), answer: t("faq.a7") },
+    { question: t("faq.q8"), answer: t("faq.a8") },
   ];
+  // Dress code (index 4) removed for a more welcoming image.
+  const faqs = allFaqs.filter((_, i) => i !== 4);
 
   return (
     <div className="min-h-screen pt-20">

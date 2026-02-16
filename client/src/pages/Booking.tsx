@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { getTimeSlotsForDate, isSunday, isRequestOnlySlot, isRequestOnlyPartySize } from "@/lib/blockedSlots";
+import { getTimeSlotsForDate, isSunday, isRequestOnlyPartySize } from "@/lib/blockedSlots";
 import { isDateBlocked, getBlockedDateReason } from "@/lib/blockedDates";
 
 function buildBookingSchema(t: (key: string) => string) {
@@ -263,11 +263,6 @@ export default function Booking() {
                 {selectedDate && isSunday(selectedDate) && (
                   <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-foreground">
                     <p className="text-sm font-medium">{t("booking.sundayClosed")}</p>
-                  </div>
-                )}
-                {selectedDate && selectedTime && isRequestOnlySlot(selectedDate, selectedTime) && (
-                  <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
-                    <p className="text-sm font-medium">{t("booking.valentinesNotice")}</p>
                   </div>
                 )}
                 {isLargeTable && (

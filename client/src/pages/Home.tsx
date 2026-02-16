@@ -1,65 +1,15 @@
-import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Users, Wine, Sparkles, X } from "lucide-react";
+import { Calendar, Users, Wine, Sparkles } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const VALENTINES_BANNER_KEY = "spinella-valentines-banner-dismissed";
-
 export default function Home() {
   const { t } = useLanguage();
-  const [bannerDismissed, setBannerDismissed] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(VALENTINES_BANNER_KEY) === "1") setBannerDismissed(true);
-    } catch {
-      // keep default false
-    }
-  }, []);
-
-  const dismissBanner = () => {
-    try {
-      localStorage.setItem(VALENTINES_BANNER_KEY, "1");
-      setBannerDismissed(true);
-    } catch {
-      setBannerDismissed(true);
-    }
-  };
 
   return (
     <div className="min-h-screen pt-20 md:pt-20">
-      {/* Saint-Valentin banner: sticky top, scrolling text, fixed CTA + X */}
-      {!bannerDismissed && (
-        <div className="sticky top-20 z-20 shrink-0 bg-[#1a1510] border-b border-[oklch(0.45_0.08_85)] text-foreground">
-          <div className="flex items-center w-full gap-4 py-3 pl-4 pr-2 overflow-hidden">
-            <div className="flex-1 min-w-0 overflow-hidden">
-              <div className="animate-marquee flex whitespace-nowrap gold-text font-medium text-sm md:text-base w-max">
-                <span className="pr-[100vw]">{t("home.valentinesBannerTitle")}</span>
-                <span className="pr-[100vw]">{t("home.valentinesBannerTitle")}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Link href="/events#saint-valentin">
-                <Button size="sm" className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
-                  {t("home.valentinesBannerCta")}
-                </Button>
-              </Link>
-              <button
-                type="button"
-                onClick={dismissBanner}
-                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
-                aria-label={t("home.valentinesBannerDismiss")}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Hero Section */}
       <section className="relative min-h-[100dvh] min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
         <video
