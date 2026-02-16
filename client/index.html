@@ -2,13 +2,6 @@
 <html lang="fr">
 
   <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TJRXH8T9');</script>
-    <!-- End Google Tag Manager -->
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -37,10 +30,14 @@
     <meta property="og:image" content="https://www.spinella.ch/logo.png" />
     <meta property="og:title" content="Spinella Restaurant & Bar Geneva" />
     <meta property="og:description" content="Restaurant & Bar sicilien à Genève. Cuisine authentique, cocktails et accueil familial." />
+    <!-- Preload LCP image (hero poster on mobile) for faster FCP / LCP -->
+    <link rel="preload" href="/spinella_interior.jpg" as="image" fetchpriority="high" />
     <link rel="preconnect" href="https://db.onlinewebfonts.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet" />
+    <!-- Fonts: load async so they don't block first paint -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=swap" /></noscript>
     <!-- JSON-LD: Restaurant / LocalBusiness for local SEO -->
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"Restaurant","name":"Spinella Restaurant & Bar","address":{"@type":"PostalAddress","streetAddress":"Rue Liotard 4","addressLocality":"Geneva","addressCountry":"CH"},"url":"https://www.spinella.ch","telephone":"+41 22 734 58 98","servesCuisine":"Italian, Sicilian"}
@@ -54,6 +51,12 @@
     <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- GTM at end of body so it doesn't block initial parse / FCP -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TJRXH8T9');</script>
   </body>
 
 </html>

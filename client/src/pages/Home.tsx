@@ -10,14 +10,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pt-20 md:pt-20">
-      {/* Hero Section */}
-      <section className="relative min-h-[100dvh] min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
+      {/* Hero: on mobile show poster only (fast LCP); on desktop show video with poster fallback */}
+      <section
+        className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
+        style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
+      >
+        {/* Poster image: LCP on mobile (no video load), fallback on desktop */}
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center md:hidden"
+          style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
+          aria-hidden
+        />
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full min-w-full min-h-full object-cover"
+          preload="none"
+          poster="/spinella_interior.jpg"
+          className="hidden md:block absolute inset-0 w-full h-full min-w-full min-h-full object-cover"
         >
           <source src="/hero.mp4" type="video/mp4" />
         </video>
