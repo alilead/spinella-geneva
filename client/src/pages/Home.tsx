@@ -17,14 +17,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pt-20 md:pt-20">
-      {/* Hero: poster is always LCP (mobile + desktop); video fades in when ready for autoplay */}
+      {/* Hero: mobile = poster only (fast LCP, no video); desktop = poster then video fade-in */}
       <section
         className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
         style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
       >
-        {/* Poster: visible until video can play (WebP when available for faster LCP) */}
+        {/* Poster: always on mobile; on desktop hidden when video is ready */}
         <picture
-          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${videoReady ? "opacity-0 pointer-events-none" : ""}`}
+          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${videoReady ? "md:opacity-0 md:pointer-events-none" : ""}`}
           aria-hidden
         >
           <source srcSet={HERO_POSTER_WEBP} type="image/webp" />
@@ -36,6 +36,7 @@ export default function Home() {
             fetchPriority="high"
           />
         </picture>
+        {/* Video only on desktop to avoid 8MB+ load on mobile (hurts LCP/TBT) */}
         <video
           autoPlay
           muted
@@ -44,7 +45,7 @@ export default function Home() {
           preload="none"
           poster={HERO_POSTER}
           onCanPlay={onCanPlay}
-          className="absolute inset-0 w-full h-full min-w-full min-h-full object-cover transition-opacity duration-500"
+          className="hidden md:block absolute inset-0 w-full h-full min-w-full min-h-full object-cover transition-opacity duration-500"
           style={{ opacity: videoReady ? 1 : 0 }}
         >
           <source src="/hero.mp4" type="video/mp4" />
