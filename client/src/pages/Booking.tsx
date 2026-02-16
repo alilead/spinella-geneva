@@ -84,10 +84,6 @@ export default function Booking() {
   const selectedDate = watch("date");
   const selectedTime = watch("time");
 
-  useEffect(() => {
-    if (selectedDate && isSunday(selectedDate)) setValue("time", "");
-  }, [selectedDate, setValue]);
-
   const onSubmit = async (data: BookingForm) => {
     setLastFailedData(null);
     setIsSubmitting(true);
@@ -132,13 +128,18 @@ export default function Booking() {
     return getTimeSlotsForDate(selectedDate);
   }, [selectedDate]);
 
-  // When date changes, clear time if it's no longer in the available slots (e.g. switch to Saturday = evening only).
-  // Prevents Radix Select removeChild error when the selected value disappears from the list.
+  // Clear time whenever date changes so form state never has a time from another day's slots.
+  // Prevents Radix Select removeChild (selected value not in list) and wrong submission.
   useEffect(() => {
-    if (selectedTime && timeSlots.length > 0 && !timeSlots.includes(selectedTime)) {
-      setValue("time", "");
-    }
-  }, [selectedDate, selectedTime, timeSlots, setValue]);
+    if (selectedDate) setValue("time", "");
+  }, [selectedDate, setValue]);
+
+  // Only pass a value that exists in the current timeSlots. Prevents Radix removeChild when
+  // the list updates before our effect runs (one render with value not in list = crash).
+  const safeTimeValue =
+    selectedTime && timeSlots.length > 0 && timeSlots.includes(selectedTime)
+      ? selectedTime
+      : undefined;
 
   const partySizes = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
   const partySizeRaw = watch("partySize");
@@ -299,7 +300,8 @@ export default function Booking() {
                       {t("booking.time")} *
                     </Label>
                     <Select
-                      value={selectedTime || undefined}
+                      key={`time-${selectedDate ?? ""}`}
+                      value={safeTimeValue}
                       onValueChange={(value) => setValue("time", value)}
                     >
                       <SelectTrigger className="mt-1">
