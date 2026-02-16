@@ -7,7 +7,6 @@ import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const HERO_POSTER = "/spinella_interior.jpg";
-const HERO_POSTER_WEBP = "/spinella_interior.webp";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -22,20 +21,12 @@ export default function Home() {
         className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
         style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
       >
-        {/* Poster: visible until video can play (WebP when available for faster LCP) */}
-        <picture
-          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${videoReady ? "opacity-0 pointer-events-none" : ""}`}
+        {/* Poster: visible until video can play */}
+        <div
+          className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-500 ${videoReady ? "opacity-0 pointer-events-none" : ""}`}
+          style={{ backgroundImage: `url(${HERO_POSTER})` }}
           aria-hidden
-        >
-          <source srcSet={HERO_POSTER_WEBP} type="image/webp" />
-          <img
-            src={HERO_POSTER}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            decoding="async"
-            fetchPriority="high"
-          />
-        </picture>
+        />
         <video
           autoPlay
           muted
@@ -178,18 +169,15 @@ export default function Home() {
               </Link>
             </div>
             <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
-              <picture>
-                <source srcSet="/interior_brothers.webp" type="image/webp" />
-                <img
-                  src="/interior_brothers.jpg"
-                  alt="The three Spinella brothers"
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </picture>
+              <img
+                src="/interior_brothers.jpg"
+                alt="The three Spinella brothers"
+                width={800}
+                height={600}
+                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
         </div>
@@ -203,18 +191,15 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
-              <picture>
-                <source srcSet="/spinella_exterior.webp" type="image/webp" />
-                <img
-                  src="/spinella_exterior.jpg"
-                  alt="Spinella exterior"
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </picture>
+              <img
+                src="/spinella_exterior.jpg"
+                alt="Spinella exterior"
+                width={800}
+                height={600}
+                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div className="order-1 lg:order-2">
               <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("home.visitTitle")}</h2>

@@ -31,16 +31,13 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
-              <picture className="flex shrink-0">
-                <source srcSet="/logo-96.webp" type="image/webp" />
-                <img
-                  src="/logo.png"
-                  alt="Spinella"
-                  width={120}
-                  height={48}
-                  className="h-10 w-auto md:h-12"
-                />
-              </picture>
+              <img
+                src="/logo.png"
+                alt="Spinella"
+                width={120}
+                height={48}
+                className="h-10 w-auto md:h-12"
+              />
               <span className="brand-font text-xl font-bold gold-text hidden sm:inline">SPINELLA</span>
             </div>
           </Link>
