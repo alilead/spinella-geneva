@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import SeoHead from "./components/SeoHead";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Gallery from "./pages/Gallery";
@@ -29,6 +30,7 @@ function RedirectToReservations() {
 function Router() {
   return (
     <div className="min-h-screen overflow-x-hidden">
+      <SeoHead />
       <Navigation />
       <Switch>
         <Route path="/" component={Home} />
