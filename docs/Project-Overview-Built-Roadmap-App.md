@@ -159,21 +159,22 @@
 | **Takeaway** | FAQ updated (drinks at bar). | Dedicated takeaway orders + handheld + delivery/collection. |
 | **Cooking lessons** | Not started. | Define format (on-site / digital / both), pricing, booking; then add section + back office. |
 | **App** | PWA (admin installable); responsive; push-ready. | Installable PWA for customers; push; then store wrappers (TWA/Capacitor) if needed. |
-| **Performance** | Hero: mobile = poster only (no video), desktop = video with poster + preload=none; GTM deferred to end of body; fonts load async; LCP image preloaded. | Re-test PageSpeed; consider critical CSS inline or further font tuning if CLS remains. |
+| **Performance** | Hero: mobile = poster only; desktop = poster as LCP, video fades in on canplay; GTM deferred until after load; fonts async; LCP preload; explicit width/height on all images (CLS). | Re-test PageSpeed; optional: route-level code splitting, further image optimisation. |
 
 ---
 
 ## 7. Performance improvements (Feb 2025)
 
-To improve PageSpeed (mobile was ~55, desktop ~69; FCP/LCP in red):
+To improve PageSpeed (mobile was ~55, desktop ~69–81; FCP/LCP/CLS/TBT in focus):
 
-- **Hero:** On **mobile**, the hero shows a static poster image only (no video download), so LCP is the preloaded image. On **desktop**, the video has `poster` and `preload="none"` so it doesn’t block; the poster shows until the video is ready.
-- **GTM:** Moved from `<head>` to the **end of `<body>`** so it doesn’t block initial parse and first paint.
-- **Fonts:** Google Fonts stylesheet loads with `media="print"` and `onload="this.media='all'"` so it is **non-blocking**; first paint is no longer delayed by the font request.
-- **LCP preload:** Added `<link rel="preload" href="/spinella_interior.jpg" as="image" fetchpriority="high">` so the hero poster is requested early.
-- **Hero layout:** Section has explicit `min-height` and `aspect-ratio` to reduce layout shift (CLS).
+- **Hero:** On **mobile**, the hero shows a static poster image only (no video download), so LCP is the preloaded image. On **desktop**, so it doesn’t block; the poster shows until the video is ready.
+- **GTM:** Loaded **after `window.load`** (with a short timeout) so it doesn’t block initial parse and first paint.
+- **Fonts:** Google Fonts stylesheet loads with `media="print"` and `onload="this.media='all'"` so it is **non-blocking**.
+- **LCP preload:** `<link rel="preload" href="/spinella_interior.jpg" as="image" fetchpriority="high">` so the hero poster is requested early.
+- **Hero layout:** Section has explicit `min-height` and `aspect-ratio` to reduce layout shift.
+- **CLS:** All `<img>` elements have explicit **width** and **height** (or sit in aspect-ratio containers): Home (interior_brothers, spinella_exterior), About (interior_main), Gallery (grid thumbs), Navigation (logo), ManusDialog (logo). This reserves space and reduces Cumulative Layout Shift.
 
-Re-run PageSpeed Insights after deploy to confirm gains. If you add a dedicated `hero-poster.jpg` (e.g. first frame of the video), use it for the poster and preload for even better consistency.
+Re-run PageSpeed Insights (mobile and desktop) after deploy. Optional next steps: route-level code splitting (e.g. `React.lazy` for non-home routes), further image optimisation (format/sizes), or critical CSS inline.
 
 ---
 

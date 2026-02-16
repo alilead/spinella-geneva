@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,20 +6,25 @@ import { Calendar, Users, Utensils, Wine } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const HERO_POSTER = "/spinella_interior.jpg";
+
 export default function Home() {
   const { t } = useLanguage();
+  const [videoReady, setVideoReady] = useState(false);
+
+  const onCanPlay = useCallback(() => setVideoReady(true), []);
 
   return (
     <div className="min-h-screen pt-20 md:pt-20">
-      {/* Hero: on mobile show poster only (fast LCP); on desktop show video with poster fallback */}
+      {/* Hero: poster is always LCP (mobile + desktop); video fades in when ready for autoplay */}
       <section
         className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
         style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
       >
-        {/* Poster image: LCP on mobile (no video load), fallback on desktop */}
+        {/* Poster: visible until video can play (keeps LCP = image, then video autoplays) */}
         <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center md:hidden"
-          style={{ backgroundImage: "url(/spinella_interior.jpg)" }}
+          className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-500 ${videoReady ? "opacity-0 pointer-events-none" : ""}`}
+          style={{ backgroundImage: `url(${HERO_POSTER})` }}
           aria-hidden
         />
         <video
@@ -27,8 +33,10 @@ export default function Home() {
           loop
           playsInline
           preload="none"
-          poster="/spinella_interior.jpg"
-          className="hidden md:block absolute inset-0 w-full h-full min-w-full min-h-full object-cover"
+          poster={HERO_POSTER}
+          onCanPlay={onCanPlay}
+          className="absolute inset-0 w-full h-full min-w-full min-h-full object-cover transition-opacity duration-500"
+          style={{ opacity: videoReady ? 1 : 0 }}
         >
           <source src="/hero.mp4" type="video/mp4" />
         </video>
@@ -36,7 +44,7 @@ export default function Home() {
         
         <div className="relative z-10 container text-center text-foreground">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 min-h-[3.5rem] md:min-h-[4.5rem] lg:min-h-[5rem]">
               {t("home.welcome")} <span className="brand-font gold-text">Spinella</span>
             </h1>
             <p className="text-lg md:text-xl mb-4 font-light max-w-2xl mx-auto">
@@ -160,10 +168,12 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
+            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
               <img
                 src="/interior_brothers.jpg"
                 alt="The three Spinella brothers"
+                width={800}
+                height={600}
                 className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
                 loading="lazy"
                 decoding="async"
@@ -180,10 +190,12 @@ export default function Home() {
       <section className="section-spacing cream-bg">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
+            <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
               <img
                 src="/spinella_exterior.jpg"
                 alt="Spinella exterior"
+                width={800}
+                height={600}
                 className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
                 loading="lazy"
                 decoding="async"

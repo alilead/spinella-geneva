@@ -34,6 +34,8 @@ export default function Navigation() {
               <img
                 src="/logo.png"
                 alt="Spinella"
+                width={120}
+                height={48}
                 className="h-10 w-auto md:h-12"
               />
               <span className="brand-font text-xl font-bold gold-text hidden sm:inline">SPINELLA</span>

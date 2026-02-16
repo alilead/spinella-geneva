@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+      content="width=device-width, initial-scale=1.0, maximum-scale=5" />
     <title>Spinella Restaurant & Bar Geneva</title>
     <meta name="description" content="Spinella – Restaurant & Bar sicilien à Genève. Cuisine authentique, cocktails et accueil familial. Réservez votre table." />
     <link rel="canonical" href="https://www.spinella.ch/" />
@@ -36,7 +36,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Fonts: load async so they don't block first paint -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=swap" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=optional" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&display=swap" /></noscript>
     <!-- JSON-LD: Restaurant / LocalBusiness for local SEO -->
     <script type="application/ld+json">
@@ -51,12 +51,16 @@
     <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- GTM at end of body so it doesn't block initial parse / FCP -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TJRXH8T9');</script>
+    <!-- GTM deferred until after load to reduce TBT during initial interaction -->
+    <script>
+    function loadGTM(){var w=window,d=document,s='script',l='dataLayer',i='GTM-TJRXH8T9';
+    w[l]=w[l]||[];w[l].push({'gtm.start':+new Date(),event:'gtm.js'});
+    var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;
+    j.src='https://www.googletagmanager.com/gtm.js?id='+i+'&l='+l;f.parentNode.insertBefore(j,f);
+    }
+    if(document.readyState==='complete')setTimeout(loadGTM,1);
+    else window.addEventListener('load',function(){setTimeout(loadGTM,1);});
+    </script>
   </body>
 
 </html>

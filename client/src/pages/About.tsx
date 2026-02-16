@@ -147,10 +147,12 @@ export default function About() {
                 {t("about.experienceDesc3")}
               </p>
             </div>
-            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg">
+            <div className="relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
               <img
                 src="/interior_main.jpg"
                 alt="Spinella interior ambiance"
+                width={800}
+                height={600}
                 className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
                 loading="lazy"
                 decoding="async"
