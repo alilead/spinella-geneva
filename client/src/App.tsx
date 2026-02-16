@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -10,14 +9,17 @@ import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import SeoHead from "./components/SeoHead";
 import Home from "./pages/Home";
-import Menu from "./pages/Menu";
-import Gallery from "./pages/Gallery";
-import About from "./pages/About";
-import Events from "./pages/Events";
-import FAQ from "./pages/FAQ";
-import Contact from "./pages/Contact";
-import Booking from "./pages/Booking";
-import Admin from "./pages/Admin";
+
+// Lazy-load non-home routes to reduce initial JS and TBT (code splitting)
+const Menu = lazy(() => import("./pages/Menu"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const About = lazy(() => import("./pages/About"));
+const Events = lazy(() => import("./pages/Events"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Booking = lazy(() => import("./pages/Booking"));
+const Admin = lazy(() => import("./pages/Admin"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RedirectToReservations() {
   const [, setLocation] = useLocation();
@@ -32,21 +34,23 @@ function Router() {
     <div className="min-h-screen overflow-x-hidden">
       <SeoHead />
       <Navigation />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/menu" component={Menu} />
-        <Route path="/gallery" component={Gallery} />
-        <Route path="/about" component={About} />
-        <Route path="/events" component={Events} />
-        <Route path="/faq" component={FAQ} />
-        <Route path="/contact" component={Contact} />
-        <Route path="/booking" component={RedirectToReservations} />
-        <Route path="/reservations" component={Booking} />
-        <Route path="/admin" component={Admin} />
-        <Route path="/admin/" component={Admin} />
-        <Route path="/404" component={NotFound} />
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/menu" component={Menu} />
+          <Route path="/gallery" component={Gallery} />
+          <Route path="/about" component={About} />
+          <Route path="/events" component={Events} />
+          <Route path="/faq" component={FAQ} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/booking" component={RedirectToReservations} />
+          <Route path="/reservations" component={Booking} />
+          <Route path="/admin" component={Admin} />
+          <Route path="/admin/" component={Admin} />
+          <Route path="/404" component={NotFound} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
       <Footer />
     </div>
   );

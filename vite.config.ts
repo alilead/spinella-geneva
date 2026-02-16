@@ -3,7 +3,9 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
+const require = createRequire(import.meta.url);
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
 // =============================================================================
@@ -150,7 +152,84 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Inline critical CSS so above-the-fold content has styles without waiting for the full stylesheet.
+ * Runs first in closeBundle (before defer-stylesheet). Uses critters; path = outDir so /assets/*.css resolve.
+ */
+function vitePluginCriticalCSS(): Plugin {
+  let resolvedOutDir: string | undefined;
+  return {
+    name: "critical-css",
+    enforce: "post",
+    configResolved(config) {
+      resolvedOutDir = config.build?.outDir;
+    },
+    async closeBundle() {
+      const outDir = resolvedOutDir;
+      if (!outDir || typeof outDir !== "string") return;
+      const indexPath = path.join(outDir, "index.html");
+      if (!fs.existsSync(indexPath)) return;
+      let Critters: (opts: { path: string; preload: string; pruneSource: boolean; compress: boolean; logLevel: string }) => { process: (html: string) => Promise<string> };
+      try {
+        Critters = require("critters");
+      } catch {
+        return; // critters optional: run "pnpm add -D critters" to enable
+      }
+      const html = fs.readFileSync(indexPath, "utf-8");
+      const critters = new Critters({
+        path: outDir,
+        preload: "swap",
+        pruneSource: true,
+        compress: true,
+        logLevel: "warn",
+      });
+      const result = await critters.process(html);
+      if (result) fs.writeFileSync(indexPath, result, "utf-8");
+    },
+  };
+}
+
+/**
+ * Make main app stylesheet non-render-blocking to improve LCP/FCP on mobile.
+ * Runs after build: rewrites the emitted index.html so the CSS link uses
+ * media="print" onload="this.media='all'" and adds a noscript fallback.
+ */
+function vitePluginDeferStylesheet(): Plugin {
+  let resolvedOutDir: string | undefined;
+  return {
+    name: "defer-stylesheet",
+    enforce: "post",
+    configResolved(config) {
+      resolvedOutDir = config.build?.outDir;
+    },
+    closeBundle() {
+      const outDir = resolvedOutDir;
+      if (!outDir || typeof outDir !== "string") return;
+      const indexPath = path.join(outDir, "index.html");
+      if (!fs.existsSync(indexPath)) return;
+      let html = fs.readFileSync(indexPath, "utf-8");
+      // Match Vite-injected stylesheet: <link rel="stylesheet" ... href="/assets/...">
+      const linkRegex = /<link rel="stylesheet"([^>]*?)href="(\/assets\/[^"]+\.css)"([^>]*)>/g;
+      const newHtml = html.replace(linkRegex, (_match, before, href, after) => {
+        return `<link rel="stylesheet"${before}href="${href}"${after} media="print" onload="this.media='all'">` +
+          `<noscript><link rel="stylesheet" href="${href}"></noscript>`;
+      });
+      if (newHtml !== html) {
+        fs.writeFileSync(indexPath, newHtml, "utf-8");
+      }
+    },
+  };
+}
+
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  vitePluginCriticalCSS(),
+  vitePluginDeferStylesheet(),
+];
 
 export default defineConfig({
   plugins,
