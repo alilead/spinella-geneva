@@ -228,7 +228,7 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   vitePluginCriticalCSS(),
-  // Defer-stylesheet removed: blocking CSS gives faster styled LCP on mobile (score was regressing)
+  vitePluginDeferStylesheet(),
 ];
 
 export default defineConfig({

@@ -159,7 +159,7 @@
 | **Takeaway** | FAQ updated (drinks at bar). | Dedicated takeaway orders + handheld + delivery/collection. |
 | **Cooking lessons** | Not started. | Define format (on-site / digital / both), pricing, booking; then add section + back office. |
 | **App** | PWA (admin installable); responsive; push-ready. | Installable PWA for customers; push; then store wrappers (TWA/Capacitor) if needed. |
-| **Performance** | Hero: mobile = poster only (no video); desktop = poster then video fade-in. GTM after load; fonts async; main CSS blocking for styled LCP; LCP preload; WebP + picture; explicit dimensions (CLS); code splitting (React.lazy); optional critical CSS (critters). Run `pnpm run generate-images` for WebP. | Re-test PageSpeed after deploy. |
+| **Performance** | Hero poster + video fade-in; GTM after load; fonts async; main CSS deferred; LCP preload; WebP + picture; explicit dimensions (CLS); route-level code splitting (React.lazy); optional critical CSS (run `pnpm add -D critters` to enable). Run `pnpm run generate-images` for WebP. | Re-test PageSpeed after deploy. |
 
 ---
 
@@ -173,7 +173,7 @@ To improve PageSpeed (mobile was ~55, desktop ~69–81; FCP/LCP/CLS/TBT in focus
 - **LCP preload:** `<link rel="preload" href="/spinella_interior.jpg" as="image" fetchpriority="high">` so the hero poster is requested early.
 - **Hero layout:** Section has explicit `min-height` and `aspect-ratio` to reduce layout shift.
 - **CLS:** All `<img>` elements have explicit **width** and **height** (or sit in aspect-ratio containers): Home (interior_brothers, spinella_exterior), About (interior_main), Gallery (grid thumbs), Navigation (logo), ManusDialog (logo). This reserves space and reduces Cumulative Layout Shift.
-- **Mobile – render-blocking:** Main app stylesheet loads normally (blocking) so first paint is styled and LCP is stable; defer was reverted after mobile score regressed.
+- **Mobile – render-blocking:** Main app stylesheet is loaded with `media="print"` and `onload="this.media='all'"` (Vite plugin `defer-stylesheet` runs after build) so it no longer blocks initial render (~330 ms savings).
 - **Mobile – image delivery:** Hero poster, logo, interior_brothers and spinella_exterior use `<picture>` with WebP when available. Run `pnpm run generate-images` (requires `sharp` as devDependency) to generate `/spinella_interior.webp`, `/interior_brothers.webp`, `/spinella_exterior.webp`, `/logo-96.webp`, `/logo.webp` for smaller payloads and faster LCP.
 
 - **Code splitting:** Non-home routes (Menu, Gallery, About, Events, FAQ, Contact, Booking, Admin, NotFound) are loaded with `React.lazy` and wrapped in `Suspense`; only the Home page is in the initial bundle to improve FCP/LCP and TBT.
