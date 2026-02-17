@@ -1,15 +1,12 @@
 /**
- * Store push notification subscriptions
- * In a production app, you'd store these in a database
- * For now, we'll keep them in memory (will be lost on server restart)
+ * Store push notification subscriptions in Supabase
+ * so they persist across serverless invocations and can be used when a new booking is created.
  */
 
 import { verifySupabaseToken, isAllowedAdmin } from "../_lib/supabaseAuth.js";
+import { getSupabase, PUSH_SUBSCRIPTIONS_TABLE } from "../_lib/supabase.js";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
-
-// In-memory storage (replace with database in production)
-const subscriptions = new Map<string, PushSubscription>();
 
 function getAuthToken(req: { headers?: { authorization?: string } }): string {
   const auth = req.headers?.authorization;
@@ -49,20 +46,29 @@ export default async function handler(
   }
 
   const subscription = body as PushSubscription;
-  
+
   if (!subscription || !subscription.endpoint) {
     res.status(400).json({ error: "Invalid subscription" });
     return;
   }
 
-  // Store subscription (use endpoint as key)
-  subscriptions.set(subscription.endpoint, subscription);
-  
-  console.log(`[Push] Stored subscription for ${subscription.endpoint.substring(0, 50)}...`);
-  console.log(`[Push] Total subscriptions: ${subscriptions.size}`);
-
-  res.status(200).json({ success: true, message: "Subscription stored" });
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from(PUSH_SUBSCRIPTIONS_TABLE)
+      .upsert(
+        { endpoint: subscription.endpoint, subscription: subscription as unknown as object },
+        { onConflict: "endpoint" }
+      );
+    if (error) {
+      console.error("[Push] Failed to store subscription:", error);
+      res.status(500).json({ error: "Failed to store subscription" });
+      return;
+    }
+    console.log("[Push] Stored subscription for", subscription.endpoint.substring(0, 50) + "...");
+    res.status(200).json({ success: true, message: "Subscription stored" });
+  } catch (e) {
+    console.error("[Push] Error storing subscription:", e);
+    res.status(500).json({ error: "Failed to store subscription" });
+  }
 }
-
-// Export for use by send endpoint
-export { subscriptions };

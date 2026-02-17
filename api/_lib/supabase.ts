@@ -15,6 +15,8 @@ export function getSupabase(): SupabaseClient {
 
 export const BOOKINGS_TABLE = "bookings";
 export const CLIENTS_TABLE = "clients";
+/** Table for push notification subscriptions (admin PWA/desktop). Create in Supabase: push_subscriptions (endpoint text primary key, subscription jsonb not null, created_at timestamptz default now()). */
+export const PUSH_SUBSCRIPTIONS_TABLE = "push_subscriptions";
 
 export type ClientRow = {
   id: string;

@@ -1,11 +1,10 @@
 /**
- * Send push notifications to subscribed clients
- * Admin only - can be called from server when new bookings arrive
+ * Send push notifications to subscribed clients (admin only).
+ * Subscriptions are stored in Supabase; also sent automatically when a new booking is created (api/booking.ts).
  */
 
-import webpush from "web-push";
 import { verifySupabaseToken, isAllowedAdmin } from "../_lib/supabaseAuth.js";
-import { subscriptions } from "./subscribe.js";
+import { sendPushToAllSubscriptions, getSubscriptions } from "../_lib/pushSend.js";
 
 type Res = { status: (code: number) => { json: (body: object) => void }; setHeader?: (name: string, value: string) => void };
 
@@ -30,7 +29,6 @@ export default async function handler(
     return;
   }
 
-  // Require authentication
   const token = getAuthToken(req);
   const user = await verifySupabaseToken(token);
   if (!isAllowedAdmin(user)) {
@@ -38,20 +36,10 @@ export default async function handler(
     return;
   }
 
-  const publicKey = process.env.VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-
-  if (!publicKey || !privateKey) {
+  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
     res.status(503).json({ error: "Push notifications not configured" });
     return;
   }
-
-  // Set VAPID details
-  webpush.setVapidDetails(
-    'mailto:info@spinella.ch',
-    publicKey,
-    privateKey
-  );
 
   let body: unknown;
   try {
@@ -61,56 +49,20 @@ export default async function handler(
     return;
   }
 
-  const payload = body as {
-    title?: string;
-    body?: string;
-    icon?: string;
-    url?: string;
-    tag?: string;
-  };
-
-  const notificationPayload = JSON.stringify({
-    title: payload.title || 'Spinella Restaurant',
-    body: payload.body || 'Nouvelle notification',
-    icon: payload.icon || '/icon-192.png',
-    badge: '/icon-192.png',
-    url: payload.url || '/',
-    tag: payload.tag || 'spinella-notification',
+  const payload = body as { title?: string; body?: string; icon?: string; url?: string; tag?: string };
+  const list = await getSubscriptions();
+  const { sent, failed } = await sendPushToAllSubscriptions({
+    title: payload.title,
+    body: payload.body,
+    icon: payload.icon,
+    url: payload.url,
+    tag: payload.tag,
   });
-
-  let sent = 0;
-  let failed = 0;
-  const errors: string[] = [];
-
-  // Send to all subscribed clients
-  for (const [endpoint, subscription] of subscriptions.entries()) {
-    try {
-      await webpush.sendNotification(subscription, notificationPayload);
-      sent++;
-    } catch (error) {
-      failed++;
-      console.error(`[Push] Failed to send to ${endpoint.substring(0, 50)}:`, error);
-      
-      // Remove invalid subscriptions
-      if (error && typeof error === 'object' && 'statusCode' in error) {
-        const statusCode = (error as { statusCode: number }).statusCode;
-        if (statusCode === 404 || statusCode === 410) {
-          subscriptions.delete(endpoint);
-          console.log(`[Push] Removed invalid subscription: ${endpoint.substring(0, 50)}`);
-        }
-      }
-      
-      errors.push(`${endpoint.substring(0, 30)}: ${error}`);
-    }
-  }
-
-  console.log(`[Push] Sent ${sent} notifications, ${failed} failed`);
 
   res.status(200).json({
     success: true,
     sent,
     failed,
-    total: subscriptions.size,
-    errors: errors.length > 0 ? errors : undefined,
+    total: list.length,
   });
 }

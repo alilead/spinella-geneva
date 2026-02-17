@@ -130,10 +130,11 @@
 
 - **PWA:** Manifest + service worker; installable from browser (e.g. “Add to Home Screen”). Best experience today: **admin** (manifest points to `/admin`).
 - **Responsive:** All public and admin pages work on mobile and desktop.
-- **Push / notifications:**  
-  - **When admin is open (PWA or desktop browser):** On login, the admin subscribes to push (if VAPID keys are set) and polls bookings; when new reservations are detected, a **local notification** is shown via the service worker (`sendLocalNotification`). Works on desktop and mobile PWA.  
-  - **When admin is closed:** True push (e.g. “new booking” while app is closed) requires the backend to call `POST /api/push/send` when a booking is created and `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` to be set in env. Subscription is stored via `POST /api/push/subscribe`.  
-  - **How to verify:** (1) Install the PWA or open admin in a browser that supports notifications. (2) Allow notifications when prompted (or in site settings). (3) With admin open, create a test booking from another device/tab; the admin tab should show a notification. (4) For push when closed, ensure env has VAPID keys and that the booking creation flow calls the push/send API.
+- **Push / notifications (admin new reservation):**  
+  - **When admin is open (PWA or desktop):** On login, the admin subscribes to push and polls bookings; when new reservations are detected, a **local notification** is shown via the service worker.  
+  - **When admin is closed:** **Server push is wired:** when a guest submits a reservation (`api/booking.ts`), the server calls `sendPushToAllSubscriptions()` so all subscribed admin clients (PWA or desktop browser) receive a push notification. Subscriptions are stored in Supabase table `push_subscriptions` (see `docs/supabase-push-subscriptions-table.sql`).  
+  - **Setup:** (1) Run the SQL in `docs/supabase-push-subscriptions-table.sql` in Supabase to create the table. (2) Set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` in your deployment env (e.g. generate with `npx web-push generate-vapid-keys`). (3) Admin: log in once and allow notifications so the subscription is stored; then new reservations will trigger push even when the admin app is closed.  
+  - **How to verify:** Install the PWA or use admin in a browser → allow notifications → create a test booking from another device; you should get a notification. With admin closed, same test should deliver a push.
 
 ### 5.2 Paths to “full app”
 
@@ -158,7 +159,7 @@
 | Area | Status | Next |
 |------|--------|------|
 | **Website (public)** | Built: Home, Menu, Gallery, Events, About, FAQ, Contact, Reservations; SEO; 3 languages. | Content/PDF tweaks; new features (gift cards, group menus, takeaway orders, Work with Spinella, reservations improvements). |
-| **Admin** | Built: dashboard, bookings CRUD, clients, calendar, emails. | Notifications on new booking; optional message field to customer. |
+| **Admin** | Built: dashboard, bookings CRUD, clients, calendar, emails; push notifications for new reservations (PWA + desktop). | Optional message field to customer. |
 | **Takeaway** | FAQ updated (drinks at bar). | Dedicated takeaway orders + handheld + delivery/collection. |
 | **Cooking lessons** | Not started. | Define format (on-site / digital / both), pricing, booking; then add section + back office. |
 | **App** | PWA (admin installable); responsive; push-ready. | Installable PWA for customers; push; then store wrappers (TWA/Capacitor) if needed. |

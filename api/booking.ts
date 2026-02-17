@@ -3,6 +3,7 @@ import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./_lib/supabase.js";
 import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml, valentinesRequestReceivedEmailHtml } from "./_lib/valentinesEmail.js";
 import { confirmedEmailHtml } from "./_lib/confirmedEmail.js";
 import { isDateBlocked, getBlockedDateReason } from "./_lib/blockedDates.js";
+import { sendPushToAllSubscriptions } from "./_lib/pushSend.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
@@ -227,6 +228,14 @@ export default async function handler(
       });
       if (err2) console.error("[booking] Restaurant email failed:", err2);
     }
+
+    // Notify admin PWA/desktop via push (works when admin app is closed)
+    sendPushToAllSubscriptions({
+      title: "Spinella",
+      body: `Nouvelle réservation : ${name} – ${date} ${time}`,
+      url: "/admin",
+      tag: "spinella-new-booking",
+    }).catch((err) => console.error("[booking] Push notification failed:", err));
 
     res.status(200).json({ success: true, confirmed: !requestOnly });
   } catch (err) {
