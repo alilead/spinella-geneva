@@ -130,7 +130,10 @@
 
 - **PWA:** Manifest + service worker; installable from browser (e.g. “Add to Home Screen”). Best experience today: **admin** (manifest points to `/admin`).
 - **Responsive:** All public and admin pages work on mobile and desktop.
-- **Push:** Infrastructure for notifications is in place (e.g. for future “new booking” alerts).
+- **Push / notifications:**  
+  - **When admin is open (PWA or desktop browser):** On login, the admin subscribes to push (if VAPID keys are set) and polls bookings; when new reservations are detected, a **local notification** is shown via the service worker (`sendLocalNotification`). Works on desktop and mobile PWA.  
+  - **When admin is closed:** True push (e.g. “new booking” while app is closed) requires the backend to call `POST /api/push/send` when a booking is created and `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` to be set in env. Subscription is stored via `POST /api/push/subscribe`.  
+  - **How to verify:** (1) Install the PWA or open admin in a browser that supports notifications. (2) Allow notifications when prompted (or in site settings). (3) With admin open, create a test booking from another device/tab; the admin tab should show a notification. (4) For push when closed, ensure env has VAPID keys and that the booking creation flow calls the push/send API.
 
 ### 5.2 Paths to “full app”
 

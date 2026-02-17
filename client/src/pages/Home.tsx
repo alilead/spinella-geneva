@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,40 +5,23 @@ import { Calendar, Users, Utensils, Wine } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const HERO_POSTER = "/spinella_interior.jpg";
+const HERO_IMAGE = "/spinella_interior.jpg";
 
 export default function Home() {
   const { t } = useLanguage();
-  const [videoReady, setVideoReady] = useState(false);
-
-  const onCanPlay = useCallback(() => setVideoReady(true), []);
 
   return (
     <div className="min-h-screen pt-20 md:pt-20">
-      {/* Hero: poster is always LCP (mobile + desktop); video fades in when ready for autoplay */}
+      {/* Hero: static photo (no video) for faster load and simpler UX */}
       <section
         className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
         style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
       >
-        {/* Poster: visible until video can play */}
         <div
-          className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-500 ${videoReady ? "opacity-0 pointer-events-none" : ""}`}
-          style={{ backgroundImage: `url(${HERO_POSTER})` }}
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
           aria-hidden
         />
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          poster={HERO_POSTER}
-          onCanPlay={onCanPlay}
-          className="absolute inset-0 w-full h-full min-w-full min-h-full object-cover transition-opacity duration-500"
-          style={{ opacity: videoReady ? 1 : 0 }}
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-        </video>
         <div className="hero-overlay absolute inset-0" />
         
         <div className="relative z-10 container text-center text-foreground">
