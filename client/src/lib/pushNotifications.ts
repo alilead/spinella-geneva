@@ -8,6 +8,10 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
     console.warn('[Notifications] ❌ Not supported in this browser');
     return 'denied';
   }
+  if (!window.isSecureContext) {
+    console.warn('[Notifications] ❌ Requires HTTPS or localhost');
+    return 'denied';
+  }
 
   console.log('[Notifications] Current permission:', Notification.permission);
 
@@ -52,24 +56,28 @@ export async function sendLocalNotification(options: NotificationOptions): Promi
     return;
   }
 
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    // Use service worker to show notification (better for PWA)
-    console.log('[Notifications] Using service worker to show notification');
-    const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification(options.title, {
-      body: options.body,
-      icon: options.icon || '/icon-192.png',
-      badge: options.badge || '/icon-192.png',
-      tag: options.tag || 'spinella-notification',
-      requireInteraction: options.requireInteraction || false,
-      data: options.data,
-      vibrate: options.vibrate || [200, 100, 200],
-      actions: options.actions,
-    });
-    console.log('[Notifications] ✅ Notification sent via service worker');
-  } else {
-    // Fallback to regular notification
-    console.log('[Notifications] Service worker not ready, using regular notification');
+  // Prefer service worker when available (PWA and desktop both register SW)
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.showNotification(options.title, {
+        body: options.body,
+        icon: options.icon || '/icon-192.png',
+        badge: options.badge || '/icon-192.png',
+        tag: options.tag || 'spinella-notification',
+        requireInteraction: options.requireInteraction || false,
+        data: options.data,
+        vibrate: options.vibrate || [200, 100, 200],
+        actions: options.actions,
+      });
+      console.log('[Notifications] ✅ Notification sent via service worker');
+      return;
+    } catch (e) {
+      console.warn('[Notifications] SW showNotification failed, falling back:', e);
+    }
+  }
+  // Fallback when SW not available or showNotification failed (e.g. insecure context)
+  if ('Notification' in window) {
     new Notification(options.title, {
       body: options.body,
       icon: options.icon || '/icon-192.png',

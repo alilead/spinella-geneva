@@ -265,6 +265,20 @@
   }
 }
 
+/* Home hero: on mobile use a focal point that keeps people/subjects visible (less crop) */
+.hero-home-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 767px) {
+  .hero-home-bg {
+    /* Focal point: slightly left (38%) so right side of image stays visible; 50% vertical to avoid cutting subjects at top/bottom */
+    background-position: 38% 50%;
+    background-size: cover;
+  }
+}
+
 .hero-overlay {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.45));
 }

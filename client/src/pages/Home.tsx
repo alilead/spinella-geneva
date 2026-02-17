@@ -14,11 +14,11 @@ export default function Home() {
     <div className="min-h-screen pt-20 md:pt-20">
       {/* Hero: static photo (no video) for faster load and simpler UX */}
       <section
-        className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] min-h-[calc(100vh-5rem)] aspect-[16/10] md:aspect-auto"
+        className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] md:min-h-[min(100dvh,calc(100vh-5rem))] aspect-auto md:aspect-[16/10]"
         style={{ minHeight: "min(100dvh, calc(100vh - 5rem))" }}
       >
         <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          className="hero-home-bg absolute inset-0 w-full h-full"
           style={{ backgroundImage: `url(${HERO_IMAGE})` }}
           aria-hidden
         />
