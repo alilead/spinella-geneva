@@ -36,6 +36,11 @@ import { supabase, isSupabaseAuthConfigured } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTimeSlotsForDate } from "@/lib/blockedSlots";
 
+/** Parse YYYY-MM-DD as local date (avoids timezone shifting the day). */
+function parseLocalDate(ymd: string): Date {
+  return new Date(ymd + "T12:00:00");
+}
+
 export type BookingRecord = {
   id: string;
   name: string;
@@ -137,7 +142,7 @@ export default function Admin() {
 
   // Sync selected date with calendar month
   useEffect(() => {
-    const selectedDate = new Date(selectedCalendarDate);
+    const selectedDate = parseLocalDate(selectedCalendarDate);
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
     
@@ -730,7 +735,19 @@ export default function Admin() {
         headers: getAuthHeaders(token),
         body: JSON.stringify({ id, status: "confirmed" }),
       });
-      if (res.ok) await fetchBookings(token);
+      if (res.ok) {
+        await fetchBookings(token);
+        if (bookingDetailId === id) {
+          const detailRes = await fetch(`/api/bookings?id=${encodeURIComponent(id)}`, { headers: getAuthHeaders(token) });
+          const data = await detailRes.json().catch(() => ({}));
+          if (data.booking && Array.isArray(data.emailStatuses)) {
+            setBookingDetail({ booking: data.booking, emailStatuses: data.emailStatuses });
+          }
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err?.error ?? t("admin.fetchError"));
+      }
     } finally {
       setAcceptingId(null);
     }
@@ -748,6 +765,9 @@ export default function Admin() {
       if (res.ok) {
         await fetchBookings(token);
         setBookingDetailId(null);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err?.error ?? t("admin.fetchError"));
       }
     } finally {
       setAcceptingId(null);
@@ -1506,7 +1526,7 @@ export default function Admin() {
                   {/* Date Strip - 7 days centered around selected date */}
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {(() => {
-                      const selected = new Date(selectedCalendarDate);
+                      const selected = parseLocalDate(selectedCalendarDate);
                       const startDate = new Date(selected);
                       startDate.setDate(startDate.getDate() - 3); // Show 3 days before
                       
@@ -1586,7 +1606,7 @@ export default function Admin() {
                         ? (byDate[dateStr] ?? [])
                         : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
                       const totalGuests = dayBookings.reduce((sum, b) => sum + b.partySize, 0);
-                      const date = new Date(dateStr);
+                      const date = parseLocalDate(dateStr);
                       const isSelected = selectedCalendarDate === dateStr;
 
                       return (
@@ -2222,10 +2242,7 @@ export default function Admin() {
                       <>
                         <Button
                           variant="default"
-                          onClick={() => {
-                            handleAccept(bookingDetail.booking.id);
-                            setBookingDetailId(null);
-                          }}
+                          onClick={() => handleAccept(bookingDetail.booking.id)}
                           disabled={acceptingId !== null}
                         >
                           {acceptingId === bookingDetail.booking.id ? (

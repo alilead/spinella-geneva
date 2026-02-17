@@ -51,7 +51,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 gold-text flex-shrink-0" />
-                <a href="mailto:info@spinella.ch" className="hover:text-[oklch(0.62_0.15_85)] transition-colors">
+                <a href="mailto:info@spinella.ch?subject=Contact%20Spinella%20-%20Website" className="hover:text-[oklch(0.62_0.15_85)] transition-colors">
                   info@spinella.ch
                 </a>
               </div>

@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, Bus, Car } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Bus, Car, Utensils, Wine, ConciergeBell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
@@ -78,10 +78,31 @@ export default function Contact() {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold mb-2">{t("contact.email")}</h3>
-                        <a href="mailto:info@spinella.ch" className="text-lg text-muted-foreground hover:text-[oklch(0.62_0.15_85)] transition-colors">
+                        <a href="mailto:info@spinella.ch?subject=Contact%20Spinella%20-%20Website" className="text-lg text-muted-foreground hover:text-[oklch(0.62_0.15_85)] transition-colors">
                           info@spinella.ch
                         </a>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-none shadow-md">
+                  <CardContent className="pt-6">
+                    <h3 className="text-xl font-bold mb-4">{t("contact.workWithUs")}</h3>
+                    <p className="text-muted-foreground mb-4">{t("contact.workWithUsIntro")}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm font-medium">
+                        <ConciergeBell className="w-4 h-4 text-[oklch(0.62_0.15_85)]" />
+                        {t("contact.specialtyService")}
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm font-medium">
+                        <Utensils className="w-4 h-4 text-[oklch(0.62_0.15_85)]" />
+                        {t("contact.specialtyKitchen")}
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm font-medium">
+                        <Wine className="w-4 h-4 text-[oklch(0.62_0.15_85)]" />
+                        {t("contact.specialtyBar")}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

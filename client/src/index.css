@@ -273,9 +273,10 @@
 }
 @media (max-width: 767px) {
   .hero-home-bg {
-    /* Focal point: slightly left (38%) so right side of image stays visible; 50% vertical to avoid cutting subjects at top/bottom */
-    background-position: 38% 50%;
-    background-size: cover;
+    /* On mobile: show full image (contain) to avoid cropping subjects; dark fill for letterboxing */
+    background-size: contain;
+    background-position: center center;
+    background-color: #0c0c0c;
   }
 }
 

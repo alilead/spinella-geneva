@@ -1,7 +1,7 @@
 # Spinella Geneva - TripAdvisor Reviews
 
 ## Key Information:
-- **Rating**: #1 of 1576 restaurants in Geneva
+- **Rating**: #1 of 1849 restaurants in Geneva
 - **Total Reviews**: 2,242+ reviews
 - **Overall Rating**: 4.8 out of 5 stars
 - **Address**: Rue Liotard 4, Geneva 1202 Switzerland

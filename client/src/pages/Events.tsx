@@ -174,7 +174,7 @@ export default function Events() {
                 {t("contact.phone")}: +41 22 503 41 86
               </Button>
             </a>
-            <a href="mailto:info@spinella.ch">
+            <a href="mailto:info@spinella.ch?subject=Contact%20Spinella%20-%20Website">
               <Button size="lg" variant="outline" className="border-2 border-[oklch(0.62_0.15_85)] text-foreground hover:bg-[oklch(0.62_0.15_85)] hover:text-black font-semibold">
                 {t("contact.email")}: info@spinella.ch
               </Button>

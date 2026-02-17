@@ -7,7 +7,7 @@ import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml } from "./_lib/va
 const FROM = "Spinella Geneva <info@spinella.ch>";
 
 /** Email sent to guest when admin declines their reservation request. */
-function declineEmailHtml(data: { name: string; date: string; time: string }): string {
+function declineEmailHtml(data: { name: string; date: string; time: string; rebookUrl: string }): string {
   return `
 <!DOCTYPE html><html lang="fr"><body style="margin:0;padding:0;background:#0c0c0c;font-family:Georgia,serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#0c0c0c;"><tr><td align="center" style="padding:32px 16px;">
@@ -15,8 +15,8 @@ function declineEmailHtml(data: { name: string; date: string; time: string }): s
 <tr><td style="padding:32px 24px;text-align:center;"><p style="margin:0;font-size:11px;letter-spacing:4px;color:#8a7a5c;">Restaurant &amp; Bar</p>
 <h1 style="margin:8px 0 0;font-size:32px;letter-spacing:4px;color:#d4af37;">SPINELLA</h1><p style="margin:4px 0 0;font-size:12px;color:#b8a574;">GENEVA</p></td></tr>
 <tr><td style="padding:0 24px 24px;"><p style="margin:0;font-size:16px;color:#e8e4dc;">Bonjour ${data.name},</p>
-<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">Nous sommes désolés, nous ne pouvons malheureusement pas confirmer votre demande de réservation pour le <strong>${data.date}</strong> à <strong>${data.time}</strong>.</p>
-<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">N'hésitez pas à nous contacter pour une autre date ou à réserver en ligne.</p></td></tr>
+<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">Nous sommes désolés : nous sommes complets pour le <strong>${data.date}</strong> à <strong>${data.time}</strong>. Nous ne pouvons malheureusement pas honorer votre demande cette fois-ci.</p>
+<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#c4bfb5;">Nous vous invitons à choisir une autre date ou créneau et à <a href="${data.rebookUrl}" style="color:#d4af37;">réserver à nouveau en ligne</a>.</p></td></tr>
 <tr><td style="padding:24px;text-align:center;font-size:13px;color:#8a7a5c;">Rue Liotard 4, 1202 Genève · <a href="tel:+41225034186" style="color:#d4af37;">+41 22 503 41 86</a> · <a href="mailto:info@spinella.ch" style="color:#d4af37;">info@spinella.ch</a></td></tr>
 </table></td></tr></table></body></html>`;
 }
@@ -241,6 +241,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         const resendKey = process.env.RESEND_API_KEY;
         if (resendKey) {
           const resend = new Resend(resendKey);
+          const rebookUrl = `${getBaseUrl()}/reservations`;
           const { data: sendData, error: sendErr } = await resend.emails.send({
             from: FROM,
             to: [row.email],
@@ -249,6 +250,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
               name: row.name ?? "Client",
               date: rowAfter.date ?? "",
               time: rowAfter.time ?? "",
+              rebookUrl,
             }),
           });
           if (sendErr) console.error("[bookings] Decline email failed:", sendErr);

@@ -5,13 +5,33 @@
  * - Thu–Fri: 12:00–14:00 and 17:30–22:30.
  * - Saturday: 17:30–22:30 only (no lunch).
  * - 14 February evening: request-only.
+ * - Slots every 15 minutes.
  */
 
 export const blockedSlots: { date: string; time: string }[] = [];
 
-const LUNCH_SLOTS = ["12:00", "12:30", "13:00", "13:30", "14:00"];
-const EVENING_UNTIL_22 = ["17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
-const EVENING_UNTIL_22_30 = [...EVENING_UNTIL_22, "22:30"];
+/** Generate time slots every 15 min from start (HH:MM) to end inclusive. */
+function slots15(start: string, end: string): string[] {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const result: string[] = [];
+  let h = sh;
+  let m = sm;
+  const endM = eh * 60 + em;
+  while (h * 60 + m <= endM) {
+    result.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    m += 15;
+    if (m >= 60) {
+      m -= 60;
+      h += 1;
+    }
+  }
+  return result;
+}
+
+const LUNCH_SLOTS = slots15("12:00", "14:00");
+const EVENING_UNTIL_22 = slots15("17:30", "22:00");
+const EVENING_UNTIL_22_30 = slots15("17:30", "22:30");
 
 /** Sunday = closed (no slots). */
 export function isSunday(date: string): boolean {
@@ -82,6 +102,7 @@ export function isRequestOnlyPartySize(partySize: number): boolean {
  * Mon–Wed: 12:00–14:00, 17:30–22:00. Thu–Fri: 12:00–14:00, 17:30–22:30. Sat: 17:30–22:30 only. Sun: none.
  */
 export function getTimeSlotsForDate(date: string): string[] {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
   if (isSunday(date)) return [];
   if (isSaturday(date)) {
     return EVENING_UNTIL_22_30.filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
