@@ -24,15 +24,16 @@ function buildBookingSchema(t: (key: string) => string) {
     name: z.string().min(2, t("booking.validation.nameMin")),
     email: z.string().email(t("booking.validation.emailInvalid")),
     phone: z.string().min(10, t("booking.validation.phoneMin")),
-    date: z.string().min(1, t("booking.validation.dateRequired")).refine(
-      (date) => !isDateBlocked(date),
-      (date) => {
-        const reason = getBlockedDateReason(date);
-        return {
-          message: reason ? t(`booking.${reason}`) : t("booking.dateUnavailableGeneric"),
-        };
-      }
-    ),
+    date: z
+      .string()
+      .min(1, t("booking.validation.dateRequired"))
+      .superRefine((date, ctx) => {
+        if (isDateBlocked(date)) {
+          const reason = getBlockedDateReason(date);
+          const msg = reason ? t(`booking.${reason}`) : t("booking.dateUnavailableGeneric");
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: msg });
+        }
+      }),
     time: z.string().min(1, t("booking.validation.timeRequired")).refine(
       (time, ctx) => {
         const date = ctx.parent?.date as string | undefined;
@@ -133,7 +134,7 @@ export default function Booking() {
   };
 
   const timeSlots = useMemo(() => {
-    if (!selectedDate) return [];
+    if (!selectedDate || isDateBlocked(selectedDate)) return [];
     return getTimeSlotsForDate(selectedDate, { now: new Date() });
   }, [selectedDate]);
 
@@ -274,6 +275,11 @@ export default function Booking() {
                     <p className="text-sm font-medium">{t("booking.sundayClosed")}</p>
                   </div>
                 )}
+                {selectedDate && isDateBlocked(selectedDate) && (
+                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-foreground">
+                    <p className="text-sm font-medium">{t("booking.dateUnavailableEaster")}</p>
+                  </div>
+                )}
                 {selectedDate && isLunchOnlyDate(selectedDate) && (
                   <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
                     <p className="text-sm font-medium">{t("booking.dateSpecialEventLunchOnly")}</p>
@@ -380,7 +386,7 @@ export default function Booking() {
                   type="submit"
                   size="lg"
                   className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg"
-                  disabled={isSubmitting || (!!selectedDate && isSunday(selectedDate))}
+                  disabled={isSubmitting || (!!selectedDate && (isSunday(selectedDate) || isDateBlocked(selectedDate)))}
                 >
                   {isSubmitting ? t("booking.submitting") : t("booking.submit")}
                 </Button>
