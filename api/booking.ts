@@ -2,7 +2,12 @@ import { Resend } from "resend";
 import { getSupabase, BOOKINGS_TABLE, CLIENTS_TABLE } from "./_lib/supabase.js";
 import { VALENTINES_DATE, getBaseUrl, valentinesGuestEmailHtml, valentinesRequestReceivedEmailHtml } from "./_lib/valentinesEmail.js";
 import { confirmedEmailHtml } from "./_lib/confirmedEmail.js";
-import { isDateBlocked, getBlockedDateReason } from "./_lib/blockedDates.js";
+import {
+  isDateBlocked,
+  getBlockedDateReason,
+  isEveningBlockedOnLunchOnlyDate,
+  isPastTime,
+} from "./_lib/blockedDates.js";
 import { sendPushToAllSubscriptions } from "./_lib/pushSend.js";
 
 const FROM = "Spinella Geneva <info@spinella.ch>";
@@ -114,13 +119,29 @@ export default async function handler(
     return;
   }
 
-  // Check if date is blocked
+  // Check if date is blocked (e.g. Easter 5–8 April)
   if (isDateBlocked(date)) {
     const reason = getBlockedDateReason(date);
-    res.status(400).json({ 
-      error: reason 
-        ? `Cette date est indisponible (${reason})` 
-        : "Cette date est indisponible pour les réservations"
+    res.status(400).json({
+      error: reason
+        ? "Désolés, nous ne sommes pas disponibles à cette période. Veuillez réserver une autre date."
+        : "Cette date est indisponible pour les réservations",
+    });
+    return;
+  }
+
+  // April 15: evening booked for event; reject evening, allow lunch only
+  if (isEveningBlockedOnLunchOnlyDate(date, time)) {
+    res.status(400).json({
+      error: "Désolés, nous sommes réservés pour un événement le soir — seul le déjeuner est disponible ce jour-là.",
+    });
+    return;
+  }
+
+  // Reject past times for today
+  if (isPastTime(date, time)) {
+    res.status(400).json({
+      error: "Cette heure est déjà passée. Veuillez choisir une heure ultérieure.",
     });
     return;
   }

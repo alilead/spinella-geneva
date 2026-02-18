@@ -233,6 +233,10 @@ export const translations = {
       groupEventOption: "21+ (group / event)",
       groupEventNotice: "For 21+ guests we will contact you to confirm. You can specify the exact number in the special requests field below.",
       successToast: "Booking request submitted successfully!",
+      dateUnavailableEaster: "Sorry, we aren't available at this time. Please book another date.",
+      dateSpecialEventLunchOnly: "Sorry, we are booked for an event in the evening — only lunch is available on this date.",
+      dateUnavailableGeneric: "This date is unavailable for reservations.",
+      timePast: "This time has already passed. Please choose a later time.",
       validation: {
         nameMin: "Name must be at least 2 characters",
         emailInvalid: "Invalid email address",
@@ -602,6 +606,10 @@ export const translations = {
       groupEventOption: "21+ (groupe / événement)",
       groupEventNotice: "Pour 21 personnes ou plus, nous vous contacterons pour confirmer. Vous pouvez indiquer le nombre exact dans les demandes spéciales ci-dessous.",
       successToast: "Demande de réservation envoyée avec succès !",
+      dateUnavailableEaster: "Désolés, nous ne sommes pas disponibles à cette période. Veuillez réserver une autre date.",
+      dateSpecialEventLunchOnly: "Désolés, nous sommes réservés pour un événement le soir — seul le déjeuner est disponible ce jour-là.",
+      dateUnavailableGeneric: "Cette date est indisponible pour les réservations.",
+      timePast: "Cette heure est déjà passée. Veuillez choisir une heure ultérieure.",
       validation: {
         nameMin: "Le nom doit contenir au moins 2 caractères",
         emailInvalid: "Adresse email invalide",
@@ -971,6 +979,10 @@ export const translations = {
       groupEventOption: "21+ (gruppo / evento)",
       groupEventNotice: "Per 21 o più persone ti contatteremo per confermare. Puoi indicare il numero esatto nel campo richieste speciali sotto.",
       successToast: "Richiesta di prenotazione inviata con successo!",
+      dateUnavailableEaster: "Siamo spiacenti, in questo periodo non siamo disponibili. Scegli un'altra data.",
+      dateSpecialEventLunchOnly: "Siamo spiacenti, siamo prenotati per un evento la sera — solo il pranzo è disponibile in questa data.",
+      dateUnavailableGeneric: "Questa data non è disponibile per le prenotazioni.",
+      timePast: "Questo orario è già passato. Scegli un orario successivo.",
       validation: {
         nameMin: "Il nome deve contenere almeno 2 caratteri",
         emailInvalid: "Indirizzo email non valido",

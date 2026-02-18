@@ -97,17 +97,40 @@ export function isRequestOnlyPartySize(partySize: number): boolean {
   return partySize >= 8;
 }
 
+/** 15 April 2026: evening booked for event — only lunch available. */
+const LUNCH_ONLY_DATES = ["2026-04-15"];
+
+function isLunchOnlyDate(date: string): boolean {
+  return LUNCH_ONLY_DATES.includes(date);
+}
+
 /**
  * All time slots for a given date.
  * Mon–Wed: 12:00–14:00, 17:30–22:00. Thu–Fri: 12:00–14:00, 17:30–22:30. Sat: 17:30–22:30 only. Sun: none.
+ * For lunch-only dates (e.g. 15 April — evening booked for event), only lunch slots are returned.
+ * When date is today, pass optional now to exclude past times.
  */
-export function getTimeSlotsForDate(date: string): string[] {
+export function getTimeSlotsForDate(date: string, options?: { now?: Date }): string[] {
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
   if (isSunday(date)) return [];
-  if (isSaturday(date)) {
-    return EVENING_UNTIL_22_30.filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
+  let all: string[];
+  if (isLunchOnlyDate(date)) {
+    all = LUNCH_SLOTS.filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
+  } else if (isSaturday(date)) {
+    all = EVENING_UNTIL_22_30.filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
+  } else {
+    const evening = isThuFri(date) ? EVENING_UNTIL_22_30 : EVENING_UNTIL_22;
+    all = [...LUNCH_SLOTS, ...evening].filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
   }
-  const evening = isThuFri(date) ? EVENING_UNTIL_22_30 : EVENING_UNTIL_22;
-  const all = [...LUNCH_SLOTS, ...evening];
-  return all.filter((time) => !blockedSlots.some((b) => b.date === date && b.time === time));
+  if (options?.now) {
+    const today = options.now.toISOString().split("T")[0];
+    if (date === today) {
+      const currentMinutes = options.now.getHours() * 60 + options.now.getMinutes();
+      all = all.filter((time) => {
+        const [h, m] = time.split(":").map(Number);
+        return h * 60 + m > currentMinutes;
+      });
+    }
+  }
+  return all;
 }

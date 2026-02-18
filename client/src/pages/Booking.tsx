@@ -17,7 +17,7 @@ import {
 import { Calendar, Clock, Users, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getTimeSlotsForDate, isSunday, isRequestOnlyPartySize } from "@/lib/blockedSlots";
-import { isDateBlocked, getBlockedDateReason } from "@/lib/blockedDates";
+import { isDateBlocked, getBlockedDateReason, isLunchOnlyDate } from "@/lib/blockedDates";
 
 function buildBookingSchema(t: (key: string) => string) {
   return z.object({
@@ -28,14 +28,23 @@ function buildBookingSchema(t: (key: string) => string) {
       (date) => !isDateBlocked(date),
       (date) => {
         const reason = getBlockedDateReason(date);
-        return { 
-          message: reason 
-            ? `Cette date est indisponible (${reason})` 
-            : "Cette date est indisponible pour les réservations"
+        return {
+          message: reason ? t(`booking.${reason}`) : t("booking.dateUnavailableGeneric"),
         };
       }
     ),
-    time: z.string().min(1, t("booking.validation.timeRequired")),
+    time: z.string().min(1, t("booking.validation.timeRequired")).refine(
+      (time, ctx) => {
+        const date = ctx.parent?.date as string | undefined;
+        if (!date || date !== new Date().toISOString().split("T")[0]) return true;
+        const now = new Date();
+        const [h, m] = time.split(":").map(Number);
+        const slotMinutes = h * 60 + m;
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        return slotMinutes > currentMinutes;
+      },
+      { message: t("booking.timePast") }
+    ),
     partySize: z.string().min(1, t("booking.validation.partySizeRequired")),
     specialRequests: z.string().optional(),
   });
@@ -125,7 +134,7 @@ export default function Booking() {
 
   const timeSlots = useMemo(() => {
     if (!selectedDate) return [];
-    return getTimeSlotsForDate(selectedDate);
+    return getTimeSlotsForDate(selectedDate, { now: new Date() });
   }, [selectedDate]);
 
   // Clear time whenever date changes so form state never has a time from another day's slots.
@@ -263,6 +272,11 @@ export default function Booking() {
                 {selectedDate && isSunday(selectedDate) && (
                   <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-foreground">
                     <p className="text-sm font-medium">{t("booking.sundayClosed")}</p>
+                  </div>
+                )}
+                {selectedDate && isLunchOnlyDate(selectedDate) && (
+                  <div className="p-4 rounded-lg gold-bg/20 border border-[oklch(0.62_0.15_85/0.4)] text-foreground">
+                    <p className="text-sm font-medium">{t("booking.dateSpecialEventLunchOnly")}</p>
                   </div>
                 )}
                 {isLargeTable && (
