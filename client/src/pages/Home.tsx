@@ -178,7 +178,7 @@ export default function Home() {
                 alt="Spinella exterior"
                 width={800}
                 height={600}
-                className="absolute inset-0 w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                className="absolute inset-0 w-full h-full object-cover object-[50%_25%] rounded-lg shadow-2xl"
                 loading="lazy"
                 decoding="async"
               />
