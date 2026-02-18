@@ -5,7 +5,7 @@ import { Calendar, Users, Utensils, Wine } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const HERO_IMAGE = "/spinella_interior.jpg";
+const HERO_IMAGE = "/hero.jpg";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -172,13 +172,13 @@ export default function Home() {
       <section className="section-spacing cream-bg">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full overflow-hidden rounded-lg aspect-[4/3]">
+            <div className="order-2 lg:order-1 relative min-h-[240px] sm:min-h-[280px] lg:min-h-[380px] w-full min-w-0 overflow-hidden rounded-lg aspect-[4/3] bg-muted">
               <img
                 src="/spinella_exterior.jpg"
                 alt="Spinella exterior"
                 width={800}
                 height={600}
-                className="w-full h-full object-cover object-center rounded-lg shadow-2xl"
+                className="absolute inset-0 w-full h-full object-cover object-center rounded-lg shadow-2xl"
                 loading="lazy"
                 decoding="async"
               />
