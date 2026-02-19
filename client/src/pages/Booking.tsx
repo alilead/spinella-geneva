@@ -89,6 +89,8 @@ export default function Booking() {
     watch,
   } = useForm<BookingForm>({
     resolver: zodResolver(bookingSchema),
+    defaultValues: { time: "", partySize: "" },
+    shouldFocusError: true,
   });
 
   const selectedDate = watch("date");
@@ -317,7 +319,7 @@ export default function Booking() {
                     <Select
                       key={`time-${selectedDate ?? ""}`}
                       value={safeTimeValue}
-                      onValueChange={(value) => setValue("time", value)}
+                      onValueChange={(value) => setValue("time", value, { shouldValidate: true })}
                     >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder={t("booking.selectTime")} />
@@ -340,7 +342,10 @@ export default function Booking() {
                       <Users className="w-4 h-4 mr-2" />
                       {t("booking.guests")} *
                     </Label>
-                    <Select onValueChange={(value) => setValue("partySize", value)}>
+                    <Select
+                      value={watch("partySize") || undefined}
+                      onValueChange={(value) => setValue("partySize", value, { shouldValidate: true })}
+                    >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder={t("booking.selectGuests")} />
                       </SelectTrigger>
@@ -381,11 +386,16 @@ export default function Booking() {
                 </div>
               </div>
 
+              {Object.keys(errors).length > 0 && (
+                <p className="text-sm text-red-500" role="alert">
+                  {[errors.date?.message, errors.time?.message, errors.partySize?.message].filter(Boolean).join(" ") || t("booking.validation.dateRequired")}
+                </p>
+              )}
               <div className="pt-4">
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg"
+                  className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg relative z-10 cursor-pointer"
                   disabled={isSubmitting || (!!selectedDate && (isSunday(selectedDate) || isDateBlocked(selectedDate)))}
                 >
                   {isSubmitting ? t("booking.submitting") : t("booking.submit")}
