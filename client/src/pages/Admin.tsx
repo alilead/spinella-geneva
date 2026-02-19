@@ -51,6 +51,7 @@ export type BookingRecord = {
   partySize: number;
   specialRequests?: string | null;
   status: string;
+  createdAt?: string;
 };
 
 export type ClientRecord = {
@@ -1094,16 +1095,11 @@ export default function Admin() {
         </p>
 
         <Tabs defaultValue="all">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 gap-1 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto">
             <TabsTrigger value="all" className="text-xs sm:text-sm">
               <List className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Toutes les réservations</span>
               <span className="sm:hidden">Toutes</span>
-            </TabsTrigger>
-            <TabsTrigger value="list" className="text-xs sm:text-sm">
-              <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">{t("admin.list")}</span>
-              <span className="sm:hidden">Jour</span>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">
               <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
@@ -1270,7 +1266,7 @@ export default function Admin() {
                       >
                         {t("admin.name")} {allReservationsSort === "name" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
                       </th>
-                      <th className="text-left p-2 sm:p-3 w-[40px] hidden sm:table-cell">{t("admin.guests")}</th>
+                      <th className="text-left p-2 sm:p-3 w-[40px]">{t("admin.guests")}</th>
                       <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
                       <th 
                         className="text-left p-2 sm:p-3 hidden md:table-cell cursor-pointer hover:bg-muted" 
@@ -1328,7 +1324,7 @@ export default function Admin() {
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.date}</td>
                         <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.time}</td>
                         <td className="p-2 sm:p-3 max-w-[120px] sm:max-w-none truncate">{b.name}</td>
-                        <td className="p-2 sm:p-3 hidden sm:table-cell">{b.partySize}</td>
+                        <td className="p-2 sm:p-3">{b.partySize}</td>
                         <td className="p-2 sm:p-3">
                           <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium ${
                             b.status === "confirmed" ? "bg-blue-600/20 text-blue-600" : b.status === "request" ? "bg-amber-600/20 text-amber-600" : b.status === "cancelled" ? "bg-red-600/20 text-red-600" : "bg-muted"
@@ -1380,82 +1376,6 @@ export default function Admin() {
                 </table>
               </div>
             )}
-          </TabsContent>
-          <TabsContent value="list" className="mt-4 sm:mt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-              <span className="text-xs sm:text-sm text-muted-foreground">{t("admin.sortBy")}:</span>
-              <Select value={bookingSort} onValueChange={(v) => setBookingSort(v as "created" | "date" | "name")}>
-                <SelectTrigger className="w-full sm:w-[220px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created">{t("admin.sortByCreatedDate")}</SelectItem>
-                  <SelectItem value="date">{t("admin.sortByRequestedDate")}</SelectItem>
-                  <SelectItem value="name">{t("admin.sortByName")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Card>
-              <CardContent className="p-0">
-                {sortedBookings.length === 0 ? (
-                  <div className="p-4 sm:p-8 text-center text-sm text-muted-foreground">{t("admin.emptyList")}</div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs sm:text-sm">
-                      <thead>
-                        <tr className="border-b bg-muted/50">
-                          <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.date")}</th>
-                          <th className="text-left p-2 sm:p-3 w-[50px] sm:w-auto">{t("admin.time")}</th>
-                          <th className="text-left p-2 sm:p-3 min-w-[100px]">{t("admin.name")}</th>
-                          <th className="text-left p-2 sm:p-3 w-[40px] hidden sm:table-cell">{t("admin.guests")}</th>
-                          <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
-                          <th className="text-left p-2 sm:p-3 hidden md:table-cell">{t("admin.phone")}</th>
-                          <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.email")}</th>
-                          <th className="text-left p-2 sm:p-3 w-[80px] sm:w-auto">{t("admin.action")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedBookings.map((b) => (
-                          <tr key={b.id} className="border-b">
-                            <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.date}</td>
-                            <td className="p-2 sm:p-3 whitespace-nowrap text-[10px] sm:text-xs">{b.time}</td>
-                            <td className="p-2 sm:p-3 max-w-[120px] sm:max-w-none truncate">{b.name}</td>
-                            <td className="p-2 sm:p-3 hidden sm:table-cell">{b.partySize}</td>
-                            <td className="p-2 sm:p-3">
-                              <span className={`text-[10px] sm:text-xs ${b.status === "confirmed" ? "text-green-600" : b.status === "request" ? "text-amber-600" : "text-muted-foreground"}`}>
-                                {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
-                              </span>
-                            </td>
-                            <td className="p-2 sm:p-3 hidden md:table-cell text-[10px] sm:text-xs">{b.phone}</td>
-                            <td className="p-2 sm:p-3 hidden lg:table-cell text-[10px] sm:text-xs">{b.email}</td>
-                            <td className="p-2 sm:p-3">
-                              <div className="flex items-center gap-1">
-                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")} className="p-1 h-auto">
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                {(b.status === "pending" || b.status === "request") && (
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    disabled={acceptingId !== null}
-                                    onClick={() => handleAccept(b.id)}
-                                    className="p-1 sm:px-3 sm:py-2 h-auto"
-                                    title={t("admin.accept")}
-                                  >
-                                    {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 sm:mr-1" />}
-                                    <span className="hidden sm:inline">{t("admin.accept")}</span>
-                                  </Button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <Card>

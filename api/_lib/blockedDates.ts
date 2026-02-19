@@ -33,6 +33,13 @@ export function isEveningBlockedOnLunchOnlyDate(dateStr: string, time: string): 
   return isLunchOnlyDate(dateStr) && EVENING_TIMES.includes(time);
 }
 
+/** Dates when all reservations require manual approval (14–18 April). */
+export const REQUEST_ONLY_DATES = ["2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18"];
+
+export function isRequestOnlyDate(dateStr: string): boolean {
+  return REQUEST_ONLY_DATES.includes(dateStr);
+}
+
 /** True if the given date is today and the time has already passed. */
 export function isPastTime(dateStr: string, time: string, now: Date = new Date()): boolean {
   const today = now.toISOString().split("T")[0];

@@ -29,9 +29,18 @@ function RedirectToReservations() {
   return null;
 }
 
+function ScrollToTop() {
+  const [pathname] = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+  return null;
+}
+
 function Router() {
   return (
     <div className="min-h-screen overflow-x-hidden">
+      <ScrollToTop />
       <SeoHead />
       <Navigation />
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>

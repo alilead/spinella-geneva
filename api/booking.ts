@@ -7,6 +7,7 @@ import {
   getBlockedDateReason,
   isEveningBlockedOnLunchOnlyDate,
   isPastTime,
+  isRequestOnlyDate,
 } from "./_lib/blockedDates.js";
 import { sendPushToAllSubscriptions } from "./_lib/pushSend.js";
 
@@ -152,8 +153,8 @@ export default async function handler(
   const isValentines = date === VALENTINES_DATE;
   const flyerUrl = `${getBaseUrl()}/valentines-menu.jpeg`;
 
-  // Request-only: special day (e.g. 14 Feb) or 8+ people → guest gets "request received", admin must Accept. Otherwise: auto-confirm + confirmation email to guest.
-  const requestOnly = isValentines || partySize >= 8;
+  // Request-only: Valentine's, 8+ people, or 14–18 April (manual approval for all tables) → guest gets "request received", admin must Accept.
+  const requestOnly = isValentines || partySize >= 8 || isRequestOnlyDate(date);
   const status = requestOnly ? "request" : "confirmed";
 
   // Require Supabase so every booking that sends an email also appears on the dashboard.

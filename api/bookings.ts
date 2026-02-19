@@ -136,8 +136,8 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         const { data: page, error } = await supabase
           .from(BOOKINGS_TABLE)
           .select("*")
-          .order("date", { ascending: true })
-          .order("time", { ascending: true })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
           .range(from, from + PAGE - 1);
         if (error) throw error;
         const list = (page ?? []) as BookingRow[];
