@@ -36,7 +36,10 @@ function buildBookingSchema(t: (key: string) => string) {
       }),
     time: z.string().min(1, t("booking.validation.timeRequired")).refine(
       (time, ctx) => {
-        const date = ctx.parent?.date as string | undefined;
+        const parent = ctx?.parent;
+        const date = typeof parent === "object" && parent !== null && "date" in parent
+          ? (parent as { date?: string }).date
+          : undefined;
         if (!date || date !== new Date().toISOString().split("T")[0]) return true;
         const now = new Date();
         const [h, m] = time.split(":").map(Number);
@@ -318,7 +321,7 @@ export default function Booking() {
                     </Label>
                     <Select
                       key={`time-${selectedDate ?? ""}`}
-                      value={safeTimeValue}
+                      value={safeTimeValue ?? ""}
                       onValueChange={(value) => setValue("time", value, { shouldValidate: true })}
                     >
                       <SelectTrigger className="mt-1">
@@ -343,7 +346,7 @@ export default function Booking() {
                       {t("booking.guests")} *
                     </Label>
                     <Select
-                      value={watch("partySize") || undefined}
+                      value={watch("partySize") ?? ""}
                       onValueChange={(value) => setValue("partySize", value, { shouldValidate: true })}
                     >
                       <SelectTrigger className="mt-1">

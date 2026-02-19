@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME = 'spinella-v1';
+const CACHE_NAME = 'spinella-v2';
 const urlsToCache = [
   '/',
   '/logo.png',
@@ -38,16 +38,21 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Strategy: Network first, fall back to cache
+// Fetch Strategy: Network first, fall back to cache (GET only; Cache API does not support POST)
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  const isGet = req.method === 'GET';
+  const canCache = isGet && req.url.startsWith('http') && !req.url.startsWith('chrome-extension:');
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        if (canCache && response.ok && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
         return response;
       })
       .catch(() => {
