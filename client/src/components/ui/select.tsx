@@ -48,9 +48,6 @@ function SelectTrigger({
   );
 }
 
-const getRadixPortalContainer = () =>
-  (typeof document !== "undefined" ? document.getElementById("radix-portals") : null) ?? undefined;
-
 function SelectContent({
   className,
   children,
@@ -59,7 +56,7 @@ function SelectContent({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (
-    <SelectPrimitive.Portal container={getRadixPortalContainer()}>
+    <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         data-slot="select-content"
         translate="no"
