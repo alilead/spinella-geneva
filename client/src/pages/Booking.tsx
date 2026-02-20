@@ -173,13 +173,13 @@ export default function Booking() {
               <CheckCircle className="w-12 h-12 text-black" />
             </div>
             <h1 className="text-4xl font-bold mb-4">
-              {wasAutoConfirmed ? t("booking.bookingConfirmed") : t("booking.bookingRequestTitle")}
+              <span>{wasAutoConfirmed ? t("booking.bookingConfirmed") : t("booking.bookingRequestTitle")}</span>
             </h1>
             <div className="gold-divider"></div>
             <p className="text-lg mb-6">
-              {wasAutoConfirmed
+              <span>{wasAutoConfirmed
                 ? t("booking.bookingConfirmedDescAuto")
-                : t("booking.bookingConfirmedDesc")}
+                : t("booking.bookingConfirmedDesc")}</span>
             </p>
             <p className="text-muted-foreground mb-8">
               {t("booking.questionsContact")}{" "}
@@ -355,7 +355,7 @@ export default function Booking() {
                       <SelectContent>
                         {partySizes.map((size) => (
                           <SelectItem key={size} value={size}>
-                            {size} {parseInt(size) === 1 ? t("booking.guest") : t("booking.guestsPlural")}
+                            {size} <span>{parseInt(size) === 1 ? t("booking.guest") : t("booking.guestsPlural")}</span>
                           </SelectItem>
                         ))}
                         <SelectItem value="21">{t("booking.groupEventOption")}</SelectItem>
@@ -401,7 +401,7 @@ export default function Booking() {
                   className="w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold text-lg relative z-10 cursor-pointer"
                   disabled={isSubmitting || (!!selectedDate && (isSunday(selectedDate) || isDateBlocked(selectedDate)))}
                 >
-                  {isSubmitting ? t("booking.submitting") : t("booking.submit")}
+                  <span>{isSubmitting ? t("booking.submitting") : t("booking.submit")}</span>
                 </Button>
               </div>
 

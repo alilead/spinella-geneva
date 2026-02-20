@@ -70,13 +70,13 @@ export default function Takeaway() {
       <section className="relative min-h-[200px] flex items-center justify-center bg-background">
         <div className="container text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-2">
-            {language === "fr" ? "À emporter" : language === "de" ? "Takeaway" : language === "es" ? "Para llevar" : "Take away"}
+            <span>{language === "fr" ? "À emporter" : language === "de" ? "Takeaway" : language === "es" ? "Para llevar" : "Take away"}</span>
           </h1>
           <div className="gold-divider mx-auto"></div>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            {language === "fr"
+            <span>{language === "fr"
               ? "Commandez en ligne et payez par carte. Récupérez votre commande au restaurant."
-              : "Order online and pay by card. Pick up your order at the restaurant."}
+              : "Order online and pay by card. Pick up your order at the restaurant."}</span>
           </p>
         </div>
       </section>
@@ -113,7 +113,7 @@ export default function Takeaway() {
           {totalItems > 0 && (
             <div className="mt-8 p-4 rounded-lg bg-muted/50">
               <p className="text-lg font-semibold">
-                Total: {totalChf} CHF ({totalItems} {totalItems === 1 ? "item" : "items"})
+                Total: {totalChf} CHF (<span>{totalItems} {totalItems === 1 ? "item" : "items"}</span>)
               </p>
               <Button
                 className="mt-4 w-full gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold"
@@ -126,7 +126,7 @@ export default function Takeaway() {
                 ) : (
                   <ShoppingCart className="w-5 h-5 mr-2" />
                 )}
-                {language === "fr" ? "Payer avec Stripe" : "Pay with Stripe"}
+                <span>{language === "fr" ? "Payer avec Stripe" : "Pay with Stripe"}</span>
               </Button>
             </div>
           )}
@@ -138,16 +138,16 @@ export default function Takeaway() {
           )}
 
           <p className="mt-6 text-sm text-muted-foreground text-center">
-            {language === "fr"
+            <span>{language === "fr"
               ? "Vous préférez commander par téléphone ? "
-              : "Prefer to order by phone? "}
+              : "Prefer to order by phone? "}</span>
             <a href="tel:+41227345898" className="gold-text font-medium hover:underline">
               +41 22 734 58 98
             </a>
           </p>
           <div className="text-center mt-4">
             <Link href="/contact">
-              <Button variant="outline">{language === "fr" ? "Nous contacter" : "Contact us"}</Button>
+              <Button variant="outline"><span>{language === "fr" ? "Nous contacter" : "Contact us"}</span></Button>
             </Link>
           </div>
         </div>

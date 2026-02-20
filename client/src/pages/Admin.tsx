@@ -1050,7 +1050,7 @@ export default function Admin() {
               </div>
               {loginError && <p className="text-sm text-destructive">{loginError}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? t("admin.signingIn") : t("admin.logIn")}
+                <span>{loading ? t("admin.signingIn") : t("admin.logIn")}</span>
               </Button>
             </form>
           </CardContent>
@@ -1080,7 +1080,7 @@ export default function Admin() {
             </label>
             <Button variant="outline" size="sm" onClick={handleSendValentines} disabled={valentinesSending} className="hidden sm:flex">
               {valentinesSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              {valentinesSending ? t("admin.valentinesSending") : t("admin.valentinesSend")}
+              <span>{valentinesSending ? t("admin.valentinesSending") : t("admin.valentinesSend")}</span>
             </Button>
             {userEmail && (
               <span className="text-xs sm:text-sm text-muted-foreground mr-2 hidden lg:inline">
@@ -1166,7 +1166,7 @@ export default function Admin() {
                     }}
                     className="h-8"
                   >
-                    {selectedBookingIds.size === bookings.length ? "Désélectionner tout" : "Sélectionner tout"}
+                    {selectedBookingIds.size === bookings.length ? <span>Désélectionner tout</span> : <span>Sélectionner tout</span>}
                   </Button>
                   <Button
                     variant="outline"
@@ -1176,7 +1176,7 @@ export default function Admin() {
                     className="h-8"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Exporter {selectedBookingIds.size > 0 && `(${selectedBookingIds.size})`}
+                    Exporter {selectedBookingIds.size > 0 && <span>{`(${selectedBookingIds.size})`}</span>}
                   </Button>
                   <label>
                     <input
@@ -1225,7 +1225,7 @@ export default function Admin() {
                   className="h-8 px-2"
                   title={allReservationsSortOrder === "desc" ? "Plus récent → Plus ancien" : "Plus ancien → Plus récent"}
                 >
-                  {allReservationsSortOrder === "desc" ? "↓" : "↑"}
+                  {allReservationsSortOrder === "desc" ? <span>↓</span> : <span>↑</span>}
                 </Button>
               </div>
             </div>
@@ -1261,7 +1261,7 @@ export default function Admin() {
                           }
                         }}
                       >
-                        {t("admin.date")} {allReservationsSort === "date" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
+                        {t("admin.date")} {allReservationsSort === "date" && (allReservationsSortOrder === "desc" ? <span>↓</span> : <span>↑</span>)}
                       </th>
                       <th className="text-left p-2 sm:p-3 w-[50px] sm:w-auto">{t("admin.time")}</th>
                       <th 
@@ -1275,7 +1275,7 @@ export default function Admin() {
                           }
                         }}
                       >
-                        {t("admin.name")} {allReservationsSort === "name" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
+                        {t("admin.name")} {allReservationsSort === "name" && (allReservationsSortOrder === "desc" ? <span>↓</span> : <span>↑</span>)}
                       </th>
                       <th className="text-left p-2 sm:p-3 w-[40px]">{t("admin.guests")}</th>
                       <th className="text-left p-2 sm:p-3 w-[70px] sm:w-auto">{t("admin.status")}</th>
@@ -1290,7 +1290,7 @@ export default function Admin() {
                           }
                         }}
                       >
-                        Date de création {allReservationsSort === "created" && (allReservationsSortOrder === "desc" ? "↓" : "↑")}
+                        Date de création {allReservationsSort === "created" && (allReservationsSortOrder === "desc" ? <span>↓</span> : <span>↑</span>)}
                       </th>
                       <th className="text-left p-2 sm:p-3 hidden lg:table-cell">{t("admin.phone")}</th>
                       <th className="text-left p-2 sm:p-3 hidden xl:table-cell">{t("admin.email")}</th>
@@ -1340,11 +1340,11 @@ export default function Admin() {
                           <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium ${
                             b.status === "confirmed" ? "bg-blue-600/20 text-blue-600" : b.status === "request" ? "bg-amber-600/20 text-amber-600" : b.status === "cancelled" ? "bg-red-600/20 text-red-600" : "bg-muted"
                           }`}>
-                            {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
+                            {b.status === "request" ? <span>⚠</span> : b.status === "pending" ? <span>⏳</span> : b.status === "cancelled" ? <span>❌</span> : <span>✓</span>}
                           </span>
                         </td>
                         <td className="p-2 sm:p-3 hidden md:table-cell text-[10px] sm:text-xs">
-                          {b.createdAt ? new Date(b.createdAt).toLocaleDateString() : "—"}
+                          <span>{b.createdAt ? new Date(b.createdAt).toLocaleDateString() : "—"}</span>
                         </td>
                         <td className="p-2 sm:p-3 hidden lg:table-cell text-[10px] sm:text-xs">{b.phone}</td>
                         <td className="p-2 sm:p-3 hidden xl:table-cell text-[10px] sm:text-xs">{b.email}</td>
@@ -1436,7 +1436,7 @@ export default function Admin() {
                                 <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium ${
                                   b.status === "confirmed" ? "bg-blue-600/20 text-blue-600" : b.status === "request" ? "bg-amber-600/20 text-amber-600" : b.status === "cancelled" ? "bg-red-600/20 text-red-600" : "bg-muted"
                                 }`}>
-                                  {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
+                                  {b.status === "request" ? <span>⚠</span> : b.status === "pending" ? <span>⏳</span> : b.status === "cancelled" ? <span>❌</span> : <span>✓</span>}
                                 </span>
                               </td>
                               <td className="p-2 sm:p-3">
@@ -1603,7 +1603,7 @@ export default function Admin() {
                     if (filteredDates.length === 0) {
                       return (
                         <div className="text-center text-sm text-muted-foreground py-12">
-                          {calendarView === "all" ? t("admin.emptyList") : t("admin.emptySpecial")}
+                          <span>{calendarView === "all" ? t("admin.emptyList") : t("admin.emptySpecial")}</span>
                         </div>
                       );
                     }
@@ -1812,7 +1812,7 @@ export default function Admin() {
                         }}
                         className="h-8"
                       >
-                        {selectedClientIds.size === filteredAndSortedClients.length ? "Désélectionner tout" : "Sélectionner tout"}
+                        {selectedClientIds.size === filteredAndSortedClients.length ? <span>Désélectionner tout</span> : <span>Sélectionner tout</span>}
                       </Button>
                       <Button
                         type="button"
@@ -1823,7 +1823,7 @@ export default function Admin() {
                         className="h-8"
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        Exporter {selectedClientIds.size > 0 && `(${selectedClientIds.size})`}
+                        Exporter {selectedClientIds.size > 0 && <span>{`(${selectedClientIds.size})`}</span>}
                       </Button>
                       <label>
                         <input
@@ -1860,7 +1860,7 @@ export default function Admin() {
                       title={t("admin.syncFromResend")}
                     >
                       {syncingFromResend ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                      {syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}
+                      <span>{syncingFromResend ? t("admin.syncingFromResend") : t("admin.syncFromResend")}</span>
                     </Button>
                     <Button
                       type="button"
@@ -1870,7 +1870,7 @@ export default function Admin() {
                       disabled={syncingReservationsToClients}
                     >
                       {syncingReservationsToClients ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserCheck className="w-4 h-4 mr-2" />}
-                      {syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}
+                      <span>{syncingReservationsToClients ? t("admin.syncingReservationsToClients") : t("admin.syncReservationsToClients")}</span>
                     </Button>
                   </div>
                 </div>
@@ -1899,7 +1899,7 @@ export default function Admin() {
                   <div className="py-8 text-center text-muted-foreground">{t("admin.emptyClients")}</div>
                 ) : filteredAndSortedClients.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground">
-                    {clientSearch.trim() ? "No clients match your search." : t("admin.emptyClients")}
+                    <span>{clientSearch.trim() ? "No clients match your search." : t("admin.emptyClients")}</span>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -2027,7 +2027,7 @@ export default function Admin() {
                     </Button>
                     <Button type="submit" disabled={savingClient}>
                       {savingClient ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                      {savingClient ? "..." : t("admin.addClient")}
+                      <span>{savingClient ? "..." : t("admin.addClient")}</span>
                     </Button>
                   </DialogFooter>
                 </form>
@@ -2056,7 +2056,7 @@ export default function Admin() {
                     </Button>
                     <Button type="submit" disabled={addFromListSaving || !addFromListText.trim()}>
                       {addFromListSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                      {addFromListSaving ? "..." : t("admin.addFromListSubmit")}
+                      <span>{addFromListSaving ? "..." : t("admin.addFromListSubmit")}</span>
                     </Button>
                   </DialogFooter>
                 </form>
@@ -2096,7 +2096,7 @@ export default function Admin() {
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {bookingDetailEditOpen ? modalLabels.modifyReservation : t("admin.reservationDetails")}
+                <span>{bookingDetailEditOpen ? modalLabels.modifyReservation : t("admin.reservationDetails")}</span>
               </DialogTitle>
             </DialogHeader>
             {bookingDetailLoading ? (
@@ -2212,12 +2212,12 @@ export default function Admin() {
                             : ""
                     }`}>
                       {bookingDetail.booking.status === "request"
-                        ? t("admin.statusRequest")
+                        ? <span>{t("admin.statusRequest")}</span>
                         : bookingDetail.booking.status === "confirmed"
-                          ? t("admin.statusConfirmed")
+                          ? <span>{t("admin.statusConfirmed")}</span>
                           : bookingDetail.booking.status === "cancelled"
-                            ? t("admin.statusCancelled")
-                            : t("admin.statusPending")}
+                            ? <span>{t("admin.statusCancelled")}</span>
+                            : <span>{t("admin.statusPending")}</span>}
                     </span>
                   </div>
                   {bookingDetail.booking.specialRequests && (
@@ -2243,7 +2243,7 @@ export default function Admin() {
                           {bookingDetail.emailStatuses.map((e) => (
                             <tr key={e.id} className="border-b">
                               <td className="p-2">{e.type}</td>
-                              <td className="p-2">{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</td>
+                              <td className="p-2"><span>{e.sentAt ? new Date(e.sentAt).toLocaleString() : "—"}</span></td>
                               <td className="p-2">{e.status ?? "—"}</td>
                             </tr>
                           ))}
