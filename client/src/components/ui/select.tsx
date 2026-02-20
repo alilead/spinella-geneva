@@ -48,6 +48,9 @@ function SelectTrigger({
   );
 }
 
+const getRadixPortalContainer = () =>
+  (typeof document !== "undefined" ? document.getElementById("radix-portals") : null) ?? undefined;
+
 function SelectContent({
   className,
   children,
@@ -56,8 +59,7 @@ function SelectContent({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (
-    <SelectPrimitive.Portal>
-      {/* translate="no" prevents browser translation from altering the portal DOM and causing removeChild errors on Android */}
+    <SelectPrimitive.Portal container={getRadixPortalContainer()}>
       <SelectPrimitive.Content
         data-slot="select-content"
         translate="no"

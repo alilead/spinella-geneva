@@ -59,10 +59,19 @@ function DialogTrigger({
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
+const getRadixPortalContainer = () =>
+  (typeof document !== "undefined" ? document.getElementById("radix-portals") : null) ?? undefined;
+
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+  return (
+    <DialogPrimitive.Portal
+      data-slot="dialog-portal"
+      container={getRadixPortalContainer()}
+      {...props}
+    />
+  );
 }
 
 function DialogClose({
