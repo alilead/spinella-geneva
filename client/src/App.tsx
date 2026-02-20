@@ -10,14 +10,15 @@ import Footer from "./components/Footer";
 import SeoHead from "./components/SeoHead";
 import Home from "./pages/Home";
 
-// Lazy-load non-home routes to reduce initial JS and TBT (code splitting)
+// Lazy-load non-home routes; Booking loaded eagerly to avoid chunk load failures on slow networks
 const Menu = lazy(() => import("./pages/Menu"));
 const Gallery = lazy(() => import("./pages/Gallery"));
 const About = lazy(() => import("./pages/About"));
 const Events = lazy(() => import("./pages/Events"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
-const Booking = lazy(() => import("./pages/Booking"));
+const Takeaway = lazy(() => import("./pages/Takeaway"));
+import Booking from "./pages/Booking";
 const Admin = lazy(() => import("./pages/Admin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -54,6 +55,7 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/booking" component={RedirectToReservations} />
           <Route path="/reservations" component={Booking} />
+          <Route path="/takeaway" component={Takeaway} />
           <Route path="/admin" component={Admin} />
           <Route path="/admin/" component={Admin} />
           <Route path="/404" component={NotFound} />

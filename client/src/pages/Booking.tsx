@@ -321,7 +321,7 @@ export default function Booking() {
                     </Label>
                     <Select
                       key={`time-${selectedDate ?? ""}`}
-                      value={safeTimeValue ?? ""}
+                      value={timeSlots.length && safeTimeValue && timeSlots.includes(safeTimeValue) ? safeTimeValue : undefined}
                       onValueChange={(value) => setValue("time", value, { shouldValidate: true })}
                     >
                       <SelectTrigger className="mt-1">
@@ -346,7 +346,7 @@ export default function Booking() {
                       {t("booking.guests")} *
                     </Label>
                     <Select
-                      value={watch("partySize") ?? ""}
+                      value={partySizes.includes(watch("partySize") ?? "") || watch("partySize") === "21" ? (watch("partySize") ?? "") : undefined}
                       onValueChange={(value) => setValue("partySize", value, { shouldValidate: true })}
                     >
                       <SelectTrigger className="mt-1">

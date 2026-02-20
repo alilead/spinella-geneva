@@ -58,12 +58,12 @@ export default function Navigation() {
               </Link>
             ))}
             <button
-              onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : "en")}
+              onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : language === "it" ? "de" : language === "de" ? "es" : "en")}
               className="flex items-center gap-1.5 text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors"
               aria-label="Switch language"
             >
               <Languages size={18} />
-              <span className="font-semibold">{language === "en" ? "EN" : language === "fr" ? "FR" : "IT"}</span>
+              <span className="font-semibold">{{ en: "EN", fr: "FR", it: "IT", de: "DE", es: "ES" }[language]}</span>
             </button>
             <Link href="/reservations">
               <Button className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold">
@@ -101,12 +101,12 @@ export default function Navigation() {
                 </Link>
               ))}
               <button
-                onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : "en")}
+                onClick={() => setLanguage(language === "en" ? "fr" : language === "fr" ? "it" : language === "it" ? "de" : language === "de" ? "es" : "en")}
                 className="flex items-center gap-2 py-3 min-h-[44px] text-left text-sm font-medium hover:text-[oklch(0.62_0.15_85)] transition-colors border-b border-border/50 w-full"
                 aria-label="Switch language"
               >
                 <Languages size={18} />
-                <span className="font-semibold">{language === "en" ? "FR" : language === "fr" ? "IT" : "EN"}</span>
+                <span className="font-semibold">{{ en: "FR", fr: "IT", it: "DE", de: "ES", es: "EN" }[language]}</span>
               </button>
               <Link href="/reservations" className="mt-4">
                 <Button

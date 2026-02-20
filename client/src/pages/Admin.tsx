@@ -118,6 +118,7 @@ export default function Admin() {
   const [syncingFromResend, setSyncingFromResend] = useState(false);
   const [selectedBookingIds, setSelectedBookingIds] = useState<Set<string>>(new Set());
   const [selectedClientIds, setSelectedClientIds] = useState<Set<string>>(new Set());
+  const [dailyListDate, setDailyListDate] = useState<string>(() => new Date().toISOString().split("T")[0]);
   const [bookingDetailId, setBookingDetailId] = useState<string | null>(null);
   const [bookingDetail, setBookingDetail] = useState<{
     booking: BookingRecord;
@@ -1095,11 +1096,16 @@ export default function Admin() {
         </p>
 
         <Tabs defaultValue="all">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 gap-1 h-auto">
             <TabsTrigger value="all" className="text-xs sm:text-sm">
               <List className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Toutes les réservations</span>
               <span className="sm:hidden">Toutes</span>
+            </TabsTrigger>
+            <TabsTrigger value="daily" className="text-xs sm:text-sm">
+              <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Réservations du jour</span>
+              <span className="sm:hidden">Jour</span>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">
               <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
@@ -1376,6 +1382,82 @@ export default function Admin() {
                 </table>
               </div>
             )}
+          </TabsContent>
+          <TabsContent value="daily" className="mt-4 sm:mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+              <Label className="text-sm text-muted-foreground">{t("admin.date")}</Label>
+              <Input
+                type="date"
+                value={dailyListDate}
+                onChange={(e) => setDailyListDate(e.target.value)}
+                className="w-full sm:w-[180px]"
+              />
+              <span className="text-sm text-muted-foreground">
+                {bookings.filter((b) => b.date === dailyListDate).length} {t("admin.reservations").toLowerCase()}
+              </span>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                {(() => {
+                  const dailyBookings = bookings
+                    .filter((b) => b.date === dailyListDate)
+                    .sort((a, b) => a.time.localeCompare(b.time));
+                  if (dailyBookings.length === 0) {
+                    return (
+                      <div className="p-4 sm:p-8 text-center text-sm text-muted-foreground">
+                        Aucune réservation pour cette date.
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs sm:text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="text-left p-2 sm:p-3 w-[50px]">{t("admin.time")}</th>
+                            <th className="text-left p-2 sm:p-3 min-w-[100px]">{t("admin.name")}</th>
+                            <th className="text-left p-2 sm:p-3 w-[40px]">{t("admin.guests")}</th>
+                            <th className="text-left p-2 sm:p-3 w-[70px]">{t("admin.status")}</th>
+                            <th className="text-left p-2 sm:p-3 w-[80px]">{t("admin.action")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dailyBookings.map((b) => (
+                            <tr key={b.id} className="border-b hover:bg-muted/30">
+                              <td className="p-2 sm:p-3 whitespace-nowrap">{b.time}</td>
+                              <td className="p-2 sm:p-3 truncate max-w-[140px]">{b.name}</td>
+                              <td className="p-2 sm:p-3">{b.partySize}</td>
+                              <td className="p-2 sm:p-3">
+                                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium ${
+                                  b.status === "confirmed" ? "bg-blue-600/20 text-blue-600" : b.status === "request" ? "bg-amber-600/20 text-amber-600" : b.status === "cancelled" ? "bg-red-600/20 text-red-600" : "bg-muted"
+                                }`}>
+                                  {b.status === "request" ? "⚠" : b.status === "pending" ? "⏳" : b.status === "cancelled" ? "❌" : "✓"}
+                                </span>
+                              </td>
+                              <td className="p-2 sm:p-3">
+                                <Button size="sm" variant="ghost" onClick={() => setBookingDetailId(b.id)} title={t("admin.viewDetails")} className="p-1 h-auto">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                {(b.status === "pending" || b.status === "request") && (
+                                  <>
+                                    <Button size="sm" variant="default" disabled={acceptingId !== null} onClick={() => handleAccept(b.id)} className="p-1 sm:px-2 h-auto ml-1" title={t("admin.accept")}>
+                                      {acceptingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                    </Button>
+                                    <Button size="sm" variant="destructive" disabled={acceptingId !== null} onClick={() => handleDecline(b.id)} className="p-1 h-auto ml-1" title={t("admin.decline")}>
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <Card>

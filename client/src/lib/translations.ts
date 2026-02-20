@@ -1,6 +1,6 @@
-export type Language = "en" | "fr" | "it";
+export type Language = "en" | "fr" | "it" | "de" | "es";
 
-/** When editing translations: update the same key in en, fr, and it so all languages stay in sync. */
+/** When editing translations: update the same key in en, fr, it, de, and es so all languages stay in sync. */
 
 export const translations = {
   en: {
@@ -12,7 +12,8 @@ export const translations = {
       about: "About",
       contact: "Contact",
       faq: "FAQ",
-      bookTable: "Book a table with us"
+      bookTable: "Book a table with us",
+      takeaway: "Take away"
     },
     home: {
       welcome: "Welcome to",
@@ -90,7 +91,7 @@ export const translations = {
       salvatoreDesc: "When Salvatore won the highest grade in the history of the European Bartender School in London, his teachers weren't surprised. They'd watched him transform cocktail-making from a technical skill into an art form—not through flashy tricks, but through genuine connection. A great bartender doesn't just mix drinks—he listens, remembers, and makes you feel like the most important person in the room. Trained at Geneva's prestigious Four Seasons Hotel des Bergues and fluent in five languages, Salvatore is a storyteller, a friend, a bridge between cultures. When you sit at Spinella's bar, he'll ask about your day, remember your name, and craft a cocktail that somehow captures exactly what you needed. That's not just skill. That's passion. That's Salvatore.",
       marco: "Marco",
       marcoTitle: "The Soul of the Kitchen",
-      marcoDesc: "Marco is the brother who pours his soul into every dish. Trained at Il Lago (Four Seasons, 1 Michelin star) and with Chef Philippe Chevrier at Domaine de Châteauvieux (2 Michelin stars), he brings world-class technique but never loses sight of what matters: making food that creates happiness. His meticulous nature isn't about perfection—it's about respect for the ingredients and the people who will enjoy them. Every plate is a work of art, prepared with the same care his grandmother taught him in Sicily. As Head Chef and co-manager, Marco ensures that from the first bite to the last, you taste the love. That's Marco.",
+      marcoDesc: "Marco is the brother for whom cooking is a way of sharing joy. He learned his first moves in his grandmother's kitchen in Sicily, then grew up between different culinary worlds: from simple, authentic trattorias to more technical and demanding kitchens. This diversity shaped his outlook, his know-how, and above all his deep respect for the product. Every experience enriched him, but it is in traditional cuisine that he finds his soul—where every gesture respects the simplicity and truth of the ingredients. Marco has that rare ability to extract the essence of an ingredient and turn it into a dish that stays in your memory. With him, you don't just eat: you feel. He creates that magic where, even in Switzerland, you feel as if you're in Italy, in a warm, sincere kitchen inherited from family recipes. As Chef and co-manager, he ensures that every plate carries the same promise: tradition can move you, and cooking can make you happy. That's Marco.",
       gabriele: "Gabriele",
       gabrieleTitle: "The Joy of Sicily",
       gabrieleDesc: "Gabriele is the brother whose love for Sicily is literally written on his skin—the island is tattooed on his arm. The youngest of the three, he works as Sous Chef alongside Marco with the enthusiasm of someone living his dream every day. Trained at Restaurant du Parc des Bastions, Gabriele brings joy and precision to every dish. His tattoo isn't just body art—it's a daily reminder of why they do this: to share the soul of their homeland with every guest. You'll find his touch in the handmade details too: the triangular shape of Sicily on our tasting boards, the handmade wall clock. That's Gabriele.",
@@ -384,7 +385,8 @@ export const translations = {
       about: "À Propos",
       contact: "Contact",
       faq: "FAQ",
-      bookTable: "Réserver une table"
+      bookTable: "Réserver une table",
+      takeaway: "À emporter"
     },
     home: {
       welcome: "Bienvenue chez",
@@ -757,7 +759,8 @@ export const translations = {
       about: "Chi Siamo",
       contact: "Contatti",
       faq: "FAQ",
-      bookTable: "Prenota un tavolo"
+      bookTable: "Prenota un tavolo",
+      takeaway: "Da asporto"
     },
     home: {
       welcome: "Benvenuti a",
@@ -836,7 +839,7 @@ export const translations = {
       salvatoreDesc: "Quando Salvatore ha ottenuto il voto più alto nella storia della European Bartender School a Londra, i suoi insegnanti non si sono stupiti. L'avevano visto trasformare l'arte del cocktail da abilità tecnica in forma d'arte—non con trucchi, ma con vera connessione. Un grande barman non mescola solo drink: ascolta, ricorda, ti fa sentire la persona più importante. Formatosi al Four Seasons Hotel des Bergues di Ginevra e fluente in cinque lingue, Salvatore è un narratore, un amico, un ponte tra culture. Al bar di Spinella ti chiederà della tua giornata, ricorderà il tuo nome e creerà un cocktail che cattura esattamente ciò di cui avevi bisogno. Non è solo talento. È passione. È Salvatore.",
       marco: "Marco",
       marcoTitle: "L'Anima della Cucina",
-      marcoDesc: "Marco è il fratello che mette l'anima in ogni piatto. Formatosi a Il Lago (Four Seasons, 1 stella Michelin) e con lo Chef Philippe Chevrier al Domaine de Châteauvieux (2 stelle), porta una tecnica di livello mondiale senza mai perdere di vista ciò che conta: fare un cibo che crea felicità. La sua meticolosità non è perfezionismo—è rispetto per gli ingredienti e per chi li assaggerà. Ogni piatto è un'opera, preparata con la stessa cura che gli ha insegnato la nonna in Sicilia. Come Chef e co-direttore, Marco fa sì che dal primo all'ultimo boccone si assaggi l'amore. È Marco.",
+      marcoDesc: "Marco è il fratello per cui la cucina è un modo di trasmettere gioia. Ha imparato i primi gesti nella cucina della nonna in Sicilia, poi è cresciuto tra mondi culinari diversi: dalle trattorie semplici e autentiche alle cucine più tecniche ed esigenti. Questa diversità ha plasmato il suo sguardo, il suo savoir-faire e soprattutto il suo profondo rispetto per il prodotto. Ogni esperienza lo ha arricchito, ma è nella cucina tradizionale che ritrova la sua anima: quella in cui ogni gesto rispetta la semplicità e la verità dei prodotti. Marco ha quella rara capacità di estrarre l'essenza di un ingrediente e trasformarla in un piatto che resta in memoria. Con lui non si mangia soltanto: si sente. Crea quella magia per cui, anche in Svizzera, si ha l'impressione di essere in Italia, in una cucina calda, sincera, ereditata dalle ricette di famiglia. Come Chef e co-direttore, fa sì che ogni piatto porti la stessa promessa: la tradizione può emozionare e la cucina può rendere felici. È Marco.",
       gabriele: "Gabriele",
       gabrieleTitle: "La Gioia della Sicilia",
       gabrieleDesc: "Gabriele è il fratello il cui amore per la Sicilia è letteralmente scritto sulla pelle—l'isola è tatuata sul suo braccio. Il più giovane dei tre, lavora come Sous Chef accanto a Marco con l'entusiasmo di chi vive il proprio sogno ogni giorno. Formatosi al Restaurant du Parc des Bastions, Gabriele porta gioia e precisione in ogni piatto. Il suo tatuaggio non è solo body art—è un promemoria quotidiano del perché lo fanno: condividere l'anima della loro terra con ogni ospite. La sua mano si vede nei dettagli: la forma triangolare della Sicilia sui nostri taglieri, l'orologio a muro fatto a mano. È Gabriele.",
@@ -1120,5 +1123,25 @@ export const translations = {
       contactUs: "Contattaci",
       bookTable: "Prenota un Tavolo"
     }
+  },
+  de: {
+    nav: { home: "Start", menu: "Menü", gallery: "Galerie", events: "Events", about: "Über uns", contact: "Kontakt", faq: "FAQ", bookTable: "Tisch reservieren", takeaway: "Takeaway" },
+    home: { welcome: "Willkommen bei", welcomeHome: "Willkommen zu Hause.", bookYourTable: "Tisch reservieren", viewMenu: "Sizilien in Genf erleben", meetBrothers: "Die Brüder treffen", visitTitle: "Besuchen Sie uns in Genf", getDirections: "Route planen" },
+    about: {
+      marco: "Marco",
+      marcoTitle: "Die Seele der Küche",
+      marcoDesc: "Marco ist der Bruder, für den das Kochen eine Art ist, Freude zu vermitteln. Er lernte seine ersten Handgriffe in der Küche seiner Großmutter in Sizilien und wuchs dann zwischen verschiedenen kulinarischen Welten auf: von einfachen, authentischen Trattorias bis zu anspruchsvolleren Küchen. Diese Vielfalt prägte seinen Blick, sein Know-how und vor allem seine tiefe Achtung vor dem Produkt. Jede Erfahrung hat ihn bereichert, aber in der traditionellen Küche findet er seine Seele – wo jede Geste die Einfachheit und Wahrheit der Zutaten respektiert. Marco hat die seltene Gabe, das Wesen einer Zutat zu extrahieren und in ein Gericht zu verwandeln, das in Erinnerung bleibt. Bei ihm isst man nicht nur: man fühlt. Er schafft diese Magie, bei der man selbst in der Schweiz das Gefühl hat, in Italien zu sein, in einer warmen, aufrichtigen Küche, die von Familienrezepten geerbt wurde. Als Küchenchef und Mitgeschäftsführer sorgt er dafür, dass jedes Gericht dasselbe Versprechen trägt: Tradition kann bewegen, und Kochen kann glücklich machen. Das ist Marco."
+    },
+    booking: { title: "Tisch reservieren", date: "Datum", time: "Uhrzeit", guests: "Personen", submit: "Reservation bestätigen", selectTime: "Uhrzeit wählen", selectGuests: "Anzahl wählen", guest: "Person", guestsPlural: "Personen" }
+  },
+  es: {
+    nav: { home: "Inicio", menu: "Menú", gallery: "Galería", events: "Eventos", about: "Nosotros", contact: "Contacto", faq: "FAQ", bookTable: "Reservar mesa", takeaway: "Para llevar" },
+    home: { welcome: "Bienvenido a", welcomeHome: "Bienvenido a casa.", bookYourTable: "Reservar mesa", viewMenu: "Vive Sicilia en Ginebra", meetBrothers: "Conocer a los hermanos", visitTitle: "Visítanos en Ginebra", getDirections: "Cómo llegar" },
+    about: {
+      marco: "Marco",
+      marcoTitle: "El alma de la cocina",
+      marcoDesc: "Marco es el hermano para quien la cocina es una forma de transmitir alegría. Aprendió sus primeros gestos en la cocina de su abuela en Sicilia y creció entre distintos universos culinarios: desde trattorias sencillas y auténticas hasta cocinas más técnicas y exigentes. Esta diversidad moldeó su mirada, su saber hacer y sobre todo su profundo respeto por el producto. Cada experiencia lo enriqueció, pero es en la cocina tradicional donde encuentra su alma: aquella en la que cada gesto respeta la sencillez y la verdad de los productos. Marco tiene esa capacidad poco común de extraer la esencia de un ingrediente y transformarla en un plato que queda en la memoria. Con él no solo se come: se siente. Crea esa magia donde, incluso en Suiza, uno tiene la impresión de estar en Italia, en una cocina cálida y sincera heredada de las recetas familiares. Como chef y codirector vela por que cada plato lleve la misma promesa: la tradición puede emocionar y la cocina puede hacer feliz. Eso es Marco."
+    },
+    booking: { title: "Reservar mesa", date: "Fecha", time: "Hora", guests: "Personas", submit: "Confirmar reserva", selectTime: "Elegir hora", selectGuests: "Elegir número", guest: "persona", guestsPlural: "personas" }
   }
 };

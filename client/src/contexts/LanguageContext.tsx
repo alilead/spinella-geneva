@@ -17,7 +17,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem("language", language);
-    document.documentElement.lang = language === "fr" ? "fr" : language === "it" ? "it" : "en";
+    const langAttr = language === "fr" ? "fr" : language === "it" ? "it" : language === "de" ? "de" : language === "es" ? "es" : "en";
+    document.documentElement.lang = langAttr;
   }, [language]);
 
   const setLanguage = (lang: Language) => {
@@ -27,12 +28,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = (key: string): string => {
     const keys = key.split(".");
     let value: any = translations[language];
-    
     for (const k of keys) {
       value = value?.[k];
     }
-    
-    return value || key;
+    if (value == null && language !== "en") {
+      let fallback: any = translations.en;
+      for (const k of keys) {
+        fallback = fallback?.[k];
+      }
+      if (fallback != null) value = fallback;
+    }
+    return value ?? key;
   };
 
   return (
