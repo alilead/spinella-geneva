@@ -145,19 +145,26 @@ export default function Admin() {
   });
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Sync selected date with calendar month
+  // Sync selected date with calendar month: when selected is outside current month, navigate calendar to that month
   useEffect(() => {
     const selectedDate = parseLocalDate(selectedCalendarDate);
     const selectedYear = selectedDate.getFullYear();
     const selectedMonth = selectedDate.getMonth();
-    
     const calendarYear = calendarMonth.getFullYear();
     const calendarMonthNum = calendarMonth.getMonth();
-    
-    // If selected date is not in the current calendar month, update calendar month
     if (selectedYear !== calendarYear || selectedMonth !== calendarMonthNum) {
       setCalendarMonth(new Date(selectedYear, selectedMonth, 1));
     }
+  }, [selectedCalendarDate, calendarMonth]);
+
+  // Scroll the selected date row into view when calendar month or selected date changes (e.g. after switching to March/April)
+  useEffect(() => {
+    const id = `date-${selectedCalendarDate}`;
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => clearTimeout(t);
   }, [selectedCalendarDate, calendarMonth]);
 
   useEffect(() => {
@@ -1580,25 +1587,35 @@ export default function Admin() {
                   </div>
                 </div>
 
-                {/* Scrollable Booking List - All Dates */}
+                {/* Scrollable Booking List - All Dates in current month; always include selected date so its row is visible */}
                 <div className="max-h-[600px] overflow-y-auto">
                   {(() => {
-                    // Get all dates with bookings for the current calendar month
-                    const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
-                    const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
-                    const monthStartStr = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}-${String(monthStart.getDate()).padStart(2, "0")}`;
-                    const monthEndStr = `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
-                    
+                    const year = calendarMonth.getFullYear();
+                    const month = calendarMonth.getMonth();
+                    const monthStart = new Date(year, month, 1);
+                    const monthEnd = new Date(year, month + 1, 0);
+                    const monthStartStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+                    const monthEndStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
+
+                    // Dates in this month that have bookings (for current view: all or requests only)
                     const allDates = Object.keys(byDate).sort();
-                    const filteredDates = allDates.filter(dateStr => {
-                      // Filter by current month
+                    const datesWithBookings = allDates.filter((dateStr) => {
                       if (dateStr < monthStartStr || dateStr > monthEndStr) return false;
-                      
                       const dayBookings = calendarView === "all"
                         ? (byDate[dateStr] ?? [])
-                        : (byDate[dateStr] ?? []).filter(b => b.status === "request" || b.status === "pending");
+                        : (byDate[dateStr] ?? []).filter((b) => b.status === "request" || b.status === "pending");
                       return dayBookings.length > 0;
                     });
+
+                    // Always include selected date if it's in the current month, so the selected day has a visible row
+                    let filteredDates = datesWithBookings;
+                    if (
+                      selectedCalendarDate >= monthStartStr &&
+                      selectedCalendarDate <= monthEndStr &&
+                      !datesWithBookings.includes(selectedCalendarDate)
+                    ) {
+                      filteredDates = [...datesWithBookings, selectedCalendarDate].sort();
+                    }
 
                     if (filteredDates.length === 0) {
                       return (
