@@ -73,6 +73,9 @@ function getAuthHeaders(token: string): HeadersInit {
 
 const POLL_INTERVAL_MS = 45_000;
 
+/** Party sizes allowed in the edit form Select; 1–20 avoids "value not in list" → removeChild on Android. */
+const ALLOWED_PARTY_SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
 export default function Admin() {
   const { t, language } = useLanguage();
 
@@ -798,9 +801,11 @@ export default function Admin() {
 
   const openEditForm = () => {
     if (!bookingDetail) return;
+    const rawParty = bookingDetail.booking.partySize || 2;
+    const partySize = Math.min(20, Math.max(1, rawParty));
     setEditDate(bookingDetail.booking.date);
     setEditTime(bookingDetail.booking.time);
-    setEditPartySize(bookingDetail.booking.partySize || 2);
+    setEditPartySize(partySize);
     setEditStatus((bookingDetail.booking.status as "confirmed" | "request" | "pending" | "cancelled") || "confirmed");
     setBookingDetailEditOpen(true);
   };
@@ -2104,14 +2109,14 @@ export default function Admin() {
                   <div className="space-y-2">
                     <Label>{t("admin.guests")}</Label>
                     <Select
-                      value={String(editPartySize)}
+                      value={ALLOWED_PARTY_SIZES.includes(editPartySize) ? String(editPartySize) : String(ALLOWED_PARTY_SIZES[0])}
                       onValueChange={(v) => setEditPartySize(parseInt(v, 10))}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20].map((n) => (
+                        {ALLOWED_PARTY_SIZES.map((n) => (
                           <SelectItem key={n} value={String(n)}>{n}</SelectItem>
                         ))}
                       </SelectContent>
@@ -2131,7 +2136,15 @@ export default function Admin() {
                   </div>
                   <div className="space-y-2">
                     <Label>{t("admin.time")}</Label>
-                    <Select value={editTime} onValueChange={setEditTime}>
+                    <Select
+                      value={(() => {
+                        const slots = editDate ? getTimeSlotsForDate(editDate) : [];
+                        const options = slots.length ? (slots.includes(editTime) ? slots : [...slots, editTime].sort()) : (editTime ? [editTime] : []);
+                        const safeValue = options.length && (options.includes(editTime) ? editTime : options[0]);
+                        return safeValue ?? "";
+                      })()}
+                      onValueChange={setEditTime}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -2139,6 +2152,9 @@ export default function Admin() {
                         {(() => {
                           const slots = editDate ? getTimeSlotsForDate(editDate) : [];
                           const options = slots.length ? (slots.includes(editTime) ? slots : [...slots, editTime].sort()) : (editTime ? [editTime] : []);
+                          if (options.length === 0) {
+                            return <SelectItem value="" disabled>—</SelectItem>;
+                          }
                           return options.map((slot) => (
                             <SelectItem key={slot} value={slot}>{slot}</SelectItem>
                           ));

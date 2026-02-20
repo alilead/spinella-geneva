@@ -19,7 +19,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Takeaway = lazy(() => import("./pages/Takeaway"));
 import Booking from "./pages/Booking";
-const Admin = lazy(() => import("./pages/Admin"));
+import Admin from "./pages/Admin";
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RedirectToReservations() {
