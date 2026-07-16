@@ -93,6 +93,7 @@ export default function Booking() {
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
   const [apiErrorDetails, setApiErrorDetails] = useState<string | null>(null);
   const [wasAutoConfirmed, setWasAutoConfirmed] = useState(false);
+  const [emailSent, setEmailSent] = useState(true);
   const [hasAllergy, setHasAllergy] = useState(false);
   const [reservationBlocks, setReservationBlocks] = useState<ReservationBlock[]>([]);
 
@@ -143,11 +144,18 @@ export default function Booking() {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
-      const json = await res.json().catch(() => ({}));
-      const serverError = typeof (json as { error?: string }).error === "string" ? (json as { error: string }).error : null;
-      const serverDetails = typeof (json as { details?: string }).details === "string" ? (json as { details: string }).details : null;
+      const json = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        confirmed?: boolean;
+        emailSent?: boolean;
+        error?: string;
+        details?: string;
+      };
+      const serverError = typeof json.error === "string" ? json.error : null;
+      const serverDetails = typeof json.details === "string" ? json.details : null;
       if (res.ok && json.success) {
         setWasAutoConfirmed(Boolean(json.confirmed));
+        setEmailSent(json.emailSent !== false);
         setIsSubmitted(true);
         toast.success(t("booking.successToast"));
       } else {
@@ -222,9 +230,11 @@ export default function Booking() {
             </h1>
             <div className="gold-divider"></div>
             <p className="text-lg mb-6">
-              <span>{wasAutoConfirmed
-                ? t("booking.bookingConfirmedDescAuto")
-                : t("booking.bookingConfirmedDesc")}</span>
+              <span>{!emailSent
+                ? t("booking.bookingConfirmedDescNoEmail")
+                : wasAutoConfirmed
+                  ? t("booking.bookingConfirmedDescAuto")
+                  : t("booking.bookingConfirmedDesc")}</span>
             </p>
             <p className="text-muted-foreground mb-8">
               {t("booking.questionsContact")}{" "}
@@ -233,7 +243,10 @@ export default function Booking() {
               </a>
             </p>
             <Button
-              onClick={() => setIsSubmitted(false)}
+              onClick={() => {
+                setIsSubmitted(false);
+                setEmailSent(true);
+              }}
               className="gold-bg text-black hover:bg-[oklch(0.52_0.15_85)] font-semibold"
             >
               {t("booking.makeAnotherBooking")}

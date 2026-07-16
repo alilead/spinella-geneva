@@ -77,12 +77,26 @@ The email template is in `server/_core/email.ts` in the `generateBookingEmailHTM
 
 ## Troubleshooting
 
+### "Failed to send confirmation email" / guest sees an error but booking exists?
+
+**Cause (fixed in code):** The API used to save the booking in Supabase first, then send the Resend email. If Resend failed (often **daily quota**), the API returned 500. Guests clicked **Confirm** again → **duplicate reservations** for the same day/time.
+
+**Current behaviour:** If the booking is saved, the guest always gets success. Email failures are logged; the form shows a soft “email pending” message. Retries within 30 minutes reuse the same booking (same email + date + time).
+
+### Hitting Resend limits?
+
+Free Resend: **100 emails/day** and **3,000/month**. BCC and `To` each count. Deposit / newsletter campaigns can burn the daily quota and then booking confirmations fail.
+
+1. Open [resend.com/overview](https://resend.com/overview) and check **Usage** / daily quota.
+2. In Vercel logs, look for `[booking] Guest confirmation email failed` and `quota`.
+3. Upgrade Resend, or wait for the daily reset, and avoid bulk sends on the same API key as bookings.
+
 ### Emails not sending?
 
-1. Check that `RESEND_API_KEY` is set in your `.env` file
+1. Check that `RESEND_API_KEY` is set in Vercel (Production) and `.env` locally
 2. Verify the API key is valid in Resend dashboard
 3. Check server logs for error messages
-4. Ensure your domain is verified (for production)
+4. Ensure your domain (`spinella.ch`) is verified for production
 
 ### Emails going to spam?
 
@@ -93,12 +107,11 @@ The email template is in `server/_core/email.ts` in the `generateBookingEmailHTM
 
 ## Cost
 
-Resend pricing (as of 2024):
+Resend pricing:
 - **Free**: 100 emails/day, 3,000/month
-- **Pro**: $20/month for 50,000 emails
-- **Enterprise**: Custom pricing
+- **Pro**: paid plans remove the daily cap (see [resend.com/pricing](https://resend.com/pricing))
 
-For a restaurant with ~10-20 bookings per day, the free tier is sufficient.
+For a restaurant with ~10–20 bookings/day, free tier is usually enough **unless** you also send deposit campaigns or newsletters from the same account.
 
 ## Support
 

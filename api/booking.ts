@@ -15,6 +15,38 @@ import { sendPushToAllSubscriptions } from "./_lib/pushSend.js";
 const FROM = "Spinella Geneva <info@spinella.ch>";
 const BCC = "info@spinella.ch";
 
+/** Same guest + slot within this window = retry, not a new booking (stops duplicate rows). */
+const DUPLICATE_WINDOW_MS = 30 * 60 * 1000;
+
+function resendErrorInfo(err: unknown): { message: string; isQuota: boolean; isRateLimit: boolean } {
+  const e = err as { message?: string; name?: string; statusCode?: number } | null;
+  const message = [e?.name, e?.message].filter(Boolean).join(": ") || String(err);
+  const lower = message.toLowerCase();
+  const isQuota =
+    lower.includes("daily_quota") ||
+    lower.includes("monthly_quota") ||
+    lower.includes("quota exceeded");
+  const isRateLimit =
+    e?.statusCode === 429 ||
+    lower.includes("rate_limit") ||
+    lower.includes("too many requests") ||
+    isQuota;
+  return { message, isQuota, isRateLimit };
+}
+
+async function sendWithRetry(
+  send: () => Promise<{ data: unknown; error: unknown }>
+): Promise<{ data: unknown; error: unknown; retried: boolean }> {
+  let result = await send();
+  if (!result.error) return { ...result, retried: false };
+  const info = resendErrorInfo(result.error);
+  if (!info.isRateLimit) return { ...result, retried: false };
+  // Brief backoff: helps when deposit campaigns or bursts hit Resend's 10 req/s or daily quota edge.
+  await new Promise((r) => setTimeout(r, 1200));
+  result = await send();
+  return { ...result, retried: true };
+}
+
 function formatDate(iso: string): string {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-GB", {
@@ -198,37 +230,78 @@ export default async function handler(
       });
       return;
     }
-    const { data: inserted, error: insertErr } = await supabase
+    // Deduplicate: guest retries after "Failed to send confirmation email" used to create
+    // many identical rows for the same date/time (the booking was already saved before email).
+    const sinceIso = new Date(Date.now() - DUPLICATE_WINDOW_MS).toISOString();
+    const { data: existingRows } = await supabase
       .from(BOOKINGS_TABLE)
-      .insert({
-        name,
+      .select("id, status, sent_emails, created_at")
+      .eq("email", email)
+      .eq("date", date)
+      .eq("time", time)
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    const existing = (existingRows?.[0] ?? null) as {
+      id: string;
+      status: string;
+      sent_emails?: { id?: string; type?: string }[] | null;
+      created_at?: string;
+    } | null;
+
+    let bookingId: string;
+    let reusedExisting = false;
+    let skipPush = false;
+
+    if (existing?.id) {
+      bookingId = existing.id;
+      reusedExisting = true;
+      skipPush = true;
+      console.warn(
+        "[booking] Reusing recent duplicate booking",
+        bookingId,
         email,
-        phone,
         date,
         time,
-        party_size: partySize,
-        special_requests: specialRequests ?? null,
-        dietary_requirements: dietaryRequirements ?? null,
-        status,
-      })
-      .select("id")
-      .single();
-    if (insertErr || !inserted) {
-      const errMsg = insertErr?.message ?? "";
-      const errCode = (insertErr as { code?: string } | null)?.code ?? "";
-      console.error("[booking] Supabase insert failed:", errCode, errMsg, insertErr);
-      // Prefer generic message; hint for missing column (common schema drift)
-      const isSchemaError = /column .* does not exist|relation .* does not exist/i.test(errMsg);
-      res.status(500).json({
-        error: "Failed to save reservation",
-        ...(isSchemaError && { details: "Database schema may be out of date. Check SUPABASE_SETUP.md and run the bookings table migrations." }),
-      });
-      return;
+        existing.created_at
+      );
+    } else {
+      const { data: inserted, error: insertErr } = await supabase
+        .from(BOOKINGS_TABLE)
+        .insert({
+          name,
+          email,
+          phone,
+          date,
+          time,
+          party_size: partySize,
+          special_requests: specialRequests ?? null,
+          dietary_requirements: dietaryRequirements ?? null,
+          status,
+        })
+        .select("id")
+        .single();
+      if (insertErr || !inserted) {
+        const errMsg = insertErr?.message ?? "";
+        const errCode = (insertErr as { code?: string } | null)?.code ?? "";
+        console.error("[booking] Supabase insert failed:", errCode, errMsg, insertErr);
+        const isSchemaError = /column .* does not exist|relation .* does not exist/i.test(errMsg);
+        res.status(500).json({
+          error: "Failed to save reservation",
+          ...(isSchemaError && {
+            details:
+              "Database schema may be out of date. Check SUPABASE_SETUP.md and run the bookings table migrations.",
+          }),
+        });
+        return;
+      }
+      bookingId = (inserted as { id: string }).id;
     }
-    const bookingId = (inserted as { id: string }).id;
+
     const { error: clientErr } = await supabase.from(CLIENTS_TABLE).upsert(
       { name, email, phone: phone || null, source: "booking" },
-      { onConflict: "email", doUpdate: { name, phone: phone || null, updated_at: new Date().toISOString() } }
+      { onConflict: "email" }
     );
     if (clientErr) console.error("[booking] Clients upsert failed:", clientErr);
 
@@ -239,66 +312,99 @@ export default async function handler(
       await supabase.from(BOOKINGS_TABLE).update({ sent_emails: next }).eq("id", bookingId);
     };
 
-    // Then send email(s).
-    if (requestOnly) {
-      const { data: sendData, error: err1 } = await resend.emails.send({
-        from: FROM,
-        to: [email],
-        bcc: [BCC],
-        subject: isValentines ? `Demande en attente – Spinella Geneva` : `Booking Request - ${name}`,
-        html: isValentines ? valentinesRequestReceivedEmailHtml(name) : guestEmailHtml(data),
-      });
-      if (err1) {
-        console.error("[booking] Guest email failed:", err1);
-        res.status(500).json({ error: "Failed to send request email" });
-        return;
-      }
-      const resendId = (sendData as { id?: string })?.id;
-      if (resendId) await appendSentEmail(resendId, "request");
-    } else {
-      const { data: sendData, error: err1 } = await resend.emails.send({
-        from: FROM,
-        to: [email],
-        subject: `Réservation confirmée – Spinella Genève`,
-        html: confirmedEmailHtml(data),
-      });
-      if (err1) {
-        console.error("[booking] Guest confirmation email failed:", err1);
-        res.status(500).json({ error: "Failed to send confirmation email" });
-        return;
-      }
-      const resendId = (sendData as { id?: string })?.id;
-      if (resendId) await appendSentEmail(resendId, "confirmation");
-      if (restaurantEmail) {
-        const { error: err2 } = await resend.emails.send({
-          from: FROM,
-          to: [restaurantEmail],
-          subject: `[Spinella] Nouvelle réservation (confirmée) : ${name} – ${date} ${time}`,
-          html: restaurantEmailHtml(data),
-        });
-        if (err2) console.error("[booking] Restaurant email failed:", err2);
+    const alreadySentGuest =
+      Array.isArray(existing?.sent_emails) &&
+      existing!.sent_emails!.some((e) =>
+        requestOnly ? e?.type === "request" : e?.type === "confirmation" || e?.type === "confirmed"
+      );
+
+    let emailSent = alreadySentGuest;
+    let emailError: string | null = null;
+
+    // Guest email — never fail the reservation if Resend is down / out of quota.
+    // (Old behaviour returned 500 after insert → guest retried → duplicate bookings for days.)
+    if (!alreadySentGuest) {
+      if (requestOnly) {
+        const { data: sendData, error: err1 } = await sendWithRetry(() =>
+          resend.emails.send({
+            from: FROM,
+            to: [email],
+            bcc: [BCC],
+            subject: isValentines ? `Demande en attente – Spinella Geneva` : `Booking Request - ${name}`,
+            html: isValentines ? valentinesRequestReceivedEmailHtml(name) : guestEmailHtml(data),
+          })
+        );
+        if (err1) {
+          const info = resendErrorInfo(err1);
+          emailError = info.message;
+          console.error(
+            "[booking] Guest request email failed:",
+            info.message,
+            info.isQuota ? "(Resend quota — check https://resend.com/overview)" : "",
+            err1
+          );
+        } else {
+          emailSent = true;
+          const resendId = (sendData as { id?: string })?.id;
+          if (resendId) await appendSentEmail(resendId, "request");
+        }
+      } else {
+        const { data: sendData, error: err1 } = await sendWithRetry(() =>
+          resend.emails.send({
+            from: FROM,
+            to: [email],
+            bcc: [BCC],
+            subject: `Réservation confirmée – Spinella Genève`,
+            html: confirmedEmailHtml(data),
+          })
+        );
+        if (err1) {
+          const info = resendErrorInfo(err1);
+          emailError = info.message;
+          console.error(
+            "[booking] Guest confirmation email failed:",
+            info.message,
+            info.isQuota ? "(Resend quota — check https://resend.com/overview)" : "",
+            err1
+          );
+        } else {
+          emailSent = true;
+          const resendId = (sendData as { id?: string })?.id;
+          if (resendId) await appendSentEmail(resendId, "confirmation");
+        }
       }
     }
 
-    if (requestOnly && restaurantEmail) {
+    // Restaurant notification (skip if BCC already went to info@ via guest email, unless custom RESTAURANT_EMAIL)
+    if (restaurantEmail && restaurantEmail.toLowerCase() !== BCC.toLowerCase()) {
       const { error: err2 } = await resend.emails.send({
         from: FROM,
         to: [restaurantEmail],
-        subject: `[Spinella] Demande de réservation : ${name} – ${date} ${time}`,
+        subject: requestOnly
+          ? `[Spinella] Demande de réservation : ${name} – ${date} ${time}`
+          : `[Spinella] Nouvelle réservation (confirmée) : ${name} – ${date} ${time}`,
         html: restaurantEmailHtml(data),
       });
       if (err2) console.error("[booking] Restaurant email failed:", err2);
     }
 
-    // Notify admin PWA/desktop via push (works when admin app is closed)
-    sendPushToAllSubscriptions({
-      title: "Spinella",
-      body: `Nouvelle réservation : ${name} – ${date} ${time}`,
-      url: "/admin",
-      tag: "spinella-new-booking",
-    }).catch((err) => console.error("[booking] Push notification failed:", err));
+    if (!skipPush) {
+      sendPushToAllSubscriptions({
+        title: "Spinella",
+        body: `Nouvelle réservation : ${name} – ${date} ${time}`,
+        url: "/admin",
+        tag: "spinella-new-booking",
+      }).catch((err) => console.error("[booking] Push notification failed:", err));
+    }
 
-    res.status(200).json({ success: true, confirmed: !requestOnly });
+    const confirmed = existing ? existing.status === "confirmed" : !requestOnly;
+    res.status(200).json({
+      success: true,
+      confirmed,
+      emailSent,
+      ...(emailError && !emailSent ? { emailWarning: "confirmation_email_failed" } : {}),
+      ...(reusedExisting ? { reused: true } : {}),
+    });
   } catch (err) {
     console.error("[booking] Error:", err);
     res.status(500).json({ error: "Failed to process booking" });
